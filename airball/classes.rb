@@ -1,5 +1,7 @@
 module Airball
   class Scope
+    attr_reader :vars
+
     def initialize(parent=nil, closure=nil)
       @parent = parent
       @closure = closure
@@ -71,7 +73,7 @@ module Airball
 
     def call(args, scope)
       scope = Scope.new(scope, @cscope)
-      args.map! { |a| a.eval(scope) }
+      args = args.map { |a| a.eval(scope) }
       @args.each_with_index { |a, i| scope[a] = args[i] }
       if @body_proc
         @body_proc.call(scope, *args)

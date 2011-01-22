@@ -56,4 +56,11 @@ class EvalTest < Test::Unit::TestCase
     output = execute("if 1 > 2 { out 3 } { out 4 }")
     assert_equal "4\n", output
   end
+
+  def test_factorial
+    output = execute("fact = [x] { if x == 1 x { x * (fact x - 1) } }
+                      out (fact 5)")
+    assert_equal "120\n", output
+  end
+
 end
