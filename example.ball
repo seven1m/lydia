@@ -8,5 +8,7 @@ out (bar 3 9)
 out 9
 out x
 
-fact = [x] { if x == 1 x { x * (fact x - 1) } }
+fact = [x] { if x == 1,
+                x,
+                { x * (fact x - 1) } }
 out (fact 20)
