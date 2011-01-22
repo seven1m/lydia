@@ -14,6 +14,7 @@ module Airball
       @source = source
       build_scope(args)
       build_functions
+      load_library
     end
 
     attr_accessor :scope
@@ -24,12 +25,24 @@ module Airball
       @scope["stdout"] = $stdout  # TODO implement as Airball::File
     end
 
-    def run
-      body = @transform.apply(@parser.parse(@source))
-      body.each do |expr|
-        expr.eval(@scope)
-      end
+    def load_library
+      lib_source = File.read(File.expand_path("../airball/library.ball", __FILE__))
+      execute(lib_source)
     end
+
+    def run
+      execute(@source)
+    end
+
+    private
+
+      def execute(source)
+        body = @transform.apply(@parser.parse(source))
+        body[0..-2].each do |expr|
+          expr.eval(@scope)
+        end
+        body.last.eval(@scope) # return last expression
+      end
   end
 
 end

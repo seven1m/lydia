@@ -91,7 +91,7 @@ class ParserTest < Test::Unit::TestCase
     assert_equal expected, actual
   end
 
-  def test_assign
+  def test_assigns
     expected = [
       {:assign => {:name => "foo",
                    :val => {:integer => "3"}}},
@@ -99,9 +99,11 @@ class ParserTest < Test::Unit::TestCase
                    :val => {:var => "foo"}}},
       {:assign => {:name => "baz",
                    :val => {:call => {:name => "bap",
-                                      :args => [{:integer => "3"}]}}}}
+                                      :args => [{:integer => "3"}]}}}},
+      {:assign => {:name => "^",
+                   :val => {:var => "func"}}}
     ]
-    actual = parse("foo = 3\nbar = foo\nbaz = bap 3")
+    actual = parse("foo = 3\nbar = foo\nbaz = bap 3\n^ = func")
     assert_equal expected, actual
   end
 

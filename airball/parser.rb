@@ -28,7 +28,7 @@ module Airball
 
     rule(:assign) do
       (
-        identifier.as(:name) >> space >>
+        (identifier | symbol).as(:name) >> space >>
         str("=") >> space >>
         (icall | expr).as(:val) >>
         space? >> newline?
