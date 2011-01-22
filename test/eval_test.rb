@@ -40,4 +40,20 @@ class EvalTest < Test::Unit::TestCase
                       out (closure 10)")
     assert_equal "12\n", output
   end
+
+  def test_bool
+    output = execute("out 1 == 1")
+    assert_equal "true\n", output
+    output = execute("out 1 == 2")
+    assert_equal "false\n", output
+    output = execute("out true")
+    assert_equal "true\n", output
+    output = execute("out false")
+    assert_equal "false\n", output
+  end
+
+  def test_if
+    output = execute("if 1 > 2 { out 3 } { out 4 }")
+    assert_equal "4\n", output
+  end
 end

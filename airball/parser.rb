@@ -3,7 +3,7 @@ require 'parslet'
 module Airball
   class Parser < Parslet::Parser
 
-    SYMBOL_CHARS = "~`!\?@\\#\\$%\\^&\\*\\-_\\+|/,."
+    SYMBOL_CHARS = "~`!\?@\\#\\$%\\^&\\*\\-_\\+|/,.<>"
 
     rule(:space)      { match(' ').repeat(1) }
     rule(:space?)     { space.maybe }
@@ -22,7 +22,8 @@ module Airball
     end
 
     rule(:symbol) do
-      match("[#{SYMBOL_CHARS}]").repeat(1)
+      match("[#{SYMBOL_CHARS}]").repeat(1) |
+      match("[#{SYMBOL_CHARS}=]").repeat(2)
     end
 
     rule(:assign) do

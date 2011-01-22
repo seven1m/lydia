@@ -18,6 +18,14 @@ class ParserTest < Test::Unit::TestCase
     assert_equal expected, actual
   end
 
+  def test_non_assign_symbols
+    expected = [
+      {:op => {:left => {:integer => "1"}, :symbol => "==", :right => {:integer => "1"}}}
+    ]
+    actual = parse("1 == 1")
+    assert_equal expected, actual
+  end
+
   def test_simple_call
     expected = [
       {:call => {:name => "foo", :args => [{:integer => "1"}, {:integer => "2"}]}},

@@ -32,6 +32,34 @@ module Airball
     end
   end
 
+  class True < Obj
+    def eval(scope)
+      self
+    end
+
+    def val
+      true
+    end
+
+    def to_s
+      "true"
+    end
+  end
+
+  class False < Obj
+    def eval(scope)
+      self
+    end
+
+    def val
+      false
+    end
+
+    def to_s
+      "false"
+    end
+  end
+
   class Function < Obj
     attr_accessor :args, :cscope
 
