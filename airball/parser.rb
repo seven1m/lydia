@@ -48,6 +48,7 @@ module Airball
 
     # line expression
     rule(:lexpr) do
+      space? >> newline |
       space? >> (
         icall  |
         assign |

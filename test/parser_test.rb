@@ -10,6 +10,20 @@ class ParserTest < Test::Unit::TestCase
     @parser.parse(body)
   end
 
+  def test_empty_line
+    expected = "\n"
+    actual = parse("\n")
+    assert_equal expected, actual
+  end
+
+  def test_int
+    expected = [
+      {:integer => "2"}
+    ]
+    actual = parse("2")
+    assert_equal expected, actual
+  end
+
   def test_op
     expected = [
       {:op => {:left => {:var => "x"}, :symbol => "*", :right => {:integer => "3"}}}
