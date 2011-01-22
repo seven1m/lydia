@@ -17,12 +17,28 @@ module Airball
       Call.new(name, args)
     end
 
+    rule :call => {:name => simple(:name)} do
+      Call.new(name, [])
+    end
+
     rule :op => {:left => subtree(:left), :symbol => simple(:op), :right => subtree(:right)} do
       Call.new(op, [left, right])
     end
 
     rule :assign => {:name => simple(:name), :val => subtree(:val)} do
       Assign.new(name, val)
+    end
+
+    rule :arg => simple(:arg) do
+      arg
+    end
+
+    rule :func => {:args => sequence(:args), :body => subtree(:body)} do
+      Function.new(args, body)
+    end
+
+    rule :func => {:body => subtree(:body)} do
+      Function.new([], body)
     end
 
     rule :var => simple(:name) do

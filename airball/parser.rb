@@ -11,6 +11,8 @@ module Airball
     rule(:newline)    { str("\n") }
     rule(:newline?)   { newline.maybe }
 
+    rule(:ns?)        { (space | newline).repeat }
+
     rule(:integer) do
       match('[0-9]').repeat(1)
     end
@@ -26,7 +28,7 @@ module Airball
     rule(:assign) do
       identifier.as(:name) >> space >>
       str("=") >> space >>
-      (expr | atom).as(:val) >>
+      expr.as(:val) >>
       space? >> newline?
     end
 
@@ -36,19 +38,43 @@ module Airball
 
     rule(:expr) do
       op.as(:op) >> newline? |
-      call.as(:call) >> newline?
+      call.as(:call) >> newline? |
+      atom >> newline?
     end
 
     rule(:call) do
-      identifier.as(:name) >> (space >> (op.as(:op) | atom)).repeat(1).as(:args)
+      identifier.as(:name) >>
+      (space >> (call_with_parens.as(:call) |
+                 op.as(:op) |
+                 atom)
+      ).repeat(1).as(:args) |
+      call_with_parens
+    end
+
+    rule(:call_with_parens) do
+      str("(") >> (call | op | identifier) >> str(")")
+    end
+
+    rule(:func) do
+      (
+        str("[") >> space? >>
+        (
+          identifier.as(:arg) >>
+          (space >> identifier.as(:arg)).repeat
+        ).as(:args) >> space? >>
+        str("]") >> space?
+      ).maybe >>
+      str("{") >> ns? >>
+      body.as(:body) >>
+      ns? >> str("}")
     end
 
     rule(:atom) do
-      identifier.as(:var) | integer.as(:integer)
+      identifier.as(:var) | integer.as(:integer) | func.as(:func)
     end
 
     rule(:body) do
-      (assign.as(:assign) | expr).repeat(1)
+      (assign.as(:assign) | expr).repeat(1) # TODO move assign into expr
     end
 
     root :body

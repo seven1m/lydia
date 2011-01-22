@@ -30,17 +30,31 @@ module Airball
   end
 
   class Function < Obj
+    attr_accessor :args
+
     def initialize(args, body=nil, &body_proc)
       @args = args
       @body = body
       @body_proc = body_proc
     end
 
+    # TODO functions are not yet closures
     def call(args, scope)
       scope = Scope.new(scope)
       args.map! { |a| a.eval(scope) }
       @args.each_with_index { |a, i| scope[a] = args[i] }
-      @body_proc.call(scope, *args)
+      if @body_proc
+        @body_proc.call(scope, *args)
+      else
+        @body[0..-2].each do |expr|
+          expr.eval(scope)
+        end
+        @body.last.eval(scope) # return last result from function
+      end
+    end
+
+    def eval(scope)
+      self
     end
   end
 

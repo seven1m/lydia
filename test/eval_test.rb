@@ -21,4 +21,15 @@ class EvalTest < Test::Unit::TestCase
     assert_equal 1, @program.scope["foo"].val
   end
 
+  def test_func
+    output = execute("foo = { 2 * 3 }\nout (foo)")
+    assert_instance_of Airball::Function, @program.scope["foo"]
+    assert_equal "6\n", output
+  end
+
+  def test_func_with_args
+    output = execute("foo = [x y] { x - y }\nz = foo 4 3\nout z")
+    assert_instance_of Airball::Function, @program.scope["foo"]
+    assert_equal "1\n", output
+  end
 end
