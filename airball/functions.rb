@@ -5,20 +5,20 @@ module Airball
         @scope["stdout"].write scope["expr"].eval(scope).to_s + "\n"
       end
 
-      @scope["+"] = Function.new(["left", "right"]) do |scope|
-        scope["left"].eval(scope) + scope["right"].eval(scope)
+      @scope["+"] = Function.new(["left", "right"]) do |scope, left, right|
+        Int.new(left.val + right.val)
       end
 
-      @scope["-"] = Function.new(["left", "right"]) do |scope|
-        scope["left"].eval(scope) - scope["right"].eval(scope)
+      @scope["-"] = Function.new(["left", "right"]) do |scope, left, right|
+        Int.new(left.val - right.val)
       end
 
-      @scope["*"] = Function.new(["left", "right"]) do |scope|
-        scope["left"].eval(scope) * scope["right"].eval(scope)
+      @scope["*"] = Function.new(["left", "right"]) do |scope, left, right|
+        Int.new(left.val * right.val)
       end
 
-      @scope["/"] = Function.new(["left", "right"]) do |scope|
-        scope["left"].eval(scope) / scope["right"].eval(scope)
+      @scope["/"] = Function.new(["left", "right"]) do |scope, left, right|
+        Int.new(left.val / right.val)
       end
     end
   end

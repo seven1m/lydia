@@ -17,8 +17,8 @@ class EvalTest < Test::Unit::TestCase
 
   def test_assign
     execute("foo = 1")
-    #assert_instance_of Airball::Int, @program.scope["foo"]
-    assert_equal 1, @program.scope["foo"]
+    assert_instance_of Airball::Int, @program.scope["foo"]
+    assert_equal 1, @program.scope["foo"].val
   end
 
 end

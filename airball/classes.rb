@@ -15,13 +15,18 @@ module Airball
   end
 
   class Obj
-    def eval(scope)
-      @val
-    end
   end
 
   class Int < Obj
     iattr :val
+
+    def eval(scope)
+      self
+    end
+
+    def to_s
+      val.to_s
+    end
   end
 
   class Function < Obj
@@ -33,8 +38,9 @@ module Airball
 
     def call(args, scope)
       scope = Scope.new(scope)
+      args.map! { |a| a.eval(scope) }
       @args.each_with_index { |a, i| scope[a] = args[i] }
-      @body_proc.call(scope)
+      @body_proc.call(scope, *args)
     end
   end
 
