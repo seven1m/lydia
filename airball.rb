@@ -8,25 +8,27 @@ module Airball
   class Program
     include Functions
 
-    def initialize(source)
+    def initialize(source, args=[])
       @parser = Parser.new
       @transform = Transform.new
       @source = source
+      build_scope(args)
+      build_functions
     end
 
-    def build_scope
+    attr_accessor :scope
+
+    def build_scope(args)
       @scope = Scope.new
-      @scope["stdout"] = ""
+      @scope["pargs"] = args      # TODO implement as Airball::List
+      @scope["stdout"] = $stdout  # TODO implement as Airball::File
     end
 
     def run
-      build_scope
-      build_functions
       body = @transform.apply(@parser.parse(@source))
       body.each do |expr|
         expr.eval(@scope)
       end
-      @scope["stdout"]
     end
   end
 

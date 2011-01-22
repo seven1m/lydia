@@ -50,7 +50,11 @@ module Airball
     end
   end
 
-  class Var < Obj
+  class Assign < Obj
     iattr :name, :val
+
+    def eval(scope)
+      scope[name] = val.eval(scope)
+    end
   end
 end

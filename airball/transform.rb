@@ -21,16 +21,8 @@ module Airball
       Call.new(op, [left, right])
     end
 
-    #rule :expr => subtree(:expr) do
-      #Expr.new(expr)
-    #end
-
-    #rule :var => simple(:name) do
-      #Identifier.new(name)
-    #end
-
-    #rule sequence(:body) do
-      #Program.new(body)
-    #end
+    rule :assign => {:name => simple(:name), :val => subtree(:val)} do
+      Assign.new(name, val)
+    end
   end
 end

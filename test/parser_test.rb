@@ -1,22 +1,13 @@
 require File.expand_path('../../airball', __FILE__)
 require 'test/unit'
 
-class AirballTest < Test::Unit::TestCase
+class ParserTest < Test::Unit::TestCase
   def setup
     @parser = Airball::Parser.new
-    @transform = Airball::Transform.new
   end
 
   def parse(body)
     @parser.parse(body)
-  end
-
-  def transform(body)
-    @transform.apply(parse(body))
-  end
-
-  def execute(body)
-    Airball::Program.new(body).run
   end
 
   def test_simple_expr
@@ -45,16 +36,17 @@ class AirballTest < Test::Unit::TestCase
     assert_equal expected, actual
   end
 
-  def test_transform
-    t = transform("foo 2 * 3\nbar 4")
-    assert Airball::Call === t[0]
-    assert Airball::Call === t[1]
-  end
-
-  def test_execute
-    expected = "6\n9\n"
-    actual = execute("out 2 * 3\nout 4 + 5")
+  def test_assign
+    expected = [
+      {:assign => {:name => "foo",
+                   :val => {:integer => "3"}}},
+      {:assign => {:name => "bar",
+                   :val => {:var => "foo"}}},
+      {:assign => {:name => "baz",
+                   :val => {:call => {:name => "bap",
+                                      :args => [{:integer => "3"}]}}}}
+    ]
+    actual = parse("foo = 3\nbar = foo\nbaz = bap 3")
     assert_equal expected, actual
   end
-
 end

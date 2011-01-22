@@ -24,7 +24,10 @@ module Airball
     end
 
     rule(:assign) do
-      identifier >> space >> str("=") >> space >> expr
+      identifier.as(:name) >> space >>
+      str("=") >> space >>
+      (expr | atom).as(:val) >>
+      space? >> newline?
     end
 
     rule(:op) do
@@ -37,7 +40,7 @@ module Airball
     end
 
     rule(:call) do
-      identifier.as(:name) >> (space >> (op.as(:op) | atom)).repeat.as(:args)
+      identifier.as(:name) >> (space >> (op.as(:op) | atom)).repeat(1).as(:args)
     end
 
     rule(:atom) do
