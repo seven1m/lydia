@@ -63,4 +63,14 @@ class EvalTest < Test::Unit::TestCase
     assert_equal "120\n", output
   end
 
+  def test_scoping
+    output = execute("x = 0
+                      f = { x }
+                      g = { x = 1
+                            (f) }
+                      out (g)
+                      out x")
+    assert_equal "1\n0\n", output
+  end
+
 end
