@@ -1,19 +1,47 @@
 #!/usr/bin/env ruby
 
-unless ARGV.any?
-  puts "usage: airball script.ball [args]"
+require 'optparse'
+
+options = {}
+
+optparse = OptionParser.new do |opts|
+  opts.banner = "usage: airball [options] script.ball [args]\n" +
+                "       airball [options] -e source"
+
+  opts.on("-e", "--execute source", "Code to execute") do |source|
+    options["source"] = source
+  end
+
+  opts.on("-h", "--help", "Display this screen") do
+    puts opts
+    puts
+    exit
+  end
+end
+
+optparse.parse!
+
+unless ARGV.any? or options["source"]
+  puts optparse
+  puts
   exit(1)
 end
 
 args = ARGV
-script = args.shift
 
-unless File.exist?(script)
-  puts "Script '#{script}' cannot be found."
-  exit(2)
+if options["source"]
+  source = options["source"]
+else
+  script = args.shift
+  source = File.read(script)
+
+  unless File.exist?(script)
+    puts "Script '#{script}' cannot be found."
+    exit(2)
+  end
 end
 
 require File.expand_path('../../airball', __FILE__)
 
-program = Airball::Program.new(File.read(script), args)
+program = Airball::Program.new(source, args)
 program.run
