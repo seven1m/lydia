@@ -90,7 +90,7 @@ class ParserTest < Test::Unit::TestCase
     assert_equal expected, actual
   end
 
-  def test_func_with_args
+  def test_func_with_multiple_args
     expected = [
       {:func => {:args => [{:arg => "x"},
                            {:arg => "y"}],
@@ -101,6 +101,19 @@ class ParserTest < Test::Unit::TestCase
     actual = parse("[x y] { foo x y }")
     assert_equal expected, actual
     actual = parse("[ x y ]{\n foo x y\n }")
+    assert_equal expected, actual
+  end
+
+  def test_func_with_single_arg
+    expected = [
+      {:func => {:args => [{:arg => "x"}],
+                 :body => [{:call => {:name => "foo",
+                                      :args => [{:var => "x"},
+                                                {:var => "y"}]}}]}}
+    ]
+    actual = parse("[x] { foo x y }")
+    assert_equal expected, actual
+    actual = parse("[ x ]{\n foo x y\n }")
     assert_equal expected, actual
   end
 
@@ -115,6 +128,27 @@ class ParserTest < Test::Unit::TestCase
                                                           {:var => "y"}]}}]}}}}
     ]
     actual = parse("foo = [x y] { bar x y }")
+    assert_equal expected, actual
+  end
+
+  def test_func_return_func
+    expected = [
+      {:func => {:body => [{:func => {:args => [{:arg => "x"}],
+                                      :body => [{:integer => "1"}]}}]}}
+    ]
+    actual = parse("{ [x] { 1 } }")
+    assert_equal expected, actual
+  end
+
+  def test_leading_space_on_line
+    expected = [
+      {:var => "x"},
+      {:var => "y"},
+      {:var => "z"}
+    ]
+    actual = parse("x
+                    y
+                    z")
     assert_equal expected, actual
   end
 end

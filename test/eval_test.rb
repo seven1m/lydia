@@ -22,7 +22,7 @@ class EvalTest < Test::Unit::TestCase
   end
 
   def test_func
-    output = execute("foo = { 2 * 3 }\nout (foo)")
+    output = execute("foo = { x = 2\nx * 3 }\nout (foo)")
     assert_instance_of Airball::Function, @program.scope["foo"]
     assert_equal "6\n", output
   end

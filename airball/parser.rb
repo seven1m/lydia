@@ -47,7 +47,7 @@ module Airball
 
     # line expression
     rule(:lexpr) do
-      (
+      space? >> (
         icall  |
         assign |
         expr
@@ -86,7 +86,7 @@ module Airball
       (
         str("[") >> space? >>
         (
-          identifier.as(:arg) >>
+          identifier.as(:arg).repeat(1, 1) >>
           (space >> identifier.as(:arg)).repeat
         ).as(:args) >> space? >>
         str("]") >> space?
