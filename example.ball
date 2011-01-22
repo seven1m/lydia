@@ -1,0 +1,12 @@
+x = 10
+out 8 * 2
+foo = { 2 * 3 }
+bar = [x y] { z = x * x
+              z + y }
+out (foo)
+out (bar 3 9)
+out 9
+out x
+
+fact = [x] { if x == 1 x { x * (fact x - 1) } }
+out (fact 20)
