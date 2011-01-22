@@ -37,7 +37,7 @@ module Airball
 
     rule(:operand) do
       atom |
-      str("(") >> op >> str(")")
+      str("(") >> (op | icall) >> str(")")
     end
 
     rule(:op) do
