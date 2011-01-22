@@ -14,7 +14,7 @@ module Airball
     rule(:ns?)        { (space | newline).repeat }
 
     rule(:integer) do
-      match('[0-9]').repeat(1)
+      match('[0-9]').repeat(1).as(:integer)
     end
 
     rule(:identifier) do
@@ -26,33 +26,60 @@ module Airball
     end
 
     rule(:assign) do
-      identifier.as(:name) >> space >>
-      str("=") >> space >>
-      expr.as(:val) >>
-      space? >> newline?
+      (
+        identifier.as(:name) >> space >>
+        str("=") >> space >>
+        (icall | expr).as(:val) >>
+        space? >> newline?
+      ).as(:assign)
+    end
+
+    rule(:operand) do
+      atom |
+      str("(") >> op >> str(")")
     end
 
     rule(:op) do
-      atom.as(:left) >> space >> symbol.as(:symbol) >> space >> atom.as(:right)
+      (
+        operand.as(:left) >> space >> symbol.as(:symbol) >> space >> operand.as(:right)
+      ).as(:op)
     end
 
+    # line expression
+    rule(:lexpr) do
+      (
+        icall  |
+        assign |
+        expr
+      ) >> newline?
+    end
+
+    # inner expression
     rule(:expr) do
-      op.as(:op) >> newline? |
-      call.as(:call) >> newline? |
-      atom >> newline?
+      op              |
+      ecall           |
+      func.as(:func)  |
+      atom
     end
 
-    rule(:call) do
-      identifier.as(:name) >>
-      (space >> (call_with_parens.as(:call) |
-                 op.as(:op) |
-                 atom)
-      ).repeat(1).as(:args) |
-      call_with_parens
+    # simple types, var, int, str, etc.
+    rule(:atom) do
+      identifier.as(:var)  |
+      integer
     end
 
-    rule(:call_with_parens) do
-      str("(") >> (call | op | identifier) >> str(")")
+    # implicit call
+    rule(:icall) do
+      (
+        identifier.as(:name) >> (space >> expr).repeat(1).as(:args)
+      ).as(:call)
+    end
+
+    # explicit call (with parens)
+    rule(:ecall) do
+      (
+        str("(") >> identifier.as(:name) >> (space >> expr).repeat.as(:args) >> str(")")
+      ).as(:call)
     end
 
     rule(:func) do
@@ -69,12 +96,8 @@ module Airball
       ns? >> str("}")
     end
 
-    rule(:atom) do
-      identifier.as(:var) | integer.as(:integer) | func.as(:func)
-    end
-
     rule(:body) do
-      (assign.as(:assign) | expr).repeat(1) # TODO move assign into expr
+      lexpr.repeat(1)
     end
 
     root :body

@@ -57,7 +57,7 @@ class ParserTest < Test::Unit::TestCase
       {:op => {:left => {:op => {:left => {:var => "x"},
                                  :symbol => "*",
                                  :right => {:integer => "3"}}},
-               :symbol => "*",
+               :symbol => "-",
                :right => {:integer => "1"}}}
     ]
     actual = parse("(x * 3) - 1")
