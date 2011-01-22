@@ -13,17 +13,20 @@ module Airball
 
     rule(:ns?)        { (space | newline).repeat }
 
+    rule(:cn)         { str(",") >> space? >> newline? }
+    rule(:cn?)        { cn.maybe }
+
     rule(:integer) do
-      match('[0-9]').repeat(1).as(:integer)
+      match['0-9'].repeat(1).as(:integer)
     end
 
     rule(:identifier) do
-      match("[a-z]") >> match("[a-z0-9]").repeat
+      match["a-z"] >> match["a-z0-9"].repeat
     end
 
     rule(:symbol) do
-      match("[#{SYMBOL_CHARS}]").repeat(1) |
-      match("[#{SYMBOL_CHARS}=]").repeat(2)
+      match[SYMBOL_CHARS].repeat(1) |
+      match["#{SYMBOL_CHARS}="].repeat(2)
     end
 
     rule(:assign) do
@@ -46,12 +49,17 @@ module Airball
       ).as(:op)
     end
 
+    rule(:comment) do
+      str("#") >> match["^\\n"].repeat >> newline?
+    end
+
     # line expression
     rule(:lexpr) do
       space? >> newline |
+      comment           |
       space? >> (
-        icall  |
-        assign |
+        icall           |
+        assign          |
         expr
       ) >> newline?
     end
@@ -73,14 +81,14 @@ module Airball
     # implicit call
     rule(:icall) do
       (
-        identifier.as(:name) >> (space >> expr).repeat(1).as(:args)
+        identifier.as(:name) >> (cn? >> space >> expr).repeat(1).as(:args)
       ).as(:call)
     end
 
     # explicit call (with parens)
     rule(:ecall) do
       (
-        str("(") >> identifier.as(:name) >> (space >> expr).repeat.as(:args) >> str(")")
+        str("(") >> identifier.as(:name) >> (cn? >> space >> expr).repeat.as(:args) >> str(")")
       ).as(:call)
     end
 

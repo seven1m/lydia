@@ -16,6 +16,15 @@ class ParserTest < Test::Unit::TestCase
     assert_equal expected, actual
   end
 
+  def test_comment
+    expected = [
+      {:assign => {:name => "x",
+                   :val => {:integer => "1"}}}
+    ]
+    actual = parse("# this is a comment\nx = 1\n# and another")
+    assert_equal expected, actual
+  end
+
   def test_int
     expected = [
       {:integer => "2"}
@@ -46,6 +55,20 @@ class ParserTest < Test::Unit::TestCase
       {:op   => {:left => {:var => "x"}, :symbol => "*", :right => {:integer => "3"}}}
     ]
     actual = parse("foo 1 2\nx * 3")
+    assert_equal expected, actual
+  end
+
+  def test_multiline_call
+    expected = [
+      {:call => {:name => "foo", :args => [{:integer => "1"},
+                                           {:integer => "2"}]}},
+      {:call => {:name => "bar", :args => [{:integer => "3"},
+                                           {:func => {:body => [{:integer => "4"}]}}]}}
+    ]
+    actual = parse("foo 1,
+                        2
+                    bar 3,
+                        { 4 }")
     assert_equal expected, actual
   end
 
@@ -80,14 +103,30 @@ class ParserTest < Test::Unit::TestCase
                                  :symbol => "*",
                                  :right => {:integer => "3"}}},
                :symbol => "-",
-               :right => {:integer => "1"}}},
+               :right => {:integer => "1"}}}
+    ]
+    actual = parse("(x * 3) - 1")
+    assert_equal expected, actual
+
+    expected = [
       {:op => {:left => {:var => "x"},
                :symbol => "*",
                :right => {:call => {:name => "foo",
-                                    :args => [{:integer => "4"}]}}}}
+                                    :args => [{:integer => "4"}]}}}},
     ]
-    actual = parse("(x * 3) - 1
-                    x * (foo 4)")
+    actual = parse("x * (foo 4)")
+    assert_equal expected, actual
+
+    expected = [
+      {:op => {:left => {:var => "x"},
+               :symbol => "*",
+               :right => {:op => {:left => {:var => "x"},
+                                  :symbol => "^",
+                                  :right => {:op => {:left => {:var => "y"},
+                                                     :symbol => "-",
+                                                     :right => {:integer => "1"}}}}}}}
+    ]
+    actual = parse("x * (x ^ (y - 1))")
     assert_equal expected, actual
   end
 
