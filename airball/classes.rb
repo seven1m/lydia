@@ -57,4 +57,12 @@ module Airball
       scope[name] = val.eval(scope)
     end
   end
+
+  class Var < Obj
+    iattr :name
+
+    def eval(scope)
+      scope[name]
+    end
+  end
 end

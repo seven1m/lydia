@@ -16,9 +16,10 @@ class TransformTest < Test::Unit::TestCase
   end
 
   def test_expr
-    t = transform("foo 2 * 3\nbar 4")
+    t = transform("foo 2 * 3\nbar 4\nout x")
     assert_instance_of Airball::Call, t[0]
     assert_instance_of Airball::Call, t[1]
+    assert_instance_of Airball::Call, t[2]
   end
 
   def test_assign

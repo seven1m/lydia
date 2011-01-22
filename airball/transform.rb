@@ -24,5 +24,9 @@ module Airball
     rule :assign => {:name => simple(:name), :val => subtree(:val)} do
       Assign.new(name, val)
     end
+
+    rule :var => simple(:name) do
+      Var.new(name)
+    end
   end
 end
