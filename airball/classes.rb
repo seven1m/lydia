@@ -1,12 +1,15 @@
 module Airball
   class Scope
-    def initialize(parent=nil)
+    def initialize(parent=nil, closure=nil)
       @parent = parent
+      @closure = closure
       @vars = {}
     end
 
     def [](name)
-      @vars[name] || @parent && @parent[name]
+      @vars[name] ||
+      @parent && @parent[name] ||
+      @closure && @closure[name]
     end
 
     def []=(name, value)
@@ -30,17 +33,16 @@ module Airball
   end
 
   class Function < Obj
-    attr_accessor :args
+    attr_accessor :args, :cscope
 
     def initialize(args, body=nil, &body_proc)
-      @args = args
-      @body = body
+      @args      = args
+      @body      = body
       @body_proc = body_proc
     end
 
-    # TODO functions are not yet closures
     def call(args, scope)
-      scope = Scope.new(scope)
+      scope = Scope.new(scope, @cscope)
       args.map! { |a| a.eval(scope) }
       @args.each_with_index { |a, i| scope[a] = args[i] }
       if @body_proc
@@ -54,6 +56,7 @@ module Airball
     end
 
     def eval(scope)
+      self.cscope = scope
       self
     end
   end

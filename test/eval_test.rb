@@ -32,4 +32,12 @@ class EvalTest < Test::Unit::TestCase
     assert_instance_of Airball::Function, @program.scope["foo"]
     assert_equal "1\n", output
   end
+
+  def test_closure
+    output = execute("func = { x = 2
+                               [y] { x + y }}
+                      closure = (func)
+                      out (closure 10)")
+    assert_equal "12\n", output
+  end
 end
