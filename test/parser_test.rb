@@ -33,6 +33,16 @@ class ParserTest < Test::Unit::TestCase
     assert_equal expected, actual
   end
 
+  def test_string
+    expected = [
+      {:string => "\\\"OK, now I'm supposed to say, 'Hmm, that's interesting, but... ', then you say...\\\""},
+      {:string => '"But what?"'},
+    ]
+    actual = parse(%("\\"OK, now I'm supposed to say, 'Hmm, that's interesting, but... ', then you say...\\""
+                     '"But what?"'))
+    assert_equal expected, actual
+  end
+
   def test_op
     expected = [
       {:op => {:left => {:var => "x"}, :symbol => "*", :right => {:integer => "3"}}}

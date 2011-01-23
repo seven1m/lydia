@@ -20,6 +20,19 @@ module Airball
       match['0-9'].repeat(1).as(:integer)
     end
 
+    # strings
+
+    rule(:dquote)    { str('"') }
+    rule(:squote)    { str("'") }
+    rule(:nondquote) { str('"').absnt? >> any }
+    rule(:nonsquote) { str("'").absnt? >> any }
+    rule(:escape)    { str("\\") >> any }
+
+    rule(:string) do
+      dquote >> (escape | nondquote).repeat.as(:string) >> dquote |
+      squote >> (escape | nonsquote).repeat.as(:string) >> squote
+    end
+
     rule(:identifier) do
       match["a-z"] >> match["a-z0-9"].repeat
     end
@@ -75,6 +88,7 @@ module Airball
     # simple types, var, int, str, etc.
     rule(:atom) do
       identifier.as(:var)  |
+      string               |
       integer
     end
 

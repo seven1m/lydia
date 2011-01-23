@@ -13,6 +13,10 @@ module Airball
       Int.new(int.to_i)
     end
 
+    rule :string => simple(:str) do
+      Str.new(str.gsub(/\\/, ''))
+    end
+
     rule :call => {:name => simple(:name), :args => sequence(:args)} do
       Call.new(name, args)
     end

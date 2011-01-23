@@ -21,6 +21,17 @@ class EvalTest < Test::Unit::TestCase
     assert_equal 1, @program.scope["foo"].val
   end
 
+  def test_string
+    output = execute(%(out 'in single quotes'
+                       out "in double quotes"
+                       out "mixed 'quotes'"
+                       out "escaped \\"double quotes\\""))
+    assert_equal "in single quotes\n" +
+                 "in double quotes\n" +
+                 "mixed 'quotes'\n"   +
+                 "escaped \"double quotes\"\n", output
+  end
+
   def test_func
     output = execute("foo = { x = 2\nx * 3 }\nout (foo)")
     assert_instance_of Airball::Function, @program.scope["foo"]

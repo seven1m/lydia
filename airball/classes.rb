@@ -34,6 +34,18 @@ module Airball
     end
   end
 
+  class Str < Obj
+    iattr :val
+
+    def eval(scope)
+      self
+    end
+
+    def to_s
+      val
+    end
+  end
+
   class True < Obj
     def eval(scope)
       self

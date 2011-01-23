@@ -39,4 +39,10 @@ class TransformTest < Test::Unit::TestCase
     assert_instance_of Airball::Function, t[0]
     assert_equal ["x", "y"], t[0].args
   end
+
+  def test_string
+    t = transform(%("Hello world"))
+    assert_instance_of Airball::Str, t[0]
+    assert_equal "Hello world", t[0].val
+  end
 end
