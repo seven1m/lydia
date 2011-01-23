@@ -125,6 +125,10 @@ module Airball
       define_function :count, [:list] do |scope, list|
         Int.new(list.vals.length)
       end
+
+      define_function :str, [:expr] do |scope, expr|
+        Str.new(expr.to_s)
+      end
     end
   end
 end
