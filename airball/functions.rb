@@ -55,6 +55,14 @@ module Airball
         left.val <= right.val ? True.new : False.new
       end
 
+      define_function '&&', [:left, :right] do |scope, left, right|
+        left.val == false || right.val == false ? False.new : True.new
+      end
+
+      define_function '||', [:left, :right] do |scope, left, right|
+        left.val == false && right.val == false ? False.new : True.new
+      end
+
       define_function :if, [:cond, :t, :f] do |scope, cond, t, f|
         if cond.val == false
           if Function === f

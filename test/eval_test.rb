@@ -77,6 +77,20 @@ class EvalTest < Test::Unit::TestCase
     assert_equal "4\n", output
   end
 
+  def test_and
+    output = execute("if (true && false) { out 'yes' } { out 'no' }")
+    assert_equal "no\n", output
+    output = execute("if (true && true) { out 'yes' } { out 'no' }")
+    assert_equal "yes\n", output
+  end
+
+  def test_or
+    output = execute("if (true || false) { out 'yes' } { out 'no' }")
+    assert_equal "yes\n", output
+    output = execute("if (false || false) { out 'yes' } { out 'no' }")
+    assert_equal "no\n", output
+  end
+
   def test_factorial
     output = execute("fact = [x] { if x == 1 x { x * (fact x - 1) } }
                       out (fact 5)")
