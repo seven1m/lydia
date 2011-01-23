@@ -36,7 +36,7 @@ module Airball
     rule(:list) do
       str("[") >> space? >>
       (expr >> space?).repeat.as(:list) >>
-      str("]") >> space?
+      str("]")
     end
 
     rule(:identifier) do
@@ -58,6 +58,7 @@ module Airball
     end
 
     rule(:operand) do
+      list |
       atom |
       str("(") >> (op | icall) >> str(")")
     end

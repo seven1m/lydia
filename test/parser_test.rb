@@ -50,9 +50,19 @@ class ParserTest < Test::Unit::TestCase
                  {:var => "x"},
                  {:op => {:left => {:integer => "3"},
                           :symbol => "*",
-                          :right => {:integer => "5"}}}]}
+                          :right => {:integer => "5"}}}]},
+      {:op => {:left => {:list => [{:integer => "1"},
+                                   {:integer => "2"},
+                                   {:integer => "3"}]},
+               :symbol => "+",
+               :right => {:list => [{:integer => "4"},
+                                    {:integer => "5"},
+                                    {:integer => "6"}]}}},
+      {:list => ""}
     ]
-    actual = parse('[1 "string" x 3 * 5]')
+    actual = parse('[1 "string" x 3 * 5]
+                    [1 2 3] + [4 5 6]
+                    []')
     assert_equal expected, actual
   end
 
@@ -86,11 +96,13 @@ class ParserTest < Test::Unit::TestCase
       {:call => {:name => "foo", :args => [{:integer => "1"},
                                            {:integer => "2"}]}},
       {:call => {:name => "bar", :args => [{:integer => "3"},
+                                           {:list => ""},
                                            {:func => {:body => [{:integer => "4"}]}}]}}
     ]
     actual = parse("foo 1,
                         2
                     bar 3,
+                        [],
                         { 4 }")
     assert_equal expected, actual
   end
