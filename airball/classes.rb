@@ -20,6 +20,13 @@ module Airball
   end
 
   class Obj
+    def self.airball_name
+      name.split('::').last
+    end
+
+    def to_s
+      "(#{self.class.airball_name})"
+    end
   end
 
   class Int < Obj
