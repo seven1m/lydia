@@ -24,8 +24,12 @@ module Airball
     def initialize(source, args=[])
       @parser = Parser.new
       @transform = Transform.new
-      @source = source
       build_scope(args)
+      self.source = source
+    end
+
+    def source=(s)
+      @source = s
       build_functions
       load_library
     end
@@ -39,17 +43,21 @@ module Airball
     end
 
     def load_library
-      lib_source = File.read(File.expand_path("../airball/library.ball", __FILE__))
-      execute(lib_source)
+      unless @lib
+        # cache the library parse tree so subsequent test runs don't have to reload it
+        source = File.read(File.expand_path("../airball/library.ball", __FILE__))
+        @lib = parse(source)
+      end
+      execute(@lib)
     end
 
     def run
-      execute(@source)
+      execute(parse(@source))
     end
 
     private
 
-      def execute(source)
+      def parse(source)
         begin
           parsed = @parser.parse(source)
         rescue Parslet::ParseFailed => error
@@ -63,7 +71,10 @@ module Airball
             puts "------------------- End Parse Tree"
           end
         end
-        body = @transform.apply(parsed)
+        @transform.apply(parsed)
+      end
+
+      def execute(body)
         body[0..-2].each do |expr|
           expr.eval(@scope)
         end
