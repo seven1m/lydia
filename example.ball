@@ -22,3 +22,9 @@ for list [x] { (x) }
 list = [1 2 3]
 out (map list [n] { n * 10 })
 
+out "--"
+out x
+if [x == 1 { out "one" }
+    x == 2 { out "two" }
+    x == 3 { out "three" }
+    { out "something else" }]

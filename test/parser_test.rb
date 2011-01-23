@@ -58,11 +58,17 @@ class ParserTest < Test::Unit::TestCase
                :right => {:list => [{:integer => "4"},
                                     {:integer => "5"},
                                     {:integer => "6"}]}}},
-      {:list => ""}
+      {:list => ""},
+      {:list => [{:integer => "1"},
+                 {:integer => "2"},
+                 {:integer => "3"}]}
     ]
     actual = parse('[1 "string" x 3 * 5]
                     [1 2 3] + [4 5 6]
-                    []')
+                    []
+                    [1
+                     2
+                     3]')
     assert_equal expected, actual
   end
 

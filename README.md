@@ -41,7 +41,12 @@ There's a few things to understand here:
   * a condition
   * a function to execute or a value to return if the condition is true
   * a function to execute or a value to return if the condition is false
-* You cannot (yet) pass an "elseif" part to `if`.
+* The `if` function can do "elsif" parts if you use an array as the first arg:
+
+        if [x == 1 { out "x is one" }
+            x == 2 { out "x is two" }
+                   { out "x is something else" }]
+
 * Function calls are recognized like so:
   * `foo 1` -- one or more *things* separated by space
   * `(foo)` -- an identifier wrapped in parentheses (the only way to call a function with no args)

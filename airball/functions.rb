@@ -64,17 +64,46 @@ module Airball
       end
 
       define_function :if, [:cond, :t, :f] do |scope, cond, t, f|
-        if cond.val == false
-          if Function === f
-            f.call [], scope
+        if List === cond
+          if cond.vals.length >= 3
+            result = nil
+            cond.vals.each_slice(2) do |part|
+              if part.length == 2
+                c, f = part
+                unless c.val == false
+                  if Function === f
+                    result = f.call [], scope
+                  else
+                    result = f
+                  end
+                  break
+                end
+              else
+                f = part.first
+                if Function === f
+                  result = f.call [], scope
+                else
+                  result = f
+                end
+              end
+            end
+            result
           else
-            f
+            raise ArgumentCountMismatch, "Not enough arguments for 'if'"
           end
         else
-          if Function === t
-            t.call [], scope
+          if cond.val == false
+            if Function === f
+              f.call [], scope
+            else
+              f
+            end
           else
-            t
+            if Function === t
+              t.call [], scope
+            else
+              t
+            end
           end
         end
       end

@@ -35,7 +35,7 @@ module Airball
 
     rule(:list) do
       str("[") >> space? >>
-      (expr >> space?).repeat.as(:list) >>
+      (expr >> ns?).repeat.as(:list) >>
       str("]")
     end
 

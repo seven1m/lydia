@@ -77,6 +77,21 @@ class EvalTest < Test::Unit::TestCase
     assert_equal "4\n", output
   end
 
+  def test_multi_cond_if
+    output = execute("if [1 == 1 { out 'first'  }
+                          2 == 3 { out 'second' }
+                                 { out 'else'   }]")
+    assert_equal "first\n", output
+    output = execute("if [1 == 2 { out 'first'  }
+                          3 == 3 { out 'second' }
+                                 { out 'else'   }]")
+    assert_equal "second\n", output
+    output = execute("if [1 == 2 { out 'first'  }
+                          2 == 3 { out 'second' }
+                                 { out 'else'   }]")
+    assert_equal "else\n", output
+  end
+
   def test_and
     output = execute("if (true && false) { out 'yes' } { out 'no' }")
     assert_equal "no\n", output
