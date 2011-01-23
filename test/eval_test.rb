@@ -36,11 +36,6 @@ class EvalTest < Test::Unit::TestCase
                  "escaped \"double quotes\"\n", output
   end
 
-  def test_list
-    output = execute("out [1 'string' 3 * 5 ]")
-    assert_equal "1\nstring\n15\n", output
-  end
-
   def test_func
     output = execute("foo = { x = 2\nx * 3 }\nout (foo)")
     assert_instance_of Airball::Function, @program.scope["foo"]
