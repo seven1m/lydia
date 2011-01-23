@@ -17,6 +17,10 @@ optparse = OptionParser.new do |opts|
     puts
     exit
   end
+
+  opts.on("-d", "--debug LEVEL", "Print debugging information (level >= 1)") do |level|
+    AIRBALL_DEBUG = level.to_i
+  end
 end
 
 optparse.parse!

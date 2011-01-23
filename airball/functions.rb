@@ -25,7 +25,6 @@ module Airball
       @scope["false"] = False.new
 
       @scope["=="] = Function.new(["left", "right"]) do |scope, left, right|
-        File.open("/home/tim/d/youareanoob.txt", 'a') { |f| f.puts [left, left.val, right, right.val].inspect }
         left.val == right.val ? True.new : False.new
       end
 

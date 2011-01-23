@@ -25,7 +25,7 @@ module Airball
     end
 
     def to_s
-      "(#{self.class.airball_name})"
+      "<#{self.class.airball_name}>"
     end
   end
 
@@ -125,13 +125,25 @@ module Airball
 
   class Call < Obj
     iattr :name, :args
+
     def eval(scope)
       function = scope[name]
       if Function === function
-        function.call(args, scope)
+        if DEBUG and DEBUG.include?(:calls)
+          puts "DEBUG: calling '#{name}' with args #{args.inspect}" 
+          result = function.call(args, scope)
+          puts "DEBUG: result => #{result}"
+          result
+        else
+          function.call(args, scope)
+        end
       else
         raise Errors::FunctionNotFound, "'#{name}' could not be found in the current scope."
       end
+    end
+
+    def to_s
+      "<Call #{name}>"
     end
   end
 
@@ -148,6 +160,10 @@ module Airball
 
     def eval(scope)
       scope[name]
+    end
+
+    def to_s
+      "<Var #{name}>"
     end
   end
 end
