@@ -4,6 +4,8 @@ This is a toy language I am creating using [Parslet](http://kschiess.github.com/
 
 I knew nothing about grammars, parsers, or the like before I started this project, and am learning as I go. **Again, this is a toy language and not meant for real work.**
 
+The language is taking shape as I learn. For now, it's starting to resemble a **functional language**.
+
 ## Syntax
 
     # assignment
@@ -41,16 +43,16 @@ There's a few things to understand here:
 * Function calls are recognized like so:
   * `foo 1` -- one or more *things* separated by space
   * `(foo)` -- an identifier wrapped in parentheses (the only way to call a function with no args)
-  * `1 * 2` -- actually a function call to "\*" with arguments `1` and `2`.
+  * `1 * 2` -- actually a function call to `*` with arguments `1` and `2`.
 * Use a comma to wrap a function call to the next line (like a poem):
 
-    foo "arg one",
-        "arg two"
+        foo "arg one",
+            "arg two"
 
 ## The Good
 
-* Variables are dynamically scoped and immutable.
-* Functions as first-class citizens, and can be passed to and returned from other functions.
+* Variables are dynamically scoped and immutable (well, they will be soon).
+* Functions are first-class citizens, and can be passed to and returned from other functions.
 * Functions are also closures.
 * Airball has a decent test suite.
 
@@ -65,7 +67,7 @@ I may turn this into a gem someday. For now, you'll have to download the source 
 
     bin/airball scriptname [args]
 
-You'll need Ruby 1.9.2+ installed.
+You'll need Ruby 1.9.2+ and the "parslet" gem installed.
 
 ## Tests
 
@@ -75,7 +77,7 @@ The entire test suite can be run with:
 
 ## License
 
-I hereby release this under the MIT license. Copyright 2011, me.
+MIT license. Copyright 2011, me.
 
 ## Author
 
