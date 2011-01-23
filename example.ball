@@ -1,29 +1,40 @@
+# assignment
 x = 10
+
+# print to stdout
 out 8 * 2
+out x
+
+# functions
 foo = { 2 * 3 }
 bar = [x y] { z = x * x
               z + y }
+
+# calling functions
 out (foo)
 out (bar 3 9)
 out 9
-out x
 
+# recursive functions: factorial
 fact = [x] { if x == 1,
                 x,
                 { x * (fact x - 1) } }
 out (fact 20)
 
-list = [1 2 3 4 * 5]
-out list
+# recursive functions: fibonacci sequence
+fib = [n] { if n < 2 n,
+               { (fib n - 1) + (fib n - 2) } }
 
+# map over a list
+fibs = map [1 2 3 4 5 6 7 8 9 10 11 12],
+           [n] { fib n }
+out (join fibs ", ")
+
+# for loop
 list = [{ out "a" } { out "b" } { out "c" }]
 for list [x] { (x) }
 
-list = [1 2 3]
-out (map list [n] { n * 10 })
-
-out "--"
-out x
+# if/elsif/else
 if [x == 1 { out "one" }
     x == 2 { out "two" }
     x == 3 { out "three" }
