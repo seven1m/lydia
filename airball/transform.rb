@@ -17,6 +17,10 @@ module Airball
       Str.new(str.gsub(/\\/, ''))
     end
 
+    rule :list => sequence(:vals) do
+      List.new(vals)
+    end
+
     rule :call => {:name => simple(:name), :args => sequence(:args)} do
       Call.new(name, args)
     end

@@ -45,4 +45,12 @@ class TransformTest < Test::Unit::TestCase
     assert_instance_of Airball::Str, t[0]
     assert_equal "Hello world", t[0].val
   end
+
+  def test_list
+    t = transform('[1 "x" y 2 * 3]')
+    assert_instance_of Airball::List, t[0]
+    assert_equal 4, t[0].vals.length
+    assert_equal ['Airball::Int', 'Airball::Str', 'Airball::Var', 'Airball::Call'],
+                 t[0].vals.map { |v| v.class.name }
+  end
 end

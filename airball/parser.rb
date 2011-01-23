@@ -33,6 +33,12 @@ module Airball
       squote >> (escape | nonsquote).repeat.as(:string) >> squote
     end
 
+    rule(:list) do
+      str("[") >> space? >>
+      (expr >> space?).repeat.as(:list) >>
+      str("]") >> space?
+    end
+
     rule(:identifier) do
       match["a-z"] >> match["a-z0-9"].repeat
     end
@@ -82,6 +88,7 @@ module Airball
       op              |
       ecall           |
       func.as(:func)  |
+      list            |
       atom
     end
 

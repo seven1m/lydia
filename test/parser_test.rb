@@ -43,6 +43,19 @@ class ParserTest < Test::Unit::TestCase
     assert_equal expected, actual
   end
 
+  def test_list
+    expected = [
+      {:list => [{:integer => "1"},
+                 {:string => "string"},
+                 {:var => "x"},
+                 {:op => {:left => {:integer => "3"},
+                          :symbol => "*",
+                          :right => {:integer => "5"}}}]}
+    ]
+    actual = parse('[1 "string" x 3 * 5]')
+    assert_equal expected, actual
+  end
+
   def test_op
     expected = [
       {:op => {:left => {:var => "x"}, :symbol => "*", :right => {:integer => "3"}}}

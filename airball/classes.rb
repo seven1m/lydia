@@ -46,6 +46,19 @@ module Airball
     end
   end
 
+  class List < Obj
+    iattr :vals
+
+    def eval(scope)
+      @vals.map! { |v| v.eval(scope) }
+      self
+    end
+
+    def to_s
+      vals.map { |v| v.to_s }.join("\n")
+    end
+  end
+
   class True < Obj
     def eval(scope)
       self
