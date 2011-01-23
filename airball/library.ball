@@ -11,3 +11,8 @@ map = [l f] { if (count l) == 0,
 ^ = [x y] { if y == 1,
                x,
                { x * (x ^ (y - 1)) } }
+
+# join list values into a string
+join = [l s] { if (count l) == 1,
+                  { str (first l) },
+                  { ((str (first l)) + s) + (join (rest l) s) } }
