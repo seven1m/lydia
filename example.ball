@@ -12,13 +12,13 @@ fact = [x] { if x == 1,
                 x,
                 { x * (fact x - 1) } }
 out (fact 20)
-out
 
 list = [1 2 3 4 * 5]
 out list
-out
 
 list = [{ out "a" } { out "b" } { out "c" }]
-out list
-
 for list [x] { (x) }
+
+list = [1 2 3]
+out (map list [n] { n * 10 })
+
