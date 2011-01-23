@@ -11,9 +11,11 @@ module Airball
       end
 
       define_function :+, [:left, :right] do |scope, left, right|
-        if Airball::Int === left
+        if Airball::Int === left && Airball::Int === right
           Int.new(left.val + right.val)
-        elsif Airball::List === left
+        elsif Airball::Str === left && Airball::Str === right
+          Str.new(left.val + right.val)
+        elsif Airball::List === left && Airball::List === right
           List.new(left.vals + right.vals)
         else
           raise Errors::TypeMismatch, "Don't know how to add #{left} and #{right}"
