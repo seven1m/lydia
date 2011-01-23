@@ -138,9 +138,15 @@ class ParserTest < Test::Unit::TestCase
                                  :symbol => "*",
                                  :right => {:integer => "3"}}},
                :symbol => "-",
-               :right => {:integer => "1"}}}
+               :right => {:integer => "1"}}},
+      {:call => {:name => "foo",
+                 :args => [{:op => {:left => {:call => {:name => "bar",
+                                                        :args => [{:var => "baz"}]}},
+                                    :symbol => "==",
+                                    :right => {:integer => "1"}}}]}}
     ]
-    actual = parse("(x * 3) - 1")
+    actual = parse("(x * 3) - 1\n
+                    foo (bar baz) == 1")
     assert_equal expected, actual
 
     expected = [
