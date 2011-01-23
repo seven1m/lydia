@@ -55,8 +55,7 @@ module Airball
     iattr :vals
 
     def eval(scope)
-      @vals.map! { |v| v.eval(scope) }
-      self
+      List.new(vals.map { |v| v.eval(scope) })
     end
 
     def to_s
