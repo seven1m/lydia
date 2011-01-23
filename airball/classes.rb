@@ -131,7 +131,7 @@ module Airball
         if DEBUG and DEBUG.include?(:calls)
           puts "DEBUG: calling '#{name}' with args #{args.inspect}" 
           result = function.call(args, scope)
-          puts "DEBUG: result => #{result}"
+          puts "DEBUG: result from '#{name}' => #{result}"
           result
         else
           function.call(args, scope)
