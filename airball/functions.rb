@@ -16,7 +16,7 @@ module Airball
         elsif Airball::List === left
           List.new(left.vals + right.vals)
         else
-          raise TypeMismatch, "Don't know how to add #{left} and #{right}"
+          raise Errors::TypeMismatch, "Don't know how to add #{left} and #{right}"
         end
       end
 
@@ -89,7 +89,7 @@ module Airball
             end
             result
           else
-            raise ArgumentCountMismatch, "Not enough arguments for 'if'"
+            raise Errors::ArgumentCountMismatch, "Not enough arguments for 'if'"
           end
         else
           if cond.val == false
