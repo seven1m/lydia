@@ -60,6 +60,12 @@ module Airball
           end
         end
       end
+
+      @scope["for"] = Function.new(["list", "func"]) do |scope, list, func|
+        list.vals.each do |val|
+          func.call [val], scope
+        end
+      end
     end
   end
 end
