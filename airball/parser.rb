@@ -69,6 +69,10 @@ module Airball
       ).as(:op)
     end
 
+    rule(:eop) do
+      str("(") >> op >> str(")")
+    end
+
     rule(:comment) do
       str("#") >> match["^\\n"].repeat >> newline?
     end
@@ -87,6 +91,7 @@ module Airball
     # inner expression
     rule(:expr) do
       op              |
+      eop             |
       ecall           |
       func.as(:func)  |
       list            |
