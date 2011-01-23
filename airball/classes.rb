@@ -2,20 +2,18 @@ module Airball
   class Scope
     attr_reader :vars
 
-    def initialize(parent=nil, closure=nil)
+    def initialize(parent=nil)
       @parent = parent
-      @closure = closure
       @vars = {}
     end
 
     def [](name)
       @vars[name] ||
-      @parent && @parent[name] ||
-      @closure && @closure[name]
+      @parent && @parent[name]
     end
 
     def []=(name, value)
-      @vars[name] = value
+      @vars[name] = value # TODO only if it doesn't exist in this scope
     end
   end
 
@@ -95,7 +93,7 @@ module Airball
   end
 
   class Function < Obj
-    attr_accessor :args, :cscope
+    attr_accessor :args, :scope
 
     def initialize(args, body=nil, &body_proc)
       @args      = args
@@ -104,8 +102,10 @@ module Airball
     end
 
     def call(args, scope)
-      scope = Scope.new(scope, @cscope)
+      # args come from calling scope
       args = args.map { |a| a.eval(scope) }
+      # function body scope is based on the closing (lexical) scope of the function
+      scope = Scope.new(@scope)
       @args.each_with_index { |a, i| scope[a] = args[i] }
       if @body_proc
         @body_proc.call(scope, *args)
@@ -118,7 +118,7 @@ module Airball
     end
 
     def eval(scope)
-      self.cscope = scope
+      @scope = scope
       self
     end
   end

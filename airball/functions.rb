@@ -2,6 +2,7 @@ module Airball
   module Functions
     def define_function(name, args, &body)
       @scope[name.to_s] = Function.new(args.map(&:to_s), &body)
+      @scope[name.to_s].scope = @scope
     end
 
     def build_functions

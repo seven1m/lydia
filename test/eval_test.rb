@@ -86,7 +86,10 @@ class EvalTest < Test::Unit::TestCase
                             (f) }
                       out (g)
                       out x")
-    assert_equal "1\n0\n", output
+    # 1/1 for Ruby - because there is only one "x"
+    # 1/0 for dynamic scope
+    # 0/0 for lexical scope
+    assert_equal "0\n0\n", output
   end
 
 end
