@@ -10,6 +10,8 @@ The language is taking shape as I learn. For now, it's starting to resemble a **
 
     # assignment
     x = 1
+    s = "string"
+    l = ["list" { out "func" } 3 * 5]
 
     # functions
     f1 = { 2 * 3 }
