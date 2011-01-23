@@ -1,8 +1,8 @@
 module Airball
   module Functions
     def build_functions
-      @scope["out"] = Function.new(["expr"]) do |scope|
-        @scope["stdout"].write scope["expr"].eval(scope).to_s + "\n"
+      @scope["out"] = Function.new(["expr"]) do |scope, expr|
+        @scope["stdout"].write expr.to_s + "\n"
       end
 
       @scope["+"] = Function.new(["left", "right"]) do |scope, left, right|
@@ -46,12 +46,6 @@ module Airball
       end
 
       @scope["if"] = Function.new(["cond", "t", "f"]) do |scope, cond, t, f|
-        unless cond
-          puts '!!!!!!!!!!!!!!!!!!!!!!!!'
-          puts cond.inspect
-          puts scope.vars.inspect
-          puts '~~~~~~~~~~~~~~~~~~~~~~~~'
-        end
         if cond.val == false
           if Function === f
             f.call [], scope
