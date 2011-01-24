@@ -22,8 +22,23 @@ fact = [x] { if x == 1,
 out (fact 20)
 
 # recursive functions: fibonacci sequence
-fib = [n] { if n < 2 n,
+fib = [n] { if n < 2,
+               n,
                { (fib n - 1) + (fib n - 2) } }
+
+# map over a list
+fibs = map [1 2 3 4 5 6 7 8 9 10 11 12],
+           [n] { fib n }
+out (join fibs ", ")
+
+# iterative functions: fibonacci sequence
+fib = [x] { curr = 0
+            succ = 1
+            for 1..x,
+                [n] { s = curr + succ
+                      curr = succ
+                      succ = s }
+            curr }
 
 # map over a list
 fibs = map [1 2 3 4 5 6 7 8 9 10 11 12],
