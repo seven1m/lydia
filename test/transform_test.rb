@@ -53,4 +53,11 @@ class TransformTest < Test::Unit::TestCase
     assert_equal ['Airball::Int', 'Airball::Str', 'Airball::Var', 'Airball::Call'],
                  t[0].vals.map { |v| v.class.name }
   end
+
+  def test_range
+    t = transform("1..10")
+    assert_instance_of Airball::Rng, t[0]
+    assert_instance_of Airball::Int, t[0].first
+    assert_instance_of Airball::Int, t[0].last
+  end
 end

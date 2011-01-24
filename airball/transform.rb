@@ -21,6 +21,10 @@ module Airball
       List.new(vals)
     end
 
+    rule :range => {:first => simple(:first), :last => simple(:last)} do
+      Rng.new(first, last)
+    end
+
     rule :call => {:name => simple(:name), :args => sequence(:args)} do
       Call.new(name, args)
     end

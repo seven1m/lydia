@@ -33,6 +33,18 @@ module Airball
       squote >> (escape | nonsquote).repeat.as(:string) >> squote
     end
 
+    rule(:rangeop) do
+      identifier.as(:var) |
+      integer             |
+      str("(") >> (op | icall) >> str(")")
+    end
+
+    rule(:range) do
+      (
+        rangeop.as(:first) >> str("..") >> rangeop.as(:last)
+      ).as(:range)
+    end
+
     rule(:list) do
       str("[") >> space? >>
       (expr >> ns?).repeat.as(:list) >>
@@ -98,10 +110,11 @@ module Airball
       atom
     end
 
-    # simple types, var, int, str, etc.
+    # simple types, var, int, str, range, etc.
     rule(:atom) do
       identifier.as(:var)  |
       string               |
+      range                |
       integer
     end
 

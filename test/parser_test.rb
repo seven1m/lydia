@@ -43,6 +43,20 @@ class ParserTest < Test::Unit::TestCase
     assert_equal expected, actual
   end
 
+  def test_range
+    expected = [
+      {:range => {:first => {:integer => "1"}, :last => {:integer => "10"}}},
+      {:range => {:first => {:integer => "5"}, :last => {:var => "x"}}},
+      {:range => {:first => {:integer => "3"}, :last => {:op => {:left => {:var => "x"},
+                                                                 :symbol => "+",
+                                                                 :right => {:integer => "12"}}}}}
+    ]
+    actual = parse("1..10
+                    5..x
+                    3..(x + 12)")
+    assert_equal expected, actual
+  end
+
   def test_list
     expected = [
       {:list => [{:integer => "1"},

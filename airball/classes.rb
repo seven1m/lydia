@@ -63,6 +63,18 @@ module Airball
     end
   end
 
+  class Rng < Obj
+    iattr :first, :last
+
+    def eval(scope)
+      # TODO really???
+      f = first.eval(scope).val
+      l = last.eval(scope).val
+      nums = (f..l).map { |n| Int.new(n) }
+      List.new(nums).eval(scope)
+    end
+  end
+
   class True < Obj
     def eval(scope)
       self
