@@ -11,8 +11,10 @@ module Airball
     case AIRBALL_DEBUG
     when 1
       DEBUG = [:calls]
+    when 2
+      DEBUG = [:calls, :scope]
     else
-      DEBUG = [:calls, :tree]
+      DEBUG = [:calls, :scope, :tree]
     end
   else
     DEBUG = false
@@ -63,7 +65,9 @@ module Airball
         rescue Parslet::ParseFailed => error
           puts error.message
           puts error.backtrace
-          puts @parser.root.error_tree
+          if DEBUG && DEBUG.include?(:tree)
+            puts @parser.root.error_tree
+          end
         else
           if DEBUG && DEBUG.include?(:tree)
             puts "DEBUG: Parse Tree ----------------"
