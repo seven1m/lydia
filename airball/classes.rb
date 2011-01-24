@@ -9,11 +9,61 @@ module Airball
 
     def [](name)
       @vars[name] ||
-      @parent && @parent[name]
+      raise(Errors::VariableNotFound, "var '#{name}' cannot be found")
     end
 
     def []=(name, value)
-      @vars[name] = value # TODO only if it doesn't exist in this scope
+      set(name, value)
+    end
+
+    def set(name, value)
+      @vars[name] = value
+    end
+
+    def names
+      if @parent
+        hash = @parent.names
+      else
+        hash = {}
+      end
+      @vars.keys.each do |name|
+        hash[name] = self
+      end
+      hash
+    end
+  end
+
+  class Closure
+    attr :names, :scope
+
+    # must be the parent scope of the function
+    def initialize(scope)
+      @names = scope.names
+      @scope = Scope.new(scope)
+    end
+
+    def [](name)
+      if scope = @names[name]
+        if Closure === scope
+          raise "This scope cannot be a closure."
+        end
+        scope[name]
+      else
+        raise Errors::VariableNotFound, "var '#{name}' cannot be found"
+      end
+    end
+
+    def []=(name, value)
+      if scope = @names[name]
+        scope[name] = value
+      else
+        set(name, value)
+      end
+    end
+
+    def set(name, value)
+      @names[name] = @scope
+      @scope[name] = value
     end
   end
 
@@ -104,7 +154,7 @@ module Airball
   end
 
   class Function < Obj
-    attr_accessor :args, :scope
+    attr_accessor :args, :closure
 
     def initialize(args, body=nil, &body_proc)
       @args      = args
@@ -112,24 +162,25 @@ module Airball
       @body_proc = body_proc
     end
 
-    def call(args, scope)
+    def call(name, args, scope)
       # args come from calling scope
       args = args.map { |a| a.eval(scope) }
+      # allow self-calling (recursion)
+      @closure.names[name] = Closure === scope ? scope.names[name] : scope
       # function body scope is based on the closing (lexical) scope of the function
-      scope = Scope.new(@scope)
-      @args.each_with_index { |a, i| scope[a] = args[i] }
+      @args.each_with_index { |a, i| @closure.set(a, args[i]) }
       if @body_proc
-        @body_proc.call(scope, *args)
+        @body_proc.call(@closure, *args)
       else
         @body[0..-2].each do |expr|
-          expr.eval(scope)
+          expr.eval(@closure)
         end
-        @body.last.eval(scope) # return last result from function
+        @body.last.eval(@closure) # return last result from function
       end
     end
 
     def eval(scope)
-      @scope = scope
+      @closure = Closure.new(scope)
       self
     end
   end
@@ -142,11 +193,11 @@ module Airball
       if Function === function
         if DEBUG and DEBUG.include?(:calls)
           puts "DEBUG: calling '#{name}' with args #{args.inspect}" 
-          result = function.call(args, scope)
+          result = function.call(name, args, scope)
           puts "DEBUG: result from '#{name}' => #{result}"
           result
         else
-          function.call(args, scope)
+          function.call(name, args, scope)
         end
       else
         raise Errors::FunctionNotFound, "'#{name}' could not be found in the current scope."

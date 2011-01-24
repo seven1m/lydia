@@ -101,23 +101,37 @@ class EvalTest < Test::Unit::TestCase
     assert_equal "no\n", output
   end
 
-  def test_factorial
-    output = execute("fact = [x] { if x == 1 x { x * (fact x - 1) } }
+  def test_recursion
+    output = execute("fact = [x] { if x == 1,
+                                      x,
+                                      { x * (fact x - 1) } }
                       out (fact 5)")
     assert_equal "120\n", output
   end
 
   def test_scoping
-    output = execute("x = 0
-                      f = { x }
-                      g = { x = 1
-                            (f) }
-                      out (g)
-                      out x")
-    # 1/1 for Ruby - because there is only one "x"
-    # 1/0 for dynamic scope
-    # 0/0 for lexical scope
-    assert_equal "0\n0\n", output
+    assert_raise Airball::Errors::VariableNotFound do
+      execute("f = { x }
+               x = 1
+               out (f)")
+    end
+    assert_nothing_raised do
+      output = execute("x = 0
+                        f = { x }
+                        x = 1
+                        out (f)")
+      assert_equal "1\n", output
+    end
+    assert_nothing_raised do
+      output = execute("x = 0
+                        f = { x }
+                        x = 1
+                        g = { x = 2
+                              (f) }
+                        out (g)
+                        out x")
+      assert_equal "2\n2\n", output
+    end
   end
 
 end

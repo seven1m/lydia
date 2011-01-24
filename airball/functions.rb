@@ -2,7 +2,7 @@ module Airball
   module Functions
     def define_function(name, args, &body)
       @scope[name.to_s] = Function.new(args.map(&:to_s), &body)
-      @scope[name.to_s].scope = @scope
+      @scope[name.to_s].closure = @scope
     end
 
     def build_functions
@@ -74,7 +74,7 @@ module Airball
                 c, f = part
                 unless c.val == false
                   if Function === f
-                    result = f.call [], scope
+                    result = f.call nil, [], scope
                   else
                     result = f
                   end
@@ -83,7 +83,7 @@ module Airball
               else
                 f = part.first
                 if Function === f
-                  result = f.call [], scope
+                  result = f.call nil, [], scope
                 else
                   result = f
                 end
@@ -96,13 +96,13 @@ module Airball
         else
           if cond.val == false
             if Function === f
-              f.call [], scope
+              f.call nil, [], scope
             else
               f
             end
           else
             if Function === t
-              t.call [], scope
+              t.call nil, [], scope
             else
               t
             end
@@ -112,7 +112,7 @@ module Airball
 
       define_function :for, [:list, :func] do |scope, list, func|
         list.vals.each do |val|
-          func.call [val], scope
+          func.call nil, [val], scope
         end
       end
 
