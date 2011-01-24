@@ -38,26 +38,27 @@ module Airball
 
     attr_accessor :scope
 
-    def build_scope(args)
-      @scope = Scope.new
-      @scope["pargs"] = args      # TODO implement as Airball::List
-      @scope["stdout"] = $stdout  # TODO implement as Airball::File
-    end
-
-    def load_library
-      unless @lib
-        # cache the library parse tree so subsequent test runs don't have to reload it
-        source = File.read(File.expand_path("../airball/library.ball", __FILE__))
-        @lib = parse(source)
-      end
-      execute(@lib)
-    end
-
     def run
       execute(parse(@source))
     end
 
     private
+
+      def build_scope(args)
+        @store = Store.new
+        @scope = Closure.new(@store)
+        @scope["pargs"] = args      # TODO implement as Airball::List
+        @scope["stdout"] = $stdout  # TODO implement as Airball::File
+      end
+
+      def load_library
+        unless @lib
+          # cache the library parse tree so subsequent test runs don't have to reload it
+          source = File.read(File.expand_path("../airball/library.ball", __FILE__))
+          @lib = parse(source)
+        end
+        execute(@lib)
+      end
 
       def parse(source)
         begin

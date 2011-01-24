@@ -1,69 +1,66 @@
 module Airball
-  class Scope
-    attr_reader :vars
+  class Store
+    attr_accessor :values
 
-    def initialize(parent=nil)
-      @parent = parent
-      @vars = {}
+    def initialize
+      @values = []
     end
 
-    def [](name)
-      @vars[name] ||
-      raise(Errors::VariableNotFound, "var '#{name}' cannot be found")
+    def <<(value)
+      @values << value
+      @values.length - 1
     end
 
-    def []=(name, value)
-      set(name, value)
+    def [](index)
+      @values[index]
     end
 
-    def set(name, value)
-      @vars[name] = value
-    end
-
-    def names
-      if @parent
-        hash = @parent.names
-      else
-        hash = {}
-      end
-      @vars.keys.each do |name|
-        hash[name] = self
-      end
-      hash
+    def []=(index, value)
+      @values[index] = value
     end
   end
 
   class Closure
-    attr :names, :scope
+    attr_accessor :store, :vars, :locals
 
-    # must be the parent scope of the function
-    def initialize(scope)
-      @names = scope.names
-      @scope = Scope.new(scope)
+    def initialize(parent_or_store)
+      if Store === parent_or_store
+        @store = parent_or_store
+        @vars = {}
+        @locals = {}
+      else
+        @store = parent_or_store.store
+        @vars = parent_or_store.vars.dup
+        @locals = parent_or_store.locals.dup
+      end
     end
 
-    def [](name)
-      if scope = @names[name]
-        if Closure === scope
-          raise "This scope cannot be a closure."
-        end
-        scope[name]
+    def get(name, skip_locals=false)
+      if !skip_locals and @locals.has_key?(name)
+        @locals[name]
+      elsif @vars.has_key?(name)
+        @store[@vars[name]]
       else
         raise Errors::VariableNotFound, "var '#{name}' cannot be found"
       end
     end
 
-    def []=(name, value)
-      if scope = @names[name]
-        scope[name] = value
+    def [](name)
+      get(name)
+    end
+
+    def set(name, value, local=false)
+      if local or @locals.has_key?(name)
+        @locals[name] = value
+      elsif @vars.has_key?(name)
+        @store[@vars[name]] = value
       else
-        set(name, value)
+        @vars[name] = @store << value
       end
     end
 
-    def set(name, value)
-      @names[name] = @scope
-      @scope[name] = value
+    def []=(name, value)
+      set(name, value)
     end
   end
 
@@ -162,21 +159,23 @@ module Airball
       @body_proc = body_proc
     end
 
-    def call(name, args, scope)
+    def call(name, args, calling_scope)
       # args come from calling scope
-      args = args.map { |a| a.eval(scope) }
+      args = args.map { |a| a.eval(calling_scope) }
+      # create a disposable scope for evaluating the body of the function
+      scope = Closure.new(@closure)
       # allow self-calling (recursion)
-      @closure.names[name] = Closure === scope ? scope.names[name] : scope
+      scope.set(name, self, :local) if name
       # function body scope is based on the closing (lexical) scope of the function
-      # TODO but args have to be local only (they cannot change the value of an enclosing var)
-      @args.each_with_index { |a, i| @closure.set(a, args[i]) }
+      # but args have to be local only (they cannot change the value of an enclosing var)
+      @args.each_with_index { |a, i| scope.set(a, args[i], :local) }
       if @body_proc
-        @body_proc.call(@closure, *args)
+        @body_proc.call(scope, *args)
       else
         @body[0..-2].each do |expr|
-          expr.eval(@closure)
+          expr.eval(scope)
         end
-        @body.last.eval(@closure) # return last result from function
+        @body.last.eval(scope) # return last result from function
       end
     end
 
