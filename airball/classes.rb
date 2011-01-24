@@ -168,6 +168,7 @@ module Airball
       # allow self-calling (recursion)
       @closure.names[name] = Closure === scope ? scope.names[name] : scope
       # function body scope is based on the closing (lexical) scope of the function
+      # TODO but args have to be local only (they cannot change the value of an enclosing var)
       @args.each_with_index { |a, i| @closure.set(a, args[i]) }
       if @body_proc
         @body_proc.call(@closure, *args)

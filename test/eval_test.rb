@@ -102,11 +102,18 @@ class EvalTest < Test::Unit::TestCase
   end
 
   def test_recursion
+    # factorial
     output = execute("fact = [x] { if x == 1,
                                       x,
                                       { x * (fact x - 1) } }
                       out (fact 5)")
     assert_equal "120\n", output
+    # fibonacci sequence
+    output = execute("fib = [n] { if n < 2,
+                                     n,
+                                     { (fib n - 1) + (fib n - 2) } }
+                      out (fib 5)")
+    assert_equal "5\n", output
   end
 
   def test_scoping
