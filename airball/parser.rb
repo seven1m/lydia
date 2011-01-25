@@ -5,6 +5,8 @@ module Airball
 
     SYMBOL_CHARS = "~`!\?@\\#\\$%\\^&\\*\\-_\\+|/,.<>"
 
+    # generic
+
     rule(:space)      { match(' ').repeat(1) }
     rule(:space?)     { space.maybe }
 
@@ -15,6 +17,8 @@ module Airball
 
     rule(:cn)         { str(",") >> space? >> newline? }
     rule(:cn?)        { cn.maybe }
+
+    # numbers
 
     rule(:integer) do
       match['0-9'].repeat(1).as(:integer)
@@ -33,6 +37,8 @@ module Airball
       squote >> (escape | nonsquote).repeat.as(:string) >> squote
     end
 
+    # ranges
+
     rule(:rangeop) do
       identifier.as(:var) |
       integer             |
@@ -45,34 +51,31 @@ module Airball
       ).as(:range)
     end
 
+    # lists
+
     rule(:list) do
       str("[") >> space? >>
       (expr >> ns?).repeat.as(:list) >>
       str("]")
     end
 
+    # vars and function names
+
     rule(:identifier) do
       match["a-z"] >> match["a-z0-9"].repeat
     end
 
-    rule(:symbol) do
-      match[SYMBOL_CHARS].repeat(1) |
-      match["#{SYMBOL_CHARS}="].repeat(2)
-    end
-
-    rule(:assign) do
-      (
-        (identifier | symbol).as(:name) >> space >>
-        str("=") >> space >>
-        (icall | expr).as(:val) >>
-        space? >> newline?
-      ).as(:assign)
-    end
+    # infix function call - math-type operations
 
     rule(:operand) do
       list |
       atom |
       str("(") >> (op | icall) >> str(")")
+    end
+
+    rule(:symbol) do
+      match[SYMBOL_CHARS].repeat(1) |
+      match["#{SYMBOL_CHARS}="].repeat(2)
     end
 
     rule(:op) do
@@ -85,8 +88,19 @@ module Airball
       str("(") >> op >> str(")")
     end
 
+    # other
+
     rule(:comment) do
       str("#") >> match["^\\n"].repeat >> newline?
+    end
+
+    rule(:assign) do
+      (
+        (identifier | symbol).as(:name) >> space >>
+        str("=") >> space >>
+        (icall | expr).as(:val) >>
+        space? >> newline?
+      ).as(:assign)
     end
 
     # line expression
@@ -132,6 +146,7 @@ module Airball
       ).as(:call)
     end
 
+    # function definition
     rule(:func) do
       (
         str("[") >> space? >>
