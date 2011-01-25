@@ -3,7 +3,7 @@ require 'parslet'
 module Airball
   class Parser < Parslet::Parser
 
-    SYMBOL_CHARS = "~`!\?@\\#\\$%\\^&\\*\\-_\\+|/,.<>"
+    SYMBOL_CHARS = "~`!\?@\\$%\\^&\\*\\-_\\+|/,.<>"
 
     # generic
 
@@ -106,7 +106,7 @@ module Airball
     # line expression
     rule(:lexpr) do
       space? >> newline |
-      comment           |
+      space? >> comment |
       space? >> (
         icall           |
         assign          |

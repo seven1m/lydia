@@ -21,7 +21,9 @@ class ParserTest < Test::Unit::TestCase
       {:assign => {:name => "x",
                    :val => {:integer => "1"}}}
     ]
-    actual = parse("# this is a comment\nx = 1\n# and another")
+    actual = parse("# this is a comment
+                    x = 1 # inline with code
+                    # not left-aligned")
     assert_equal expected, actual
   end
 
