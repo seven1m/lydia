@@ -1,9 +1,12 @@
 require File.expand_path('../../airball', __FILE__)
 require 'test/unit'
 
+PROGRAM = Airball::Program.new
+
 class LibraryTest < Test::Unit::TestCase
   def execute(body)
-    @program = Airball::Program.new(body)
+    @program = PROGRAM
+    @program.source = body
     @program.run.to_s
   end
 

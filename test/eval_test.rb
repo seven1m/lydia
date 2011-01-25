@@ -1,13 +1,12 @@
 require File.expand_path('../../airball', __FILE__)
 require 'test/unit'
 
+PROGRAM = Airball::Program.new
+
 class EvalTest < Test::Unit::TestCase
   def execute(source)
-    if @program
-      @program.source = source
-    else
-      @program = Airball::Program.new(source)
-    end
+    @program = PROGRAM
+    @program.source = source
     @program.scope["stdout"] = out = StringIO.new
     @program.run
     out.string

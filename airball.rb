@@ -23,7 +23,7 @@ module Airball
   class Program
     include Functions
 
-    def initialize(source, args=[])
+    def initialize(source=nil, args=[])
       @parser = Parser.new
       @transform = Transform.new
       build_scope(args)
@@ -31,9 +31,10 @@ module Airball
     end
 
     def source=(s)
-      @source = s
-      build_functions
-      load_library
+      if @source = s
+        build_functions
+        load_library
+      end
     end
 
     attr_accessor :scope
