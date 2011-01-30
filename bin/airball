@@ -45,7 +45,7 @@ else
   end
 end
 
-require File.expand_path('../../airball', __FILE__)
+require File.expand_path('../../lib/airball', __FILE__)
 
 program = Airball::Program.new(source, args)
 program.run

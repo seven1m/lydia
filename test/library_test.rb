@@ -1,4 +1,4 @@
-require File.expand_path('../../airball', __FILE__)
+require File.expand_path('../../lib/airball', __FILE__)
 require 'test/unit'
 
 PROGRAM = Airball::Program.new

@@ -1,8 +1,4 @@
-require './airball/parser'
-require './airball/transform'
-require './airball/classes'
-require './airball/functions'
-require './airball/errors'
+%w(parser transform classes functions errors).each { |l| require File.expand_path("../airball/#{l}", __FILE__) }
 
 require 'pp'
 
@@ -34,13 +30,21 @@ module Airball
       if @source = s
         build_functions
         load_library
+        @transformed = parse(@source)
+      end
+    end
+
+    def tree=(t)
+      if @tree = t
+        @transformed = transform(@tree)
+        puts @transformed.inspect
       end
     end
 
     attr_accessor :scope
 
     def run
-      execute(parse(@source))
+      execute(@transformed)
     end
 
     private
@@ -77,6 +81,10 @@ module Airball
             puts "------------------- End Parse Tree"
           end
         end
+        transform(parsed)
+      end
+
+      def transform(parsed)
         @transform.apply(parsed)
       end
 
