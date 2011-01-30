@@ -1,0 +1,243 @@
+%{
+
+#include "ruby.h"
+RUBY_GLOBAL_SETUP;
+
+FILE *source_file;
+
+int yy_input(char *buf, int max_size);
+
+#define YY_INPUT(b, r, ms) (r = yy_input(b, ms))
+
+#define YYSTYPE volatile VALUE
+
+#define SET_HASH_KEY(hash, key, val) \
+  rb_hash_aset(hash, ID2SYM(rb_intern(key)), val);
+
+#define SAVE_HASH(ref, key, val) \
+  ref = rb_hash_new();           \
+  SET_HASH_KEY(ref, key, val);
+
+#define K(val) rb_ary_push(__keep__, val);
+
+VALUE body; /* ruby array */
+
+VALUE __keep__; /* ruby array */
+
+VALUE stack[1024];
+int stackp = -1;
+
+%}
+
+body       = (
+             e:lexpr                               { e && rb_ary_push(body, e) && K(e); }
+             )+ eof
+           | lexpr* bad eof
+
+bad        = < .+ >                                { VALUE error = rb_hash_new(); K(error);
+                                                     SET_HASH_KEY(error, "type", rb_str_new2("syntax"));
+                                                     SET_HASH_KEY(error, "expr", rb_str_new(yytext, yyleng));
+                                                     VALUE e = rb_hash_new(); K(e);
+                                                     SET_HASH_KEY(e, "error", error); rb_ary_push(body, e); }
+
+lexpr      = -* (
+             empty-line
+           | comment
+           | icall
+           | assign
+           | expr
+             ) -* --?
+
+assign     = (name:identifier | name:symbol) -+
+             "=" -+
+             (val:icall | val:expr)                { VALUE assign = rb_hash_new(); K(assign);
+                                                     SET_HASH_KEY(assign, "name", name);
+                                                     SET_HASH_KEY(assign, "val", val);
+                                                     SAVE_HASH($$, "assign", assign); K($$); }
+
+icall      = name:identifier                       { stack[++stackp] = rb_ary_new(); K(stack[stackp]); }
+             (
+             arg-sep arg:expr                      { rb_ary_push(stack[stackp], arg); }
+             )+                                    { VALUE call = rb_hash_new(); K(call);
+                                                     SET_HASH_KEY(call, "name", name);
+                                                     SET_HASH_KEY(call, "args", stack[stackp--]);
+                                                     SAVE_HASH($$, "call", call); K($$); }
+
+ecall      = "(" name:identifier                   { stack[++stackp] = rb_ary_new(); K(stack[stackp]); }
+             (
+             arg-sep arg:expr                      { rb_ary_push(stack[stackp], arg); }
+             )* ")"                                { VALUE call = rb_hash_new(); K(call);
+                                                     SET_HASH_KEY(call, "name", name);
+                                                     SET_HASH_KEY(call, "args", stack[stackp--]);
+                                                     SAVE_HASH($$, "call", call); K($$); }
+
+arg-sep    = "," (- | --)* | -+
+
+expr       = op
+           | eop
+           | ecall
+           | func
+           | list
+           | atom
+
+func       = args:func-args
+             "{" (- | --)*                         { stack[++stackp] = rb_ary_new(); K(stack[stackp]); }
+             (
+             e:lexpr                               { e && rb_ary_push(stack[stackp], e) && K(e); }
+             )+
+             -* "}"                                { VALUE func = rb_hash_new(); K(func);
+                                                     args && SET_HASH_KEY(func, "args", args);
+                                                     SET_HASH_KEY(func, "body", stack[stackp--]);
+                                                     SAVE_HASH($$, "func", func); K($$); }
+
+func-args  = "["                                   { stack[++stackp] = rb_ary_new(); K(stack[stackp]); }
+             ( -*
+             arg:identifier                        { VALUE a = rb_hash_new(); K(a);
+                                                     SET_HASH_KEY(a, "arg", arg);
+                                                     rb_ary_push(stack[stackp], a); }
+             )+ -*
+             "]" -*                                { $$ = stack[stackp--]; K($$); }
+           | &"{"                                  { $$ = 0; }
+
+op         = left:operand -+
+             symbol:symbol -+
+             right:operand                         { VALUE op = rb_hash_new(); K(op);
+                                                     SET_HASH_KEY(op, "left", left);
+                                                     SET_HASH_KEY(op, "symbol", symbol);
+                                                     SET_HASH_KEY(op, "right", right);
+                                                     SAVE_HASH($$, "op", op); K($$); }
+
+eop        = "(" op ")"
+
+operand    = list
+           | atom
+           | eop
+           | ecall
+
+atom       = var:identifier                        { SAVE_HASH($$, "var", var); K($$); }
+           | str:string                            { SAVE_HASH($$, "string", str); K($$); }
+           | rng:range                             { SAVE_HASH($$, "range", rng); K($$); }
+           | int:integer                           { SAVE_HASH($$, "integer", int); K($$); }
+
+list       = "[" -*                                { stack[++stackp] = rb_ary_new(); K(stack[stackp]); }
+             (
+             e:expr (- | --)*                      { rb_ary_push(stack[stackp], e); K(e); }
+             )*
+             "]"                                   { SAVE_HASH($$, "list", stack[stackp--]); K($$); }
+
+rangeop    = var:identifier                        { SAVE_HASH($$, "var", var); K($$); }
+           | int:integer                           { SAVE_HASH($$, "integer", int); K($$); }
+           | eop
+           | ecall
+
+range      = first:rangeop ".." last:rangeop       { VALUE rng = rb_hash_new(); K(rng);
+                                                     SET_HASH_KEY(rng, "first", first);
+                                                     SET_HASH_KEY(rng, "last", last);
+                                                     $$ = rng; K($$); }
+
+dq         = "\""
+sq         = "\'"
+ndq        = !dq .
+nsq        = !sq .
+esc        = "\\" .
+string     = dq < (esc | ndq)* > dq                { $$ = rb_str_new(yytext, yyleng); K($$); }
+           | sq < (esc | nsq)* > sq                { $$ = rb_str_new(yytext, yyleng); K($$); }
+
+empty-line = -* --                                 { $$ = 0; }
+comment    = -* '#' [^\r\n]* --?                   { $$ = 0; }
+
+symbol     = < [-~`!?@$%^&*_+|/,.<>]+ >            { $$ = rb_str_new(yytext, yyleng); K($$); }
+           | < [-~`!?@$%^&*_+|/,.<>=]
+               [-~`!?@$%^&*_+|/,.<>=]+ >           { $$ = rb_str_new(yytext, yyleng); K($$); }
+
+identifier = < [a-z] [a-z0-9-]* >                  { $$ = rb_str_new(yytext, yyleng); K($$); }
+
+integer    = < digit+ >                            { $$ = rb_str_new(yytext, yyleng); K($$); }
+
+digit      = [0-9]
+
+-          = [ \t]
+--         = [\r]? [\n]
+eof        = !.
+
+%%
+
+/* borrowed from O'Reilly book "lex & yacc" pg. 157 */
+char *yy_input_ptr;
+int yy_input_len;
+
+/* TODO this fails on large input strings */
+int yy_input(char *buf, int max_size) {
+  int len = strlen(yy_input_ptr);
+  int n = max_size < len ? max_size : len;
+  if(n > 0) {
+    memcpy(buf, yy_input_ptr, n);
+    yy_input_ptr += n;
+  }
+  return n;
+}
+
+static VALUE Parser_parse(VALUE self, VALUE source) {
+  yy_input_ptr = rb_string_value_cstr(&source);
+  yy_input_len = strlen(yy_input_ptr);
+  body = rb_ary_new();
+  while (yyparse());
+  /*rb_gc_unregister_address(&__keep__);*/
+  return body;
+}
+
+void Init_parser() {
+  rb_gc_register_address(&body);
+  VALUE Airball = rb_define_module("Airball");
+  VALUE Parser = rb_define_class_under(Airball, "Parser", rb_cObject);
+  rb_define_const(Parser, "IMPLEMENTATION", rb_str_new2("c"));
+  rb_define_method(Parser, "parse", Parser_parse, 1);
+  __keep__ = rb_ary_new();
+  rb_gc_register_address(&__keep__);
+}
+
+
+/* borrowed from why's shoes/world.c
+   works with ruby 1.9 only */
+/* not used
+int init_ruby() {
+  VALUE v;
+  char *argv[] = {"ruby", "-e", "1"};
+  RUBY_INIT_STACK;
+  ruby_init();
+  v = (VALUE)ruby_options(3, argv);
+  return !FIXNUM_P(v);
+}
+*/
+
+/* not used
+void parse(char *filename) {
+  source_file = fopen(filename, "r");
+  body = rb_ary_new();
+  while (yyparse());
+  fclose(source_file);
+}
+*/
+
+/* not used
+VALUE build_program(VALUE *body) {
+  VALUE Airball = rb_const_get(rb_cObject, rb_intern("Airball"));
+  VALUE Program = rb_const_get(Airball, rb_intern("Program"));
+  VALUE program = rb_obj_alloc(Program);
+  rb_obj_call_init(program, 0, 0);
+  rb_funcall(program, rb_intern("tree="), 1, *body);
+  return program;
+}
+*/
+
+/* not used
+int main(int argc, char *argv[]) {
+  init_ruby();
+  rb_require("./lib/airball");
+
+  parse(argv[1]);
+  VALUE program = build_program(&body);
+
+  return 0;
+}
+*/

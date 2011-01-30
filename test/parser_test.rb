@@ -1,6 +1,14 @@
 require File.expand_path('../../lib/airball', __FILE__)
 require 'test/unit'
 
+if Airball::Parser::IMPLEMENTATION == 'ruby'
+  # due to limitation of Parslet, a repeating rule that matches
+  # no elements usually returns an empty string instead of an array
+  EMPTY_ARRAY = ""
+else
+  EMPTY_ARRAY = []
+end
+
 class ParserTest < Test::Unit::TestCase
   def setup
     @parser = Airball::Parser.new
@@ -11,7 +19,7 @@ class ParserTest < Test::Unit::TestCase
   end
 
   def test_empty_line
-    expected = "\n"
+    expected = Airball::Parser::IMPLEMENTATION == 'ruby' ? "\n" : []
     actual = parse("\n")
     assert_equal expected, actual
   end
@@ -36,6 +44,16 @@ class ParserTest < Test::Unit::TestCase
   end
 
   def test_string
+    expected = [
+      {:string => "foo"}
+    ]
+    actual = parse(%("foo"))
+    assert_equal expected, actual
+    expected = [
+      {:string => "bar"}
+    ]
+    actual = parse(%('bar'))
+    assert_equal expected, actual
     expected = [
       {:string => "\\\"OK, now I'm supposed to say, 'Hmm, that's interesting, but... ', then you say...\\\""},
       {:string => '"But what?"'},
@@ -66,25 +84,54 @@ class ParserTest < Test::Unit::TestCase
                  {:var => "x"},
                  {:op => {:left => {:integer => "3"},
                           :symbol => "*",
-                          :right => {:integer => "5"}}}]},
+                          :right => {:integer => "5"}}}]}
+    ]
+    actual = parse('[1 "string" x 3 * 5]')
+    assert_equal expected, actual
+  end
+
+  def test_list_as_operand
+    expected = [
       {:op => {:left => {:list => [{:integer => "1"},
                                    {:integer => "2"},
                                    {:integer => "3"}]},
                :symbol => "+",
                :right => {:list => [{:integer => "4"},
                                     {:integer => "5"},
-                                    {:integer => "6"}]}}},
-      {:list => ""},
+                                    {:integer => "6"}]}}}
+    ]
+    actual = parse('[1 2 3] + [4 5 6]')
+    assert_equal expected, actual
+  end
+
+  def test_empty_list
+    expected = [
+      {:list => EMPTY_ARRAY}
+    ]
+    actual = parse('[]')
+    assert_equal expected, actual
+  end
+
+  def test_multiline_list
+    expected = [
       {:list => [{:integer => "1"},
                  {:integer => "2"},
                  {:integer => "3"}]}
     ]
-    actual = parse('[1 "string" x 3 * 5]
-                    [1 2 3] + [4 5 6]
-                    []
-                    [1
+    actual = parse('[1
                      2
                      3]')
+    assert_equal expected, actual
+  end
+
+  def test_nested_list
+    expected = [
+      {:list => [{:integer => "1"},
+                 {:list => [{:var => "x"},
+                            {:var => "y"}]},
+                 {:integer => "2"}]}
+    ]
+    actual = parse("[1 [x y] 2]")
     assert_equal expected, actual
   end
 
@@ -107,9 +154,13 @@ class ParserTest < Test::Unit::TestCase
   def test_simple_call
     expected = [
       {:call => {:name => "foo", :args => [{:integer => "1"}, {:integer => "2"}]}},
+    ]
+    actual = parse("foo 1 2")
+    assert_equal expected, actual
+    expected = [
       {:op   => {:left => {:var => "x"}, :symbol => "*", :right => {:integer => "3"}}}
     ]
-    actual = parse("foo 1 2\nx * 3")
+    actual = parse("x * 3")
     assert_equal expected, actual
   end
 
@@ -117,13 +168,16 @@ class ParserTest < Test::Unit::TestCase
     expected = [
       {:call => {:name => "foo", :args => [{:integer => "1"},
                                            {:integer => "2"}]}},
-      {:call => {:name => "bar", :args => [{:integer => "3"},
-                                           {:list => ""},
-                                           {:func => {:body => [{:integer => "4"}]}}]}}
     ]
     actual = parse("foo 1,
-                        2
-                    bar 3,
+                        2")
+    assert_equal expected, actual
+    expected = [
+      {:call => {:name => "bar", :args => [{:integer => "3"},
+                                           {:list => EMPTY_ARRAY},
+                                           {:func => {:body => [{:integer => "4"}]}}]}}
+    ]
+    actual = parse("bar 3,
                         [],
                         { 4 }")
     assert_equal expected, actual
@@ -148,13 +202,29 @@ class ParserTest < Test::Unit::TestCase
 
   def test_no_arg_call
     expected = [
-      {:call => {:name => "foo"}},
-      {:call => {:name => "bar", :args => [{:call => {:name => "foo"}}]}}
+      {:call => {:name => "foo", :args => EMPTY_ARRAY}},
+      {:call => {:name => "bar", :args => [{:call => {:name => "foo", :args => EMPTY_ARRAY}}]}}
     ]
     actual = parse("(foo)\nbar (foo)")
+    assert_equal expected, actual
+  end
+
+  def test_symbols
+    assert_equal [{:op => {:left => {:var => "x"}, :symbol => "+", :right => {:integer => "3"}}}], parse("x + 3")
+    assert_equal [{:op => {:left => {:var => "x"}, :symbol => "-", :right => {:integer => "3"}}}], parse("x - 3")
+    assert_equal [{:op => {:left => {:var => "x"}, :symbol => "*", :right => {:integer => "3"}}}], parse("x * 3")
+    assert_equal [{:op => {:left => {:var => "x"}, :symbol => "/", :right => {:integer => "3"}}}], parse("x / 3")
   end
 
   def test_nested_call
+    expected = [
+      {:call => {:name => "foo", :args => [{:var => "x"},
+                                           {:call => {:name => "bar", :args => [{:var => "y"}]}},
+                                           {:var => "z"}]}}
+    ]
+    actual = parse("foo x (bar y) z")
+    assert_equal expected, actual
+
     expected = [
       {:op => {:left => {:op => {:left => {:var => "x"},
                                  :symbol => "*",
@@ -168,7 +238,7 @@ class ParserTest < Test::Unit::TestCase
                            {:integer => "1"},
                            {:integer => "2"}]}}
     ]
-    actual = parse("(x * 3) - 1\n
+    actual = parse("(x * 3) - 1
                     foo (bar && baz) 1 2")
     assert_equal expected, actual
 
@@ -219,6 +289,16 @@ class ParserTest < Test::Unit::TestCase
     actual = parse("{ foo 1 2 }")
     assert_equal expected, actual
     actual = parse("{\n foo 1 2\n }")
+    assert_equal expected, actual
+    expected = [
+      {:func => {:body => [{:assign => {:name => "x",
+                                        :val => {:integer => "1"}}},
+                           {:op => {:left => {:var => "x"},
+                                    :symbol => "*",
+                                    :right => {:integer => "3"}}}]}}
+    ]
+    actual = parse("{ x = 1
+                      x * 3 }")
     assert_equal expected, actual
   end
 

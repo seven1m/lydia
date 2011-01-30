@@ -1,4 +1,9 @@
-%w(parser transform classes functions errors).each { |l| require File.expand_path("../airball/#{l}", __FILE__) }
+%w(transform classes functions errors).each { |l| require File.expand_path("../airball/#{l}", __FILE__) }
+if ENV['AIRBALL_PARSER'] && ENV['AIRBALL_PARSER'] == 'ruby'
+  require File.expand_path("../airball/parser", __FILE__)
+else
+  require(File.expand_path("../../parser.so", __FILE__))
+end
 
 require 'pp'
 
@@ -37,7 +42,6 @@ module Airball
     def tree=(t)
       if @tree = t
         @transformed = transform(@tree)
-        puts @transformed.inspect
       end
     end
 
@@ -92,7 +96,7 @@ module Airball
         body[0..-2].each do |expr|
           expr.eval(@scope)
         end
-        body.last.eval(@scope) # return last expression
+        body.last.eval(@scope) if body.last # return last expression
       end
   end
 

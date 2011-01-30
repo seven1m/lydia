@@ -3,6 +3,8 @@ require 'parslet'
 module Airball
   class Parser < Parslet::Parser
 
+    IMPLEMENTATION = 'ruby'
+
     SYMBOL_CHARS = "~`!\?@\\$%\\^&\\*\\-_\\+|/,.<>"
 
     # generic

@@ -175,7 +175,7 @@ module Airball
         @body[0..-2].each do |expr|
           expr.eval(scope)
         end
-        @body.last.eval(scope) # return last result from function
+        @body.last.eval(scope) if @body.last # return last result from function
       end
     end
 
