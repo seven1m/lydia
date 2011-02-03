@@ -1,6 +1,6 @@
 # Airball
 
-This is a toy language I am creating using [Parslet](http://kschiess.github.com/parslet/), a nifty Ruby library for building Parsing Expression Grammars (PEGs).
+This is a toy language I am creating using the Ruby library [Parslet](http://kschiess.github.com/parslet/) and the C library [peg/leg](http://piumarta.com/software/peg/). Airball uses Parslet's [Transformation](http://kschiess.github.com/parslet/transform.html) library to convert flat Ruby hashes into Airball class instances.
 
 I knew nothing about grammars, parsers, or the like before I started this project, and am learning as I go. **Again, this is a toy language and not meant for real work.**
 
