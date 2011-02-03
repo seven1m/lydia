@@ -6,8 +6,12 @@ task :test do
   ruby "test/all.rb"
 end
 
+task :leg do
+  sh "leg ext/parser.leg -o ext/parser.c"
+end
+
 task :build do
-  sh "leg ext/parser.leg -o ext/parser.c && ruby ext/extconf.rb && make"
+  sh "ruby ext/extconf.rb && make"
 end
 
 desc "Builds a binary executable to execute airball script (not yet working)"

@@ -70,17 +70,21 @@ There's a few things to understand here:
 
 ## Installation
 
-I may turn this into a gem someday. For now, you'll have to download the source and execute:
+I may turn this into a gem someday. For now, you'll have to download the source and build:
 
-    bin/airball scriptname [args]
+    rake build
 
 You'll need Ruby 1.9.2+ and the "parslet" gem installed.
 
+## Usage
+
+    bin/airball scriptname [args]
+
 ## Tests
 
-The entire test suite can be run with:
+The test suite can be run with:
 
-    rake
+    rake test
 
 ## License
 
