@@ -329,6 +329,29 @@ class ParserTest < Test::Unit::TestCase
     assert_equal expected, actual
   end
 
+  def test_recursion
+    expected = [
+      {:assign =>
+        {:name =>"fact",
+         :val => {:func => {:args => [{:arg=>"x"}],
+                            :body=> [{:call => {:name =>"if",
+                                                :args => [{:op => {:left => {:var=>"x"},
+                                                                   :symbol =>"==",
+                                                                   :right => {:integer => "1"}}},
+                                                          {:var => "x"},
+                                                          {:func => {:body => [{:op => {:left => {:var=>"x"},
+                                                                                        :symbol => "*",
+                                                                                        :right => {:call => {:name => "fact",
+                                                                                                             :args => [{:op => {:left => {:var=>"x"},
+                                                                                                                                :symbol => "-",
+                                                                                                                                :right => {:integer=>"1"}}}]}}}}]}}]}}]}}}}
+    ]
+    actual = parse("fact = [x] { if x == 1,
+                                    x,
+                                    { x * (fact x - 1) } }")
+    assert_equal expected, actual
+  end
+
   def test_assign_func
     expected = [
       {:assign => {
