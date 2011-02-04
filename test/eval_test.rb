@@ -115,6 +115,14 @@ class EvalTest < Test::Unit::TestCase
     assert_equal "5\n", output
   end
 
+  def test_while
+    output = execute("n = 5
+                      while { n > 0 },
+                            { out n
+                              n = n - 1 }")
+    assert_equal "5\n4\n3\n2\n1\n", output
+  end
+
   def test_scoping
     assert_raise Airball::Errors::VariableNotFound do
       execute("f = { x }

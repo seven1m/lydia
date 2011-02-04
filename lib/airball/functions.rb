@@ -116,6 +116,12 @@ module Airball
         end
       end
 
+      define_function :while, [:cond, :func] do |scope, cond, func|
+        while cond.call(nil, [], scope).val != false
+          func.call nil, [], scope
+        end
+      end
+
       define_function :first, [:list] do |scope, list|
         list.vals.first
       end
