@@ -58,7 +58,7 @@ There's a few things to understand here:
 
 ## The Good
 
-* Variables have <del>dynamic</del> lexical (static) scope (see af38eda6c058b6646702f8531dc5019332473074) and are immutable (well, they will be soon).
+* Variables have lexical (static) scope.
 * Functions are first-class citizens, and can be passed to and returned from other functions.
 * Functions are also closures.
 * Airball has a decent test suite.
