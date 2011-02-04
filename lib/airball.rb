@@ -85,6 +85,10 @@ module Airball
             puts "------------------- End Parse Tree"
           end
         end
+        if Hash === parsed.first and error = parsed.first[:error]
+          puts "Syntax error: ", parsed.inspect
+          exit(1)
+        end
         transform(parsed)
       end
 
