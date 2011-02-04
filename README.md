@@ -32,6 +32,8 @@ The language is taking shape as I learn. For now, it's starting to resemble a **
     (f2 2 3) + (f1) # 12
     2 ^ 3           # 8
 
+    # see example.ball for other available functions
+
 There's a few things to understand here:
 
 * Functions are anonymous by default -- you have to explicitly save them to a variable.

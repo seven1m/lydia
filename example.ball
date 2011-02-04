@@ -49,6 +49,12 @@ out (join fibs ", ")
 list = [{ out "a" } { out "b" } { out "c" }]
 for list [x] { (x) }
 
+# while loop
+n = 10
+while { n > 0 },
+      { out n
+        n = n - 1 }
+
 # if/elsif/else
 if [x == 1 { out "one" }
     x == 2 { out "two" }
