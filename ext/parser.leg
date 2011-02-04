@@ -166,7 +166,6 @@ eof        = !.
 char *yy_input_ptr;
 int yy_input_len;
 
-/* TODO this fails on large input strings */
 int yy_input(char *buf, int max_size) {
   int len = strlen(yy_input_ptr);
   int n = max_size < len ? max_size : len;

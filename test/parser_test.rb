@@ -386,4 +386,11 @@ class ParserTest < Test::Unit::TestCase
                     z")
     assert_equal expected, actual
   end
+
+  # this is no longer an issue, and slow to test
+  #def test_large_input
+    #assert_nothing_raised do
+      #parse("24 " * 100000)
+    #end
+  #end
 end
