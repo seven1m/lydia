@@ -23,9 +23,9 @@ The language is taking shape as I learn. For now, it's starting to resemble a **
        { out "x is something else" }
 
     # recursion
-    ^ = [a b] { if y == 1,
-                   x,
-                   { x * (x ^ (y - 1)) } }
+    ^ = [a b] { if b == 1,
+                   a,
+                   { a * (a ^ (b - 1)) } }
 
     # calling a function
     f2 2 3          # 6
