@@ -16,28 +16,36 @@ int yy_input(char *buf, int max_size);
 
 #define SAVE_HASH(ref, key, val) \
   ref = rb_hash_new();           \
-  SET_HASH_KEY(ref, key, val);
+  SET_HASH_KEY(ref, key, val);   \
+  K(ref);
 
-#define K(val) rb_ary_push(__keep__, val);
+#define K(val) rb_ary_push(__keep__, val)
 
 VALUE body; /* ruby array */
+VALUE stack; /* ruby array */
+VALUE __keep__; /* ruby array to avoid GC of our objects */
 
-VALUE __keep__; /* ruby array */
+#define SPUSH() \
+  rb_ary_push(stack, rb_ary_new())
 
-VALUE stack[1024];
-int stackp = -1;
+#define SADD(val) \
+  rb_ary_push(rb_ary_entry(stack, RARRAY_LEN(stack) - 1), val)
+
+#define SPOP() \
+  rb_ary_pop(stack)
+
 
 %}
 
 body       = (
-             e:lexpr                               { e && rb_ary_push(body, e) && K(e); }
+             e:lexpr                               { e && rb_ary_push(body, e); }
              )+ eof
            | lexpr* bad eof
 
-bad        = < .+ >                                { VALUE error = rb_hash_new(); K(error);
+bad        = < .+ >                                { VALUE error = rb_hash_new();
                                                      SET_HASH_KEY(error, "type", rb_str_new2("syntax"));
                                                      SET_HASH_KEY(error, "expr", rb_str_new(yytext, yyleng));
-                                                     VALUE e = rb_hash_new(); K(e);
+                                                     VALUE e = rb_hash_new();
                                                      SET_HASH_KEY(e, "error", error); rb_ary_push(body, e); }
 
 lexpr      = -* (
@@ -50,26 +58,26 @@ lexpr      = -* (
 
 assign     = (name:identifier | name:symbol) -+
              "=" -+
-             (val:icall | val:expr)                { VALUE assign = rb_hash_new(); K(assign);
+             (val:icall | val:expr)                { VALUE assign = rb_hash_new();
                                                      SET_HASH_KEY(assign, "name", name);
                                                      SET_HASH_KEY(assign, "val", val);
-                                                     SAVE_HASH($$, "assign", assign); K($$); }
+                                                     SAVE_HASH($$, "assign", assign); }
 
-icall      = name:identifier                       { stack[++stackp] = rb_ary_new(); K(stack[stackp]); }
+icall      = name:identifier                       { SPUSH(); }
              (
-             arg-sep arg:expr                      { rb_ary_push(stack[stackp], arg); }
-             )+                                    { VALUE call = rb_hash_new(); K(call);
+             arg-sep arg:expr                      { SADD(arg); }
+             )+                                    { VALUE call = rb_hash_new();
                                                      SET_HASH_KEY(call, "name", name);
-                                                     SET_HASH_KEY(call, "args", stack[stackp--]);
-                                                     SAVE_HASH($$, "call", call); K($$); }
+                                                     SET_HASH_KEY(call, "args", SPOP());
+                                                     SAVE_HASH($$, "call", call); }
 
-ecall      = "(" name:identifier                   { stack[++stackp] = rb_ary_new(); K(stack[stackp]); }
+ecall      = "(" name:identifier                   { SPUSH(); }
              (
-             arg-sep arg:expr                      { rb_ary_push(stack[stackp], arg); }
-             )* ")"                                { VALUE call = rb_hash_new(); K(call);
+             arg-sep arg:expr                      { SADD(arg); }
+             )* ")"                                { VALUE call = rb_hash_new();
                                                      SET_HASH_KEY(call, "name", name);
-                                                     SET_HASH_KEY(call, "args", stack[stackp--]);
-                                                     SAVE_HASH($$, "call", call); K($$); }
+                                                     SET_HASH_KEY(call, "args", SPOP());
+                                                     SAVE_HASH($$, "call", call); }
 
 arg-sep    = "," (- | --)* | -+
 
@@ -81,31 +89,31 @@ expr       = op
            | atom
 
 func       = args:func-args
-             "{" (- | --)*                         { stack[++stackp] = rb_ary_new(); K(stack[stackp]); }
+             "{" (- | --)*                         { SPUSH(); }
              (
-             e:lexpr                               { e && rb_ary_push(stack[stackp], e) && K(e); }
+             e:lexpr                               { e && SADD(e); }
              )+
-             -* "}"                                { VALUE func = rb_hash_new(); K(func);
+             -* "}"                                { VALUE func = rb_hash_new();
                                                      args && SET_HASH_KEY(func, "args", args);
-                                                     SET_HASH_KEY(func, "body", stack[stackp--]);
-                                                     SAVE_HASH($$, "func", func); K($$); }
+                                                     SET_HASH_KEY(func, "body", SPOP());
+                                                     SAVE_HASH($$, "func", func); }
 
-func-args  = "["                                   { stack[++stackp] = rb_ary_new(); K(stack[stackp]); }
+func-args  = "["                                   { SPUSH(); }
              ( -*
-             arg:identifier                        { VALUE a = rb_hash_new(); K(a);
+             arg:identifier                        { VALUE a = rb_hash_new();
                                                      SET_HASH_KEY(a, "arg", arg);
-                                                     rb_ary_push(stack[stackp], a); }
+                                                     SADD(a); }
              )+ -*
-             "]" -*                                { $$ = stack[stackp--]; K($$); }
+             "]" -*                                { K($$ = SPOP()); }
            | &"{"                                  { $$ = 0; }
 
 op         = left:operand -+
              symbol:symbol -+
-             right:operand                         { VALUE op = rb_hash_new(); K(op);
+             right:operand                         { VALUE op = rb_hash_new();
                                                      SET_HASH_KEY(op, "left", left);
                                                      SET_HASH_KEY(op, "symbol", symbol);
                                                      SET_HASH_KEY(op, "right", right);
-                                                     SAVE_HASH($$, "op", op); K($$); }
+                                                     SAVE_HASH($$, "op", op); }
 
 eop        = "(" op ")"
 
@@ -114,45 +122,45 @@ operand    = list
            | eop
            | ecall
 
-atom       = var:identifier                        { SAVE_HASH($$, "var", var); K($$); }
-           | str:string                            { SAVE_HASH($$, "string", str); K($$); }
-           | rng:range                             { SAVE_HASH($$, "range", rng); K($$); }
-           | int:integer                           { SAVE_HASH($$, "integer", int); K($$); }
+atom       = var:identifier                        { SAVE_HASH($$, "var", var); }
+           | str:string                            { SAVE_HASH($$, "string", str); }
+           | rng:range                             { SAVE_HASH($$, "range", rng); }
+           | int:integer                           { SAVE_HASH($$, "integer", int); }
 
-list       = "[" -*                                { stack[++stackp] = rb_ary_new(); K(stack[stackp]); }
+list       = "[" -*                                { SPUSH(); }
              (
-             e:expr (- | --)*                      { rb_ary_push(stack[stackp], e); K(e); }
+             e:expr (- | --)*                      { SADD(e); }
              )*
-             "]"                                   { SAVE_HASH($$, "list", stack[stackp--]); K($$); }
+             "]"                                   { SAVE_HASH($$, "list", SPOP()); }
 
-rangeop    = var:identifier                        { SAVE_HASH($$, "var", var); K($$); }
-           | int:integer                           { SAVE_HASH($$, "integer", int); K($$); }
+rangeop    = var:identifier                        { SAVE_HASH($$, "var", var); }
+           | int:integer                           { SAVE_HASH($$, "integer", int); }
            | eop
            | ecall
 
-range      = first:rangeop ".." last:rangeop       { VALUE rng = rb_hash_new(); K(rng);
+range      = first:rangeop ".." last:rangeop       { VALUE rng = rb_hash_new();
                                                      SET_HASH_KEY(rng, "first", first);
                                                      SET_HASH_KEY(rng, "last", last);
-                                                     $$ = rng; K($$); }
+                                                     K($$ = rng); }
 
 dq         = "\""
 sq         = "\'"
 ndq        = !dq .
 nsq        = !sq .
 esc        = "\\" .
-string     = dq < (esc | ndq)* > dq                { $$ = rb_str_new(yytext, yyleng); K($$); }
-           | sq < (esc | nsq)* > sq                { $$ = rb_str_new(yytext, yyleng); K($$); }
+string     = dq < (esc | ndq)* > dq                { K($$ = rb_str_new(yytext, yyleng)); }
+           | sq < (esc | nsq)* > sq                { K($$ = rb_str_new(yytext, yyleng)); }
 
 empty-line = -* --                                 { $$ = 0; }
 comment    = -* '#' [^\r\n]* --?                   { $$ = 0; }
 
-symbol     = < [-~`!?@$%^&*_+|/,.<>]+ >            { $$ = rb_str_new(yytext, yyleng); K($$); }
+symbol     = < [-~`!?@$%^&*_+|/,.<>]+ >            { K($$ = rb_str_new(yytext, yyleng)); }
            | < [-~`!?@$%^&*_+|/,.<>=]
-               [-~`!?@$%^&*_+|/,.<>=]+ >           { $$ = rb_str_new(yytext, yyleng); K($$); }
+               [-~`!?@$%^&*_+|/,.<>=]+ >           { K($$ = rb_str_new(yytext, yyleng)); }
 
-identifier = < [a-z] [a-z0-9-]* >                  { $$ = rb_str_new(yytext, yyleng); K($$); }
+identifier = < [a-z] [a-z0-9-]* >                  { K($$ = rb_str_new(yytext, yyleng)); }
 
-integer    = < digit+ >                            { $$ = rb_str_new(yytext, yyleng); K($$); }
+integer    = < digit+ >                            { K($$ = rb_str_new(yytext, yyleng)); }
 
 digit      = [0-9]
 
@@ -180,8 +188,10 @@ static VALUE Parser_parse(VALUE self, VALUE source) {
   yy_input_ptr = rb_string_value_cstr(&source);
   yy_input_len = strlen(yy_input_ptr);
   body = rb_ary_new();
+  stack = rb_ary_new();
   while (yyparse());
-  /*rb_gc_unregister_address(&__keep__);*/
+  rb_gc_register_address(&body);
+  rb_funcall(__keep__, rb_intern("clear"), 0, 0);
   return body;
 }
 
@@ -193,6 +203,7 @@ void Init_parser() {
   rb_define_method(Parser, "parse", Parser_parse, 1);
   __keep__ = rb_ary_new();
   rb_gc_register_address(&__keep__);
+  rb_gc_register_address(&stack);
 }
 
 

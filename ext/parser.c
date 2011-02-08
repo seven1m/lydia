@@ -22,16 +22,24 @@ int yy_input(char *buf, int max_size);
 
 #define SAVE_HASH(ref, key, val) \
   ref = rb_hash_new();           \
-  SET_HASH_KEY(ref, key, val);
+  SET_HASH_KEY(ref, key, val);   \
+  K(ref);
 
-#define K(val) rb_ary_push(__keep__, val);
+#define K(val) rb_ary_push(__keep__, val)
 
 VALUE body; /* ruby array */
+VALUE stack; /* ruby array */
+VALUE __keep__; /* ruby array to avoid GC of our objects */
 
-VALUE __keep__; /* ruby array */
+#define SPUSH() \
+  rb_ary_push(stack, rb_ary_new())
 
-VALUE stack[1024];
-int stackp = -1;
+#define SADD(val) \
+  rb_ary_push(rb_ary_entry(stack, RARRAY_LEN(stack) - 1), val)
+
+#define SPOP() \
+  rb_ary_pop(stack)
+
 
 
 #ifndef YY_VARIABLE
@@ -280,22 +288,22 @@ YY_RULE(int) yy_body(); /* 1 */
 YY_ACTION(void) yy_1_integer(char *yytext, int yyleng)
 {
   yyprintf((stderr, "do yy_1_integer\n"));
-   yy = rb_str_new(yytext, yyleng); K(yy); ;
+   K(yy = rb_str_new(yytext, yyleng)); ;
 }
 YY_ACTION(void) yy_1_identifier(char *yytext, int yyleng)
 {
   yyprintf((stderr, "do yy_1_identifier\n"));
-   yy = rb_str_new(yytext, yyleng); K(yy); ;
+   K(yy = rb_str_new(yytext, yyleng)); ;
 }
 YY_ACTION(void) yy_2_symbol(char *yytext, int yyleng)
 {
   yyprintf((stderr, "do yy_2_symbol\n"));
-   yy = rb_str_new(yytext, yyleng); K(yy); ;
+   K(yy = rb_str_new(yytext, yyleng)); ;
 }
 YY_ACTION(void) yy_1_symbol(char *yytext, int yyleng)
 {
   yyprintf((stderr, "do yy_1_symbol\n"));
-   yy = rb_str_new(yytext, yyleng); K(yy); ;
+   K(yy = rb_str_new(yytext, yyleng)); ;
 }
 YY_ACTION(void) yy_1_comment(char *yytext, int yyleng)
 {
@@ -310,22 +318,22 @@ YY_ACTION(void) yy_1_empty_line(char *yytext, int yyleng)
 YY_ACTION(void) yy_2_string(char *yytext, int yyleng)
 {
   yyprintf((stderr, "do yy_2_string\n"));
-   yy = rb_str_new(yytext, yyleng); K(yy); ;
+   K(yy = rb_str_new(yytext, yyleng)); ;
 }
 YY_ACTION(void) yy_1_string(char *yytext, int yyleng)
 {
   yyprintf((stderr, "do yy_1_string\n"));
-   yy = rb_str_new(yytext, yyleng); K(yy); ;
+   K(yy = rb_str_new(yytext, yyleng)); ;
 }
 YY_ACTION(void) yy_1_range(char *yytext, int yyleng)
 {
 #define last yyval[-1]
 #define first yyval[-2]
   yyprintf((stderr, "do yy_1_range\n"));
-   VALUE rng = rb_hash_new(); K(rng);
+   VALUE rng = rb_hash_new();
                                                      SET_HASH_KEY(rng, "first", first);
                                                      SET_HASH_KEY(rng, "last", last);
-                                                     yy = rng; K(yy); ;
+                                                     K(yy = rng); ;
 #undef last
 #undef first
 }
@@ -334,7 +342,7 @@ YY_ACTION(void) yy_2_rangeop(char *yytext, int yyleng)
 #define int yyval[-1]
 #define var yyval[-2]
   yyprintf((stderr, "do yy_2_rangeop\n"));
-   SAVE_HASH(yy, "integer", int); K(yy); ;
+   SAVE_HASH(yy, "integer", int); ;
 #undef int
 #undef var
 }
@@ -343,7 +351,7 @@ YY_ACTION(void) yy_1_rangeop(char *yytext, int yyleng)
 #define int yyval[-1]
 #define var yyval[-2]
   yyprintf((stderr, "do yy_1_rangeop\n"));
-   SAVE_HASH(yy, "var", var); K(yy); ;
+   SAVE_HASH(yy, "var", var); ;
 #undef int
 #undef var
 }
@@ -351,21 +359,21 @@ YY_ACTION(void) yy_3_list(char *yytext, int yyleng)
 {
 #define e yyval[-1]
   yyprintf((stderr, "do yy_3_list\n"));
-   SAVE_HASH(yy, "list", stack[stackp--]); K(yy); ;
+   SAVE_HASH(yy, "list", SPOP()); ;
 #undef e
 }
 YY_ACTION(void) yy_2_list(char *yytext, int yyleng)
 {
 #define e yyval[-1]
   yyprintf((stderr, "do yy_2_list\n"));
-   rb_ary_push(stack[stackp], e); K(e); ;
+   SADD(e); ;
 #undef e
 }
 YY_ACTION(void) yy_1_list(char *yytext, int yyleng)
 {
 #define e yyval[-1]
   yyprintf((stderr, "do yy_1_list\n"));
-   stack[++stackp] = rb_ary_new(); K(stack[stackp]); ;
+   SPUSH(); ;
 #undef e
 }
 YY_ACTION(void) yy_4_atom(char *yytext, int yyleng)
@@ -375,7 +383,7 @@ YY_ACTION(void) yy_4_atom(char *yytext, int yyleng)
 #define str yyval[-3]
 #define var yyval[-4]
   yyprintf((stderr, "do yy_4_atom\n"));
-   SAVE_HASH(yy, "integer", int); K(yy); ;
+   SAVE_HASH(yy, "integer", int); ;
 #undef int
 #undef rng
 #undef str
@@ -388,7 +396,7 @@ YY_ACTION(void) yy_3_atom(char *yytext, int yyleng)
 #define str yyval[-3]
 #define var yyval[-4]
   yyprintf((stderr, "do yy_3_atom\n"));
-   SAVE_HASH(yy, "range", rng); K(yy); ;
+   SAVE_HASH(yy, "range", rng); ;
 #undef int
 #undef rng
 #undef str
@@ -401,7 +409,7 @@ YY_ACTION(void) yy_2_atom(char *yytext, int yyleng)
 #define str yyval[-3]
 #define var yyval[-4]
   yyprintf((stderr, "do yy_2_atom\n"));
-   SAVE_HASH(yy, "string", str); K(yy); ;
+   SAVE_HASH(yy, "string", str); ;
 #undef int
 #undef rng
 #undef str
@@ -414,7 +422,7 @@ YY_ACTION(void) yy_1_atom(char *yytext, int yyleng)
 #define str yyval[-3]
 #define var yyval[-4]
   yyprintf((stderr, "do yy_1_atom\n"));
-   SAVE_HASH(yy, "var", var); K(yy); ;
+   SAVE_HASH(yy, "var", var); ;
 #undef int
 #undef rng
 #undef str
@@ -426,11 +434,11 @@ YY_ACTION(void) yy_1_op(char *yytext, int yyleng)
 #define symbol yyval[-2]
 #define left yyval[-3]
   yyprintf((stderr, "do yy_1_op\n"));
-   VALUE op = rb_hash_new(); K(op);
+   VALUE op = rb_hash_new();
                                                      SET_HASH_KEY(op, "left", left);
                                                      SET_HASH_KEY(op, "symbol", symbol);
                                                      SET_HASH_KEY(op, "right", right);
-                                                     SAVE_HASH(yy, "op", op); K(yy); ;
+                                                     SAVE_HASH(yy, "op", op); ;
 #undef right
 #undef symbol
 #undef left
@@ -446,23 +454,23 @@ YY_ACTION(void) yy_3_func_args(char *yytext, int yyleng)
 {
 #define arg yyval[-1]
   yyprintf((stderr, "do yy_3_func_args\n"));
-   yy = stack[stackp--]; K(yy); ;
+   K(yy = SPOP()); ;
 #undef arg
 }
 YY_ACTION(void) yy_2_func_args(char *yytext, int yyleng)
 {
 #define arg yyval[-1]
   yyprintf((stderr, "do yy_2_func_args\n"));
-   VALUE a = rb_hash_new(); K(a);
+   VALUE a = rb_hash_new();
                                                      SET_HASH_KEY(a, "arg", arg);
-                                                     rb_ary_push(stack[stackp], a); ;
+                                                     SADD(a); ;
 #undef arg
 }
 YY_ACTION(void) yy_1_func_args(char *yytext, int yyleng)
 {
 #define arg yyval[-1]
   yyprintf((stderr, "do yy_1_func_args\n"));
-   stack[++stackp] = rb_ary_new(); K(stack[stackp]); ;
+   SPUSH(); ;
 #undef arg
 }
 YY_ACTION(void) yy_3_func(char *yytext, int yyleng)
@@ -470,10 +478,10 @@ YY_ACTION(void) yy_3_func(char *yytext, int yyleng)
 #define e yyval[-1]
 #define args yyval[-2]
   yyprintf((stderr, "do yy_3_func\n"));
-   VALUE func = rb_hash_new(); K(func);
+   VALUE func = rb_hash_new();
                                                      args && SET_HASH_KEY(func, "args", args);
-                                                     SET_HASH_KEY(func, "body", stack[stackp--]);
-                                                     SAVE_HASH(yy, "func", func); K(yy); ;
+                                                     SET_HASH_KEY(func, "body", SPOP());
+                                                     SAVE_HASH(yy, "func", func); ;
 #undef e
 #undef args
 }
@@ -482,7 +490,7 @@ YY_ACTION(void) yy_2_func(char *yytext, int yyleng)
 #define e yyval[-1]
 #define args yyval[-2]
   yyprintf((stderr, "do yy_2_func\n"));
-   e && rb_ary_push(stack[stackp], e) && K(e); ;
+   e && SADD(e); ;
 #undef e
 #undef args
 }
@@ -491,7 +499,7 @@ YY_ACTION(void) yy_1_func(char *yytext, int yyleng)
 #define e yyval[-1]
 #define args yyval[-2]
   yyprintf((stderr, "do yy_1_func\n"));
-   stack[++stackp] = rb_ary_new(); K(stack[stackp]); ;
+   SPUSH(); ;
 #undef e
 #undef args
 }
@@ -500,10 +508,10 @@ YY_ACTION(void) yy_3_ecall(char *yytext, int yyleng)
 #define arg yyval[-1]
 #define name yyval[-2]
   yyprintf((stderr, "do yy_3_ecall\n"));
-   VALUE call = rb_hash_new(); K(call);
+   VALUE call = rb_hash_new();
                                                      SET_HASH_KEY(call, "name", name);
-                                                     SET_HASH_KEY(call, "args", stack[stackp--]);
-                                                     SAVE_HASH(yy, "call", call); K(yy); ;
+                                                     SET_HASH_KEY(call, "args", SPOP());
+                                                     SAVE_HASH(yy, "call", call); ;
 #undef arg
 #undef name
 }
@@ -512,7 +520,7 @@ YY_ACTION(void) yy_2_ecall(char *yytext, int yyleng)
 #define arg yyval[-1]
 #define name yyval[-2]
   yyprintf((stderr, "do yy_2_ecall\n"));
-   rb_ary_push(stack[stackp], arg); ;
+   SADD(arg); ;
 #undef arg
 #undef name
 }
@@ -521,7 +529,7 @@ YY_ACTION(void) yy_1_ecall(char *yytext, int yyleng)
 #define arg yyval[-1]
 #define name yyval[-2]
   yyprintf((stderr, "do yy_1_ecall\n"));
-   stack[++stackp] = rb_ary_new(); K(stack[stackp]); ;
+   SPUSH(); ;
 #undef arg
 #undef name
 }
@@ -530,10 +538,10 @@ YY_ACTION(void) yy_3_icall(char *yytext, int yyleng)
 #define arg yyval[-1]
 #define name yyval[-2]
   yyprintf((stderr, "do yy_3_icall\n"));
-   VALUE call = rb_hash_new(); K(call);
+   VALUE call = rb_hash_new();
                                                      SET_HASH_KEY(call, "name", name);
-                                                     SET_HASH_KEY(call, "args", stack[stackp--]);
-                                                     SAVE_HASH(yy, "call", call); K(yy); ;
+                                                     SET_HASH_KEY(call, "args", SPOP());
+                                                     SAVE_HASH(yy, "call", call); ;
 #undef arg
 #undef name
 }
@@ -542,7 +550,7 @@ YY_ACTION(void) yy_2_icall(char *yytext, int yyleng)
 #define arg yyval[-1]
 #define name yyval[-2]
   yyprintf((stderr, "do yy_2_icall\n"));
-   rb_ary_push(stack[stackp], arg); ;
+   SADD(arg); ;
 #undef arg
 #undef name
 }
@@ -551,7 +559,7 @@ YY_ACTION(void) yy_1_icall(char *yytext, int yyleng)
 #define arg yyval[-1]
 #define name yyval[-2]
   yyprintf((stderr, "do yy_1_icall\n"));
-   stack[++stackp] = rb_ary_new(); K(stack[stackp]); ;
+   SPUSH(); ;
 #undef arg
 #undef name
 }
@@ -560,27 +568,27 @@ YY_ACTION(void) yy_1_assign(char *yytext, int yyleng)
 #define val yyval[-1]
 #define name yyval[-2]
   yyprintf((stderr, "do yy_1_assign\n"));
-   VALUE assign = rb_hash_new(); K(assign);
+   VALUE assign = rb_hash_new();
                                                      SET_HASH_KEY(assign, "name", name);
                                                      SET_HASH_KEY(assign, "val", val);
-                                                     SAVE_HASH(yy, "assign", assign); K(yy); ;
+                                                     SAVE_HASH(yy, "assign", assign); ;
 #undef val
 #undef name
 }
 YY_ACTION(void) yy_1_bad(char *yytext, int yyleng)
 {
   yyprintf((stderr, "do yy_1_bad\n"));
-   VALUE error = rb_hash_new(); K(error);
+   VALUE error = rb_hash_new();
                                                      SET_HASH_KEY(error, "type", rb_str_new2("syntax"));
                                                      SET_HASH_KEY(error, "expr", rb_str_new(yytext, yyleng));
-                                                     VALUE e = rb_hash_new(); K(e);
+                                                     VALUE e = rb_hash_new();
                                                      SET_HASH_KEY(e, "error", error); rb_ary_push(body, e); ;
 }
 YY_ACTION(void) yy_1_body(char *yytext, int yyleng)
 {
 #define e yyval[-1]
   yyprintf((stderr, "do yy_1_body\n"));
-   e && rb_ary_push(body, e) && K(e); ;
+   e && rb_ary_push(body, e); ;
 #undef e
 }
 
@@ -1163,7 +1171,6 @@ YY_PARSE(int) YYPARSE(void)
 char *yy_input_ptr;
 int yy_input_len;
 
-/* TODO this fails on large input strings */
 int yy_input(char *buf, int max_size) {
   int len = strlen(yy_input_ptr);
   int n = max_size < len ? max_size : len;
@@ -1178,8 +1185,10 @@ static VALUE Parser_parse(VALUE self, VALUE source) {
   yy_input_ptr = rb_string_value_cstr(&source);
   yy_input_len = strlen(yy_input_ptr);
   body = rb_ary_new();
+  stack = rb_ary_new();
   while (yyparse());
-  /*rb_gc_unregister_address(&__keep__);*/
+  rb_gc_register_address(&body);
+  rb_funcall(__keep__, rb_intern("clear"), 0, 0);
   return body;
 }
 
@@ -1191,6 +1200,7 @@ void Init_parser() {
   rb_define_method(Parser, "parse", Parser_parse, 1);
   __keep__ = rb_ary_new();
   rb_gc_register_address(&__keep__);
+  rb_gc_register_address(&stack);
 }
 
 
