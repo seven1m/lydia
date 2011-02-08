@@ -1,20 +1,24 @@
 require 'rake'
 
+desc "Build and run tests."
 task :default => [:build, :test]
 
+desc "Run all tests."
 task :test do
   ruby "test/all.rb"
 end
 
+desc "Build parser C code using 'leg' binary (must have 'leg' in your PATH)."
 task :leg do
   sh "leg ext/parser.leg -o ext/parser.c"
 end
 
+desc "Build C extension."
 task :build do
   sh "ruby ext/extconf.rb && make"
 end
 
-desc "Builds a binary executable to execute airball script (not yet working)"
+# not used at this time"
 task :bin => :build do
   require 'rbconfig'
   header_dir = Config::CONFIG['rubyhdrdir']
