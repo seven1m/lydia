@@ -1,14 +1,6 @@
 require File.expand_path('../../lib/airball', __FILE__)
 require 'test/unit'
 
-if Airball::Parser::IMPLEMENTATION == 'ruby'
-  # due to limitation of Parslet, a repeating rule that matches
-  # no elements usually returns an empty string instead of an array
-  EMPTY_ARRAY = ""
-else
-  EMPTY_ARRAY = []
-end
-
 class ParserTest < Test::Unit::TestCase
   def setup
     @parser = Airball::Parser.new
@@ -106,7 +98,7 @@ class ParserTest < Test::Unit::TestCase
 
   def test_empty_list
     expected = [
-      {:list => EMPTY_ARRAY}
+      {:list => []}
     ]
     actual = parse('[]')
     assert_equal expected, actual
@@ -174,7 +166,7 @@ class ParserTest < Test::Unit::TestCase
     assert_equal expected, actual
     expected = [
       {:call => {:name => "bar", :args => [{:integer => "3"},
-                                           {:list => EMPTY_ARRAY},
+                                           {:list => []},
                                            {:func => {:body => [{:integer => "4"}]}}]}}
     ]
     actual = parse("bar 3,
@@ -202,8 +194,8 @@ class ParserTest < Test::Unit::TestCase
 
   def test_no_arg_call
     expected = [
-      {:call => {:name => "foo", :args => EMPTY_ARRAY}},
-      {:call => {:name => "bar", :args => [{:call => {:name => "foo", :args => EMPTY_ARRAY}}]}}
+      {:call => {:name => "foo", :args => []}},
+      {:call => {:name => "bar", :args => [{:call => {:name => "foo", :args => []}}]}}
     ]
     actual = parse("(foo)\nbar (foo)")
     assert_equal expected, actual
