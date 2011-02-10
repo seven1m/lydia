@@ -1,3 +1,10 @@
+class Object
+  def self.iattr(*names)
+    class_eval("attr_accessor #{names.map { |n| ':'+n.to_s }.join(', ')}")
+    class_eval("def initialize(#{names.join(', ')}) #{names.map { |n| '@'+n.to_s+'='+n.to_s }.join('; ')}; end")
+  end
+end
+
 module Airball
   class Store
     attr_accessor :values
@@ -69,8 +76,12 @@ module Airball
       name.split('::').last
     end
 
-    def to_s
-      "<#{self.class.airball_name}>"
+    def ==(other)
+      return false unless other.class == self.class
+      instance_variables.each do |ivar|
+        return false unless instance_variable_get(ivar) == other.instance_variable_get(ivar)
+      end
+      return true
     end
   end
 
@@ -202,10 +213,6 @@ module Airball
       else
         raise Errors::FunctionNotFound, "'#{name}' could not be found in the current scope."
       end
-    end
-
-    def to_s
-      "<Call #{name}>"
     end
   end
 

@@ -1,10 +1,8 @@
 # Airball
 
-This is a toy language I am creating using the Ruby library [Parslet](http://kschiess.github.com/parslet/) and the C library [peg/leg](http://piumarta.com/software/peg/). Airball uses Parslet's [Transformation](http://kschiess.github.com/parslet/transform.html) library to convert flat Ruby hashes into Airball class instances.
+This is a toy language I am creating using Ruby and the C library [peg/leg](http://piumarta.com/software/peg/).
 
-I knew nothing about grammars, parsers, or the like before I started this project, and am learning as I go. **Again, this is a toy language and not meant for real work.**
-
-The language is taking shape as I learn. For now, it's starting to resemble a **functional language**.
+The language is taking shape as I learn, and **not meant for real work**. For now, it's starting to resemble a functional language.
 
 ## Syntax
 
@@ -75,8 +73,6 @@ There's a few things to understand here:
 I may turn this into a gem someday. For now, you'll have to download the source and build:
 
     rake build
-
-You'll need Ruby 1.9.2+ and the "parslet" gem installed.
 
 ## Usage
 

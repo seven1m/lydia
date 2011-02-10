@@ -1,172 +1,49 @@
-require 'parslet'
-
 module Airball
-  class Parser < Parslet::Parser
-
-    IMPLEMENTATION = 'ruby'
-
-    SYMBOL_CHARS = "~`!\?@\\$%\\^&\\*\\-_\\+|/,.<>"
-
-    # generic
-
-    rule(:space)      { match(' ').repeat(1) }
-    rule(:space?)     { space.maybe }
-
-    rule(:newline)    { str("\n") }
-    rule(:newline?)   { newline.maybe }
-
-    rule(:ns?)        { (space | newline).repeat }
-
-    rule(:cn)         { str(",") >> space? >> newline? }
-    rule(:cn?)        { cn.maybe }
-
-    # numbers
-
-    rule(:integer) do
-      match['0-9'].repeat(1).as(:integer)
+  class Parser
+    def syntax_error(expr)
+      Errors::SyntaxError.new(expr)
     end
 
-    # strings
-
-    rule(:dquote)    { str('"') }
-    rule(:squote)    { str("'") }
-    rule(:nondquote) { str('"').absnt? >> any }
-    rule(:nonsquote) { str("'").absnt? >> any }
-    rule(:escape)    { str("\\") >> any }
-
-    rule(:string) do
-      dquote >> (escape | nondquote).repeat.as(:string) >> dquote |
-      squote >> (escape | nonsquote).repeat.as(:string) >> squote
+    def assign(name, val)
+      Assign.new(name, val)
     end
 
-    # ranges
-
-    rule(:rangeop) do
-      identifier.as(:var) |
-      integer             |
-      str("(") >> (op | icall) >> str(")")
+    def integer(val)
+      Int.new(val.to_i)
     end
 
-    rule(:range) do
-      (
-        rangeop.as(:first) >> str("..") >> rangeop.as(:last)
-      ).as(:range)
+    def string(val)
+      Str.new(val.gsub(/\\/, ''))
     end
 
-    # lists
-
-    rule(:list) do
-      str("[") >> space? >>
-      (expr >> ns?).repeat.as(:list) >>
-      str("]")
+    def range(first, last)
+      Rng.new(first, last)
     end
 
-    # vars and function names
-
-    rule(:identifier) do
-      match["a-z"] >> match["a-z0-9"].repeat
+    def var(name)
+      Var.new(name)
     end
 
-    # infix function call - math-type operations
-
-    rule(:operand) do
-      list |
-      atom |
-      str("(") >> (op | icall) >> str(")")
+    def op(symbol, left, right)
+      Call.new(symbol, [left, right])
     end
 
-    rule(:symbol) do
-      match[SYMBOL_CHARS].repeat(1) |
-      match["#{SYMBOL_CHARS}="].repeat(2)
+    def call(name, args)
+      Call.new(name, args)
     end
 
-    rule(:op) do
-      (
-        operand.as(:left) >> space >> symbol.as(:symbol) >> space >> operand.as(:right)
-      ).as(:op)
+    def func(args, body)
+      Function.new(args, body)
     end
 
-    rule(:eop) do
-      str("(") >> op >> str(")")
+    def list(vals)
+      List.new(vals)
     end
 
-    # other
-
-    rule(:comment) do
-      str("#") >> match["^\\n"].repeat >> newline?
+    def add(ast)
+      @expressions << ast
     end
-
-    rule(:assign) do
-      (
-        (identifier | symbol).as(:name) >> space >>
-        str("=") >> space >>
-        (icall | expr).as(:val) >>
-        space? >> newline?
-      ).as(:assign)
-    end
-
-    # line expression
-    rule(:lexpr) do
-      space? >> newline |
-      space? >> comment |
-      space? >> (
-        icall           |
-        assign          |
-        expr
-      ) >> newline?
-    end
-
-    # inner expression
-    rule(:expr) do
-      op              |
-      eop             |
-      ecall           |
-      func.as(:func)  |
-      list            |
-      atom
-    end
-
-    # simple types, var, int, str, range, etc.
-    rule(:atom) do
-      identifier.as(:var)  |
-      string               |
-      range                |
-      integer
-    end
-
-    # implicit call
-    rule(:icall) do
-      (
-        identifier.as(:name) >> (cn? >> space >> expr).repeat(1).as(:args)
-      ).as(:call)
-    end
-
-    # explicit call (with parens)
-    rule(:ecall) do
-      (
-        str("(") >> identifier.as(:name) >> (cn? >> space >> expr).repeat.as(:args) >> str(")")
-      ).as(:call)
-    end
-
-    # function definition
-    rule(:func) do
-      (
-        str("[") >> space? >>
-        (
-          identifier.as(:arg).repeat(1, 1) >>
-          (space >> identifier.as(:arg)).repeat
-        ).as(:args) >> space? >>
-        str("]") >> space?
-      ).maybe >>
-      str("{") >> ns? >>
-      body.as(:body) >>
-      ns? >> str("}")
-    end
-
-    rule(:body) do
-      lexpr.repeat(1)
-    end
-
-    root :body
   end
 end
+
+require(File.expand_path("../../../parser.so", __FILE__))

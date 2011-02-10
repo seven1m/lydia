@@ -4,5 +4,6 @@ module Airball
     class TypeMismatch          < RuntimeError; end
     class ArgumentCountMismatch < RuntimeError; end
     class VariableNotFound      < RuntimeError; end
+    class SyntaxError           < RuntimeError; end
   end
 end

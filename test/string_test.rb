@@ -1,5 +1,6 @@
 require File.expand_path('../../lib/airball', __FILE__)
 require 'test/unit'
+require 'stringio'
 
 PROGRAM = Airball::Program.new unless defined?(PROGRAM)
 

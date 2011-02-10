@@ -1,9 +1,4 @@
-%w(transform classes functions errors).each { |l| require File.expand_path("../airball/#{l}", __FILE__) }
-if ENV['AIRBALL_PARSER'] && ENV['AIRBALL_PARSER'] == 'ruby'
-  require File.expand_path("../airball/parser", __FILE__)
-else
-  require(File.expand_path("../../parser.so", __FILE__))
-end
+%w(parser classes functions errors).each { |l| require File.expand_path("../airball/#{l}", __FILE__) }
 
 require 'pp'
 
@@ -26,7 +21,6 @@ module Airball
 
     def initialize(source=nil, args=[])
       @parser = Parser.new
-      @transform = Transform.new
       build_scope(args)
       self.source = source
     end
@@ -35,20 +29,14 @@ module Airball
       if @source = s
         build_functions
         load_library
-        @transformed = parse(@source)
-      end
-    end
-
-    def tree=(t)
-      if @tree = t
-        @transformed = transform(@tree)
+        @parsed = parse(@source)
       end
     end
 
     attr_accessor :scope
 
     def run
-      execute(@transformed)
+      execute(@parsed)
     end
 
     private
@@ -70,30 +58,17 @@ module Airball
       end
 
       def parse(source)
-        begin
-          parsed = @parser.parse(source)
-        rescue Parslet::ParseFailed => error
-          puts error.message
-          puts error.backtrace
-          if DEBUG && DEBUG.include?(:tree)
-            puts @parser.root.error_tree
-          end
-        else
-          if DEBUG && DEBUG.include?(:tree)
-            puts "DEBUG: Parse Tree ----------------"
-            pp parsed
-            puts "------------------- End Parse Tree"
-          end
+        parsed = @parser.parse(source)
+        if DEBUG && DEBUG.include?(:tree)
+          puts "DEBUG: Parse Tree ----------------"
+          pp parsed
+          puts "------------------- End Parse Tree"
         end
         if Hash === parsed.first and error = parsed.first[:error]
           puts "Syntax error: ", parsed.inspect
           exit(1)
         end
-        transform(parsed)
-      end
-
-      def transform(parsed)
-        @transform.apply(parsed)
+        parsed
       end
 
       def execute(body)
