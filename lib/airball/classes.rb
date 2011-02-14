@@ -235,4 +235,12 @@ module Airball
       "<Var #{name}>"
     end
   end
+
+  class AirballFile < Obj
+    iattr :file
+
+    def eval(scope)
+      self
+    end
+  end
 end

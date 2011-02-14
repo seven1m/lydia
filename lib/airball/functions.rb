@@ -137,6 +137,21 @@ module Airball
       define_function :str, [:expr] do |scope, expr|
         Str.new(expr.to_s)
       end
+
+      define_function :file, [:path, :mode, :func] do |scope, path, mode, func|
+        File.open(path.to_s, mode.to_s) do |file|
+          f = AirballFile.new(file)
+          func.call nil, [f], scope
+        end
+      end
+
+      define_function :read, [:file] do |scope, file|
+        Str.new(file.file.read)
+      end
+
+      define_function :write, [:file, :str] do |scope, file, str|
+        Int.new(file.file.write(str.to_s))
+      end
     end
   end
 end

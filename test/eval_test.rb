@@ -148,4 +148,21 @@ class EvalTest < Test::Unit::TestCase
     end
   end
 
+  def test_file_read
+    path = File.expand_path('../files/file1.txt', __FILE__)
+    output = execute("file '#{path}' 'r',
+                           [f] { out (read f) }")
+    assert_equal "foobar\n\n", output
+  end
+
+  def test_file_write
+    begin
+      path = File.expand_path('../files/file2.txt', __FILE__)
+      output = execute("file '#{path}' 'w',
+                             [f] { write f 'hello world\n' }")
+      assert_equal "hello world\n", File.read(path)
+    ensure
+      File.delete(path) if File.exist?(path)
+    end
+  end
 end
