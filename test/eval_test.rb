@@ -95,6 +95,9 @@ class EvalTest < Test::Unit::TestCase
     assert_equal "no\n", output
     output = execute("if (true && true) { out 'yes' } { out 'no' }")
     assert_equal "yes\n", output
+    output = execute("out 'one' && 'two'
+                      out false && 'two'")
+    assert_equal "two\nfalse\n", output
   end
 
   def test_or
@@ -102,6 +105,9 @@ class EvalTest < Test::Unit::TestCase
     assert_equal "yes\n", output
     output = execute("if (false || false) { out 'yes' } { out 'no' }")
     assert_equal "no\n", output
+    output = execute("out 'one' || 'two'
+                      out false || 'two'")
+    assert_equal "one\ntwo\n", output
   end
 
   def test_recursion

@@ -58,11 +58,19 @@ module Airball
       end
 
       define_function '&&', [:left, :right] do |scope, left, right|
-        left.val == false || right.val == false ? False.new : True.new
+        False === left || False === right ? False.new : right
       end
 
       define_function '||', [:left, :right] do |scope, left, right|
-        left.val == false && right.val == false ? False.new : True.new
+        unless False === left
+          left
+        else
+          unless False === right
+            right
+          else
+            False.new
+          end
+        end
       end
 
       define_function :if, [:cond, :t, :f] do |scope, cond, t, f|
@@ -72,7 +80,7 @@ module Airball
             cond.vals.each_slice(2) do |part|
               if part.length == 2
                 c, f = part
-                unless c.val == false
+                unless False === c
                   if Function === f
                     result = f.call nil, [], scope
                   else
@@ -94,7 +102,7 @@ module Airball
             raise Errors::ArgumentCountMismatch, "Not enough arguments for 'if'"
           end
         else
-          if cond.val == false
+          if False === cond
             if Function === f
               f.call nil, [], scope
             else
@@ -117,7 +125,7 @@ module Airball
       end
 
       define_function :while, [:cond, :func] do |scope, cond, func|
-        while cond.call(nil, [], scope).val != false
+        until False === cond.call(nil, [], scope)
           func.call nil, [], scope
         end
       end
