@@ -152,6 +152,10 @@ module Airball
       define_function :write, [:file, :str] do |scope, file, str|
         Int.new(file.file.write(str.to_s))
       end
+
+      define_function :type, [:obj] do |scope, obj|
+        Str.new(obj.class.airball_name.downcase)
+      end
     end
   end
 end

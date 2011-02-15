@@ -55,6 +55,10 @@ class EvalTest < Test::Unit::TestCase
     assert_equal "12\n", output
   end
 
+  def test_type
+    assert_equal "int\n", execute("out (type 1)")
+  end
+
   def test_bool
     output = execute("out 1 == 1")
     assert_equal "true\n", output
