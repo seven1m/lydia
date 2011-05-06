@@ -6,6 +6,13 @@ map = [l f] { if (count l) == 0,
                  l,
                  { [(f (first l))] + (map (rest l) f) } }
 
+# takes a list and a function
+# the return list is filtered, each item i based on the result of f(i)
+filter = [l f] { if (count l) == 0,
+                    l,
+                    { if (f (first l)),
+                         { [(first l)] + (filter (rest l) f) },
+                         { (filter (rest l) f) } } }
 
 # exponentiation (x to the power of y)
 ^ = [x y] { if y == 1,

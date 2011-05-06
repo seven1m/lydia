@@ -45,6 +45,10 @@ fibs = map [1 2 3 4 5 6 7 8 9 10 11 12],
            [n] { fib n }
 out (join fibs ", ")
 
+# filter out a list
+fibs-over-5 = filter fibs [n] { n > 5 }
+out (join fibs-over-5 ", ")
+
 # for loop
 list = [{ out "a" } { out "b" } { out "c" }]
 for list [x] { (x) }
