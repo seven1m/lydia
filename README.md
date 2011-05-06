@@ -80,8 +80,6 @@ I may turn this into a gem someday. For now, you'll have to download the source 
 
 ## Tests
 
-The test suite can be run with:
-
     rake test
 
 ## License
