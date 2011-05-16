@@ -93,6 +93,18 @@ class ParserTest < Test::Unit::TestCase
     assert_equal expected, actual
   end
 
+  def test_list_with_comma_separators
+    expected = [
+      List.new([Int.new(1),
+                Str.new("string"),
+                Var.new("x"),
+                Call.new("*", [Int.new(3),
+                               Int.new(5)])])
+    ]
+    actual = parse('[1, "string", x, 3 * 5]')
+    assert_equal expected, actual
+  end
+
   def test_list_as_operand
     expected = [
       Call.new("+", [List.new([Int.new(1),

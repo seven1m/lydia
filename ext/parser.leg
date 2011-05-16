@@ -98,9 +98,11 @@ atom       = var
            | range
            | integer
 
+list-sep   = - | -- | ","
+
 list       = "[" -*                                { SPUSH(); }
              (
-             e:expr (- | --)*                      { SADD(e); }
+             e:expr list-sep*                      { SADD(e); }
              )*
              "]"                                   { $$ = P_NEW("list", SPOP()); }
 
