@@ -12,10 +12,12 @@ The language is taking shape as I learn, and **not meant for real work**. For no
     l = ["list" { out "func" } 3 * 5]
 
     # functions
+    # anything wrapped in { and }
     f1 = { 2 * 3 }
+    # function parameters go in [ and ]
     f2 = [x y] { x * y }
 
-    # if/else
+    # if/else is just a higher-order function
     if x == 2,
        { out "x is two" },
        { out "x is something else" }
@@ -32,16 +34,16 @@ The language is taking shape as I learn, and **not meant for real work**. For no
 
     # see example.ball for other available functions
 
-There's a few things to understand here:
+There's a few things to note:
 
-* Functions are anonymous by default -- you have to explicitly save them to a variable.
+* Functions are anonymous -- you have to explicitly save them to a variable.
 * Identifier (variable) names can contain just about any symbol, except equals and some others.
 * When a function is defined that starts with a symbol, it is treated as an "infix" function, meaning it is called by placing it in the middle of two arguments.
 * `if` is not a special language structure -- it's a function that takes three arguments:
   * a condition
   * a function to execute or a value to return if the condition is true
   * a function to execute or a value to return if the condition is false
-* The `if` function can do "elsif" parts if you use an array as the first arg:
+* The `if` function can do "elsif" parts if you use an array as the first (and only) arg:
 
         if [x == 1 { out "x is one" }
             x == 2 { out "x is two" }
@@ -49,9 +51,11 @@ There's a few things to understand here:
 
 * Function calls are recognized like so:
   * `foo 1` -- one or more *things* separated by space
+  * `foo 1 2` -- whitespace between args is all you need
+  * `foo 1, 2` -- you can use a comma if you want to
   * `(foo)` -- an identifier wrapped in parentheses (the only way to call a function with no args)
   * `1 * 2` -- actually a function call to `*` with arguments `1` and `2`.
-* Use a comma to wrap a function call to the next line (like a poem):
+* You must use a comma to line wrap a function call:
 
         foo "arg one",
             "arg two"
@@ -65,12 +69,13 @@ There's a few things to understand here:
 
 ## The Bad
 
-* Literally about 10 times slower than Ruby
-* Not finished yet
+* Slow, since it runs interpreted on top of Ruby
+* No tail-call optimization
+* Lots of missing stuff
 
 ## Installation
 
-I may turn this into a gem someday. For now, you'll have to download the source and build:
+Download the source and build:
 
     rake build
 
