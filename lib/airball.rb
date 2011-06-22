@@ -45,7 +45,7 @@ module Airball
         @store = Store.new
         @scope = Closure.new(@store)
         @scope["pargs"] = List.new(args.map { |a| Str.new(a) })
-        @scope["stdout"] = $stdout  # TODO implement as Airball::File
+        @scope["stdout"] = AirballFile.new($stdout)
       end
 
       def load_library

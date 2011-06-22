@@ -7,7 +7,9 @@ module Airball
 
     def build_functions
       define_function :out, [:expr] do |scope, expr|
-        scope["stdout"].write expr.to_s + "\n"
+        s = scope["stdout"]
+        s = s.file if s.is_a?(AirballFile)
+        s.write expr.to_s + "\n"
       end
 
       define_function :+, [:left, :right] do |scope, left, right|
