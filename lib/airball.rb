@@ -44,7 +44,7 @@ module Airball
       def build_scope(args)
         @store = Store.new
         @scope = Closure.new(@store)
-        @scope["pargs"] = args      # TODO implement as Airball::List
+        @scope["pargs"] = List.new(args.map { |a| Str.new(a) })
         @scope["stdout"] = $stdout  # TODO implement as Airball::File
       end
 
