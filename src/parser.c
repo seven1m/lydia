@@ -6,33 +6,35 @@
 #define YYRULECOUNT 34
 
 
-#include "ruby.h"
-RUBY_GLOBAL_SETUP;
-
-FILE *source_file;
+#include <string.h>
+#include <glib.h>
 
 int yy_input(char *buf, int max_size);
 
 #define YY_INPUT(b, r, ms) (r = yy_input(b, ms))
 
-#define YYSTYPE volatile VALUE
+#define YYSTYPE node*
 
-VALUE parser; /* ruby obj */
-VALUE stack; /* ruby array */
+GSList* ast;
 
 #define SPUSH() \
-  rb_ary_push(stack, rb_ary_new())
+  printf("noop\n")
 
 #define SADD(val) \
-  rb_ary_push(rb_ary_entry(stack, RARRAY_LEN(stack) - 1), val)
+  printf("noop\n")
 
 #define SPOP() \
-  rb_ary_pop(stack)
+  printf("noop\n")
 
-#define P_NEW(n, v)           rb_funcall(parser, rb_intern(n), 1, v)
-#define P_NEW2(n, v1, v2)     rb_funcall(parser, rb_intern(n), 2, v1, v2)
-#define P_NEW3(n, v1, v2, v3) rb_funcall(parser, rb_intern(n), 3, v1, v2, v3)
-#define P_ADD(ast)            rb_funcall(parser, rb_intern("add"), 1, ast)
+#define P_NEW(n, v)           malloc(sizeof(node*))
+#define P_NEW2(n, v1, v2)     malloc(sizeof(node*))
+#define P_NEW3(n, v1, v2, v3) malloc(sizeof(node*))
+#define P_ADD(node)           (ast = g_slist_append(ast, node))
+
+node* rb_str_new(char *, int);
+node* rb_ary_new();
+
+node* create_int_node(char *, int);
 
 
 #ifndef YY_VARIABLE
@@ -283,7 +285,7 @@ YY_RULE(int) yy_body(); /* 1 */
 YY_ACTION(void) yy_1_integer(char *yytext, int yyleng)
 {
   yyprintf((stderr, "do yy_1_integer\n"));
-   yy = P_NEW("integer", rb_str_new(yytext, yyleng)); ;
+   yy = create_int_node(yytext, yyleng); ;
 }
 YY_ACTION(void) yy_1_identifier(char *yytext, int yyleng)
 {
@@ -1104,6 +1106,23 @@ YY_PARSE(int) YYPARSE(void)
 char *yy_input_ptr;
 int yy_input_len;
 
+node* rb_str_new(char * text, int length) {
+  printf("noop\n");
+  return (node*)malloc(sizeof(node*));
+}
+
+node* rb_ary_new() {
+  printf("noop\n");
+  return (node*)malloc(sizeof(node*));
+}
+
+node* create_int_node(char* yytext, int yyleng) {
+  node* n = malloc(sizeof(node*));
+  n->type = INT_TYPE;
+  n->value.i = atoi(yytext);
+  return n;
+}
+
 int yy_input(char *buf, int max_size) {
   int len = strlen(yy_input_ptr);
   int n = max_size < len ? max_size : len;
@@ -1114,23 +1133,11 @@ int yy_input(char *buf, int max_size) {
   return n;
 }
 
-static VALUE rb_cParser_parse(VALUE self, VALUE source) {
-  VALUE rb_cGC = rb_const_get(rb_cObject, rb_intern("GC"));
-  rb_funcall(rb_cGC, rb_intern("disable"), 0, 0);
-  yy_input_ptr = rb_string_value_cstr(&source);
+GSList* airball_parse(char *source) {
+  ast = NULL;
+  yy_input_ptr = source;
   yy_input_len = strlen(yy_input_ptr);
-  stack = rb_ary_new();
-  parser = self;
-  rb_iv_set(self, "@expressions", rb_ary_new());
   while (yyparse());
-  rb_funcall(rb_cGC, rb_intern("enable"), 0, 0);
-  return rb_iv_get(self, "@expressions");
-}
-
-void Init_parser() {
-  VALUE rb_mAirball = rb_const_get(rb_cObject, rb_intern("Airball"));
-  VALUE rb_cParser = rb_const_get(rb_mAirball, rb_intern("Parser"));
-  rb_define_method(rb_cParser, "parse", rb_cParser_parse, 1);
-  rb_gc_register_address(&stack);
+  return ast;
 }
 
