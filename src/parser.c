@@ -15,7 +15,7 @@ int yy_input(char *buf, int max_size);
 
 #define YYSTYPE node*
 
-GSList* ast;
+GSList* parse_ast;
 
 #define SPUSH() \
   printf("noop\n")
@@ -29,12 +29,13 @@ GSList* ast;
 #define P_NEW(n, v)           malloc(sizeof(node*))
 #define P_NEW2(n, v1, v2)     malloc(sizeof(node*))
 #define P_NEW3(n, v1, v2, v3) malloc(sizeof(node*))
-#define P_ADD(node)           (ast = g_slist_append(ast, node))
+#define P_ADD(node)           (parse_ast = g_slist_append(parse_ast, node))
 
 node* rb_str_new(char *, int);
 node* rb_ary_new();
 
 node* create_int_node(char *, int);
+node* create_err_node(char *, int);
 
 
 #ifndef YY_VARIABLE
@@ -498,7 +499,7 @@ YY_ACTION(void) yy_1_assign(char *yytext, int yyleng)
 YY_ACTION(void) yy_1_bad(char *yytext, int yyleng)
 {
   yyprintf((stderr, "do yy_1_bad\n"));
-   P_ADD(P_NEW("syntax_error", rb_str_new(yytext, yyleng))); ;
+   P_ADD(create_err_node(yytext, yyleng)); ;
 }
 YY_ACTION(void) yy_1_body(char *yytext, int yyleng)
 {
@@ -1123,6 +1124,13 @@ node* create_int_node(char* yytext, int yyleng) {
   return n;
 }
 
+node* create_err_node(char* yytext, int yyleng) {
+  node* n = malloc(sizeof(node*));
+  n->type = ERR_TYPE;
+  strncpy(n->value.e, yytext, yyleng);
+  return n;
+}
+
 int yy_input(char *buf, int max_size) {
   int len = strlen(yy_input_ptr);
   int n = max_size < len ? max_size : len;
@@ -1134,10 +1142,10 @@ int yy_input(char *buf, int max_size) {
 }
 
 GSList* airball_parse(char *source) {
-  ast = NULL;
+  parse_ast = NULL;
   yy_input_ptr = source;
   yy_input_len = strlen(yy_input_ptr);
   while (yyparse());
-  return ast;
+  return parse_ast;
 }
 

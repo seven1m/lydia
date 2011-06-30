@@ -1,3 +1,4 @@
+#define ERR_TYPE  0
 #define INT_TYPE  1
 #define STR_TYPE  2
 #define VAR_TYPE  3
@@ -32,6 +33,7 @@ struct node {
   union {
     int            i;
     char          *s;
+    char          *e;
     struct var    *v;
     struct list   *l;
     struct range  *r;
