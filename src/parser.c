@@ -34,8 +34,10 @@ GSList* parse_ast;
 node* rb_str_new(char *, int);
 node* rb_ary_new();
 
-node* create_int_node(char *, int);
-node* create_err_node(char *, int);
+node* create_int_node(char*, int);
+node* create_str_node(char*, int);
+node* create_rng_node(node*, node*);
+node* create_err_node(char*, int);
 
 
 #ifndef YY_VARIABLE
@@ -316,12 +318,12 @@ YY_ACTION(void) yy_1_empty_line(char *yytext, int yyleng)
 YY_ACTION(void) yy_2_string(char *yytext, int yyleng)
 {
   yyprintf((stderr, "do yy_2_string\n"));
-   yy = rb_str_new(yytext, yyleng); ;
+   yy = create_str_node(yytext, yyleng); ;
 }
 YY_ACTION(void) yy_1_string(char *yytext, int yyleng)
 {
   yyprintf((stderr, "do yy_1_string\n"));
-   yy = rb_str_new(yytext, yyleng); ;
+   yy = create_str_node(yytext, yyleng); ;
 }
 YY_ACTION(void) yy_1_var(char *yytext, int yyleng)
 {
@@ -335,7 +337,7 @@ YY_ACTION(void) yy_1_range(char *yytext, int yyleng)
 #define last yyval[-1]
 #define first yyval[-2]
   yyprintf((stderr, "do yy_1_range\n"));
-   yy = P_NEW2("range", first, last); ;
+   yy = create_rng_node(first, last); ;
 #undef last
 #undef first
 }
@@ -359,13 +361,6 @@ YY_ACTION(void) yy_1_list(char *yytext, int yyleng)
   yyprintf((stderr, "do yy_1_list\n"));
    SPUSH(); ;
 #undef e
-}
-YY_ACTION(void) yy_1_atom(char *yytext, int yyleng)
-{
-#define str yyval[-1]
-  yyprintf((stderr, "do yy_1_atom\n"));
-   yy = P_NEW("string", str); ;
-#undef str
 }
 YY_ACTION(void) yy_1_op(char *yytext, int yyleng)
 {
@@ -709,15 +704,15 @@ YY_RULE(int) yy_func_args()
   return 0;
 }
 YY_RULE(int) yy_atom()
-{  int yypos0= yypos, yythunkpos0= yythunkpos;  yyDo(yyPush, 1, 0);
+{  int yypos0= yypos, yythunkpos0= yythunkpos;
   yyprintf((stderr, "%s\n", "atom"));
   {  int yypos54= yypos, yythunkpos54= yythunkpos;  if (!yy_var()) goto l55;  goto l54;
-  l55:;	  yypos= yypos54; yythunkpos= yythunkpos54;  if (!yy_string()) goto l56;  yyDo(yySet, -1, 0);  yyDo(yy_1_atom, yybegin, yyend);  goto l54;
+  l55:;	  yypos= yypos54; yythunkpos= yythunkpos54;  if (!yy_string()) goto l56;  goto l54;
   l56:;	  yypos= yypos54; yythunkpos= yythunkpos54;  if (!yy_range()) goto l57;  goto l54;
   l57:;	  yypos= yypos54; yythunkpos= yythunkpos54;  if (!yy_integer()) goto l53;
   }
   l54:;	
-  yyprintf((stderr, "  ok   %s @ %s\n", "atom", yybuf+yypos));  yyDo(yyPop, 1, 0);
+  yyprintf((stderr, "  ok   %s @ %s\n", "atom", yybuf+yypos));
   return 1;
   l53:;	  yypos= yypos0; yythunkpos= yythunkpos0;
   yyprintf((stderr, "  fail %s @ %s\n", "atom", yybuf+yypos));
@@ -1124,10 +1119,30 @@ node* create_int_node(char* yytext, int yyleng) {
   return n;
 }
 
+node* create_str_node(char* yytext, int yyleng) {
+  node* n = malloc(sizeof(node*));
+  n->type = STR_TYPE;
+  n->value.s = malloc(sizeof(char) * (yyleng + 1));
+  strcpy(n->value.s, "");
+  strncat(n->value.s, yytext, yyleng);
+  return n;
+}
+
+node* create_rng_node(node* first, node* last) {
+  node* n = malloc(sizeof(node*));
+  n->type = RNG_TYPE;
+  n->value.r = malloc(sizeof(struct range));
+  n->value.r->first = first;
+  n->value.r->last = last;
+  return n;
+}
+
 node* create_err_node(char* yytext, int yyleng) {
   node* n = malloc(sizeof(node*));
   n->type = ERR_TYPE;
-  strncpy(n->value.e, yytext, yyleng);
+  n->value.e = malloc(sizeof(char) * (yyleng + 1));
+  strcpy(n->value.e, "");
+  strncat(n->value.e, yytext, yyleng);
   return n;
 }
 

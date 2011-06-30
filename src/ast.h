@@ -8,10 +8,14 @@
 #define CALL_TYPE 7
 #define ASSN_TYPE 8
 
+struct node;
+
 struct list {
 };
 
 struct range {
+  struct node *first;
+  struct node *last;
 };
 
 struct func {

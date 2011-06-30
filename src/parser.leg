@@ -28,8 +28,10 @@ GSList* parse_ast;
 node* rb_str_new(char *, int);
 node* rb_ary_new();
 
-node* create_int_node(char *, int);
-node* create_err_node(char *, int);
+node* create_int_node(char*, int);
+node* create_str_node(char*, int);
+node* create_rng_node(node*, node*);
+node* create_err_node(char*, int);
 
 %}
 
@@ -97,7 +99,7 @@ operand    = list
            | ecall
 
 atom       = var
-           | str:string                            { $$ = P_NEW("string", str); }
+           | string
            | range
            | integer
 
@@ -114,7 +116,7 @@ rangeop    = var
            | eop
            | ecall
 
-range      = first:rangeop ".." last:rangeop       { $$ = P_NEW2("range", first, last); }
+range      = first:rangeop ".." last:rangeop       { $$ = create_rng_node(first, last); }
 
 var        = name:identifier                       { $$ = P_NEW("var", name); }
 
@@ -123,8 +125,8 @@ sq         = "\'"
 ndq        = !dq .
 nsq        = !sq .
 esc        = "\\" .
-string     = dq < (esc | ndq)* > dq                { $$ = rb_str_new(yytext, yyleng); }
-           | sq < (esc | nsq)* > sq                { $$ = rb_str_new(yytext, yyleng); }
+string     = dq < (esc | ndq)* > dq                { $$ = create_str_node(yytext, yyleng); }
+           | sq < (esc | nsq)* > sq                { $$ = create_str_node(yytext, yyleng); }
 
 empty-line = -* --                                 { $$ = 0; }
 comment    = -* '#' [^\r\n]* --?                   { $$ = 0; }
@@ -166,10 +168,30 @@ node* create_int_node(char* yytext, int yyleng) {
   return n;
 }
 
+node* create_str_node(char* yytext, int yyleng) {
+  node* n = malloc(sizeof(node*));
+  n->type = STR_TYPE;
+  n->value.s = malloc(sizeof(char) * (yyleng + 1));
+  strcpy(n->value.s, "");
+  strncat(n->value.s, yytext, yyleng);
+  return n;
+}
+
+node* create_rng_node(node* first, node* last) {
+  node* n = malloc(sizeof(node*));
+  n->type = RNG_TYPE;
+  n->value.r = malloc(sizeof(struct range));
+  n->value.r->first = first;
+  n->value.r->last = last;
+  return n;
+}
+
 node* create_err_node(char* yytext, int yyleng) {
   node* n = malloc(sizeof(node*));
   n->type = ERR_TYPE;
-  strncpy(n->value.e, yytext, yyleng);
+  n->value.e = malloc(sizeof(char) * (yyleng + 1));
+  strcpy(n->value.e, "");
+  strncat(n->value.e, yytext, yyleng);
   return n;
 }
 

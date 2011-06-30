@@ -37,11 +37,64 @@ void test_parse_comment(CuTest *tc) {
   g_slist_free(ast);
 }
 
+void test_parse_double_quoted_string(CuTest *tc) {
+  GSList* ast = airball_parse("\"foo\"");
+  node* n;
+  CuAssertIntEquals(tc, 1, g_slist_length(ast));
+  n = g_slist_nth_data(ast, 0);
+  CuAssertIntEquals(tc, STR_TYPE, n->type);
+  CuAssertStrEquals(tc, "foo", n->value.s);
+  g_slist_free(ast);
+}
+
+void test_parse_single_quoted_string(CuTest *tc) {
+  GSList* ast = airball_parse("'bar'");
+  node* n;
+  CuAssertIntEquals(tc, 1, g_slist_length(ast));
+  n = g_slist_nth_data(ast, 0);
+  CuAssertIntEquals(tc, STR_TYPE, n->type);
+  CuAssertStrEquals(tc, "bar", n->value.s);
+  g_slist_free(ast);
+}
+
+void test_parse_nested_quoted_string(CuTest *tc) {
+  GSList* ast = airball_parse("\"\\\"OK, now I'm supposed to say, 'Hmm, that's interesting, but... ', then you say...\\\"\"\n"
+                              "'\"But what?\"'");
+  node* n;
+  CuAssertIntEquals(tc, 2, g_slist_length(ast));
+  n = g_slist_nth_data(ast, 0);
+  CuAssertIntEquals(tc, STR_TYPE, n->type);
+  CuAssertStrEquals(tc, "\\\"OK, now I'm supposed to say, 'Hmm, that's interesting, but... ', then you say...\\\"", n->value.s);
+  n = g_slist_nth_data(ast, 1);
+  CuAssertIntEquals(tc, STR_TYPE, n->type);
+  CuAssertStrEquals(tc, "\"But what?\"", n->value.s);
+  g_slist_free(ast);
+}
+
+void test_parse_range_with_int(CuTest *tc) {
+  GSList* ast = airball_parse("1..10");
+  node* n;
+  CuAssertIntEquals(tc, 1, g_slist_length(ast));
+  n = g_slist_nth_data(ast, 0);
+  CuAssertIntEquals(tc, RNG_TYPE, n->type);
+  CuAssertIntEquals(tc, 1, n->value.r->first->value.i);
+  CuAssertIntEquals(tc, 10, n->value.r->last->value.i);
+  g_slist_free(ast);
+}
+
 CuSuite* parser_test_suite() {
   CuSuite* suite = CuSuiteNew();
   SUITE_ADD_TEST(suite, test_parse_empty_line);
   SUITE_ADD_TEST(suite, test_parse_int);
   SUITE_ADD_TEST(suite, test_parse_syntax_error);
   SUITE_ADD_TEST(suite, test_parse_comment);
+  SUITE_ADD_TEST(suite, test_parse_double_quoted_string);
+  SUITE_ADD_TEST(suite, test_parse_single_quoted_string);
+  SUITE_ADD_TEST(suite, test_parse_nested_quoted_string);
+  SUITE_ADD_TEST(suite, test_parse_range_with_int);
+  /* TODO
+  SUITE_ADD_TEST(suite, test_parse_range_with_var);
+  SUITE_ADD_TEST(suite, test_parse_range_with_call);
+  */
   return suite;
 }
