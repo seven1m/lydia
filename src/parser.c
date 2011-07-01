@@ -34,9 +34,12 @@ GSList* parse_ast;
 node* rb_str_new(char *, int);
 node* rb_ary_new();
 
+char* yytos(char *, int);
+
 node* create_int_node(char*, int);
 node* create_str_node(char*, int);
 node* create_rng_node(node*, node*);
+node* create_var_node(char*);
 node* create_err_node(char*, int);
 
 
@@ -293,7 +296,7 @@ YY_ACTION(void) yy_1_integer(char *yytext, int yyleng)
 YY_ACTION(void) yy_1_identifier(char *yytext, int yyleng)
 {
   yyprintf((stderr, "do yy_1_identifier\n"));
-   yy = rb_str_new(yytext, yyleng); ;
+   yy = yytos(yytext, yyleng); ;
 }
 YY_ACTION(void) yy_2_symbol(char *yytext, int yyleng)
 {
@@ -329,7 +332,7 @@ YY_ACTION(void) yy_1_var(char *yytext, int yyleng)
 {
 #define name yyval[-1]
   yyprintf((stderr, "do yy_1_var\n"));
-   yy = P_NEW("var", name); ;
+   yy = create_var_node(name); ;
 #undef name
 }
 YY_ACTION(void) yy_1_range(char *yytext, int yyleng)
@@ -1112,6 +1115,13 @@ node* rb_ary_new() {
   return (node*)malloc(sizeof(node*));
 }
 
+char* yytos(char* yytext, int yyleng) {
+  char* s = malloc(sizeof(char) * (yyleng + 1));
+  strcpy(s, "");
+  strncat(s, yytext, yyleng);
+  return s;
+}
+
 node* create_int_node(char* yytext, int yyleng) {
   node* n = malloc(sizeof(node*));
   n->type = INT_TYPE;
@@ -1134,6 +1144,14 @@ node* create_rng_node(node* first, node* last) {
   n->value.r = malloc(sizeof(struct range));
   n->value.r->first = first;
   n->value.r->last = last;
+  return n;
+}
+
+node* create_var_node(char* name) {
+  node* n = malloc(sizeof(node*));
+  n->type = VAR_TYPE;
+  n->value.v = malloc(sizeof(struct var));
+  n->value.v->name = name;
   return n;
 }
 

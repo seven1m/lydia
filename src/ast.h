@@ -28,6 +28,7 @@ struct assign {
 };
 
 struct var {
+  char *name;
 };
 
 typedef int node_type;

@@ -77,8 +77,23 @@ void test_parse_range_with_int(CuTest *tc) {
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
   CuAssertIntEquals(tc, RNG_TYPE, n->type);
+  CuAssertIntEquals(tc, INT_TYPE, n->value.r->first->type);
   CuAssertIntEquals(tc, 1, n->value.r->first->value.i);
+  CuAssertIntEquals(tc, INT_TYPE, n->value.r->last->type);
   CuAssertIntEquals(tc, 10, n->value.r->last->value.i);
+  g_slist_free(ast);
+}
+
+void test_parse_range_with_var(CuTest *tc) {
+  GSList* ast = airball_parse("1..x");
+  node* n;
+  CuAssertIntEquals(tc, 1, g_slist_length(ast));
+  n = g_slist_nth_data(ast, 0);
+  CuAssertIntEquals(tc, RNG_TYPE, n->type);
+  CuAssertIntEquals(tc, INT_TYPE, n->value.r->first->type);
+  CuAssertIntEquals(tc, 1, n->value.r->first->value.i);
+  CuAssertIntEquals(tc, VAR_TYPE, n->value.r->last->type);
+  CuAssertStrEquals(tc, "x", n->value.r->last->value.v->name);
   g_slist_free(ast);
 }
 
@@ -92,8 +107,8 @@ CuSuite* parser_test_suite() {
   SUITE_ADD_TEST(suite, test_parse_single_quoted_string);
   SUITE_ADD_TEST(suite, test_parse_nested_quoted_string);
   SUITE_ADD_TEST(suite, test_parse_range_with_int);
-  /* TODO
   SUITE_ADD_TEST(suite, test_parse_range_with_var);
+  /* TODO
   SUITE_ADD_TEST(suite, test_parse_range_with_call);
   */
   return suite;
