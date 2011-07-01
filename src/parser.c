@@ -1107,12 +1107,12 @@ int yy_input_len;
 
 node* rb_str_new(char * text, int length) {
   printf("noop\n");
-  return (node*)malloc(sizeof(node*));
+  return (node*)malloc(sizeof(node));
 }
 
 node* rb_ary_new() {
   printf("noop\n");
-  return (node*)malloc(sizeof(node*));
+  return (node*)malloc(sizeof(node));
 }
 
 char* yytos(char* yytext, int yyleng) {
@@ -1123,14 +1123,14 @@ char* yytos(char* yytext, int yyleng) {
 }
 
 node* create_int_node(char* yytext, int yyleng) {
-  node* n = malloc(sizeof(node*));
+  node* n = malloc(sizeof(node));
   n->type = INT_TYPE;
   n->value.i = atoi(yytext);
   return n;
 }
 
 node* create_str_node(char* yytext, int yyleng) {
-  node* n = malloc(sizeof(node*));
+  node* n = malloc(sizeof(node));
   n->type = STR_TYPE;
   n->value.s = malloc(sizeof(char) * (yyleng + 1));
   strcpy(n->value.s, "");
@@ -1139,7 +1139,7 @@ node* create_str_node(char* yytext, int yyleng) {
 }
 
 node* create_rng_node(node* first, node* last) {
-  node* n = malloc(sizeof(node*));
+  node* n = malloc(sizeof(node));
   n->type = RNG_TYPE;
   n->value.r = malloc(sizeof(struct range));
   n->value.r->first = first;
@@ -1148,7 +1148,7 @@ node* create_rng_node(node* first, node* last) {
 }
 
 node* create_var_node(char* name) {
-  node* n = malloc(sizeof(node*));
+  node* n = malloc(sizeof(node));
   n->type = VAR_TYPE;
   n->value.v = malloc(sizeof(struct var));
   n->value.v->name = name;
@@ -1156,7 +1156,7 @@ node* create_var_node(char* name) {
 }
 
 node* create_err_node(char* yytext, int yyleng) {
-  node* n = malloc(sizeof(node*));
+  node* n = malloc(sizeof(node));
   n->type = ERR_TYPE;
   n->value.e = malloc(sizeof(char) * (yyleng + 1));
   strcpy(n->value.e, "");
