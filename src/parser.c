@@ -33,17 +33,15 @@ int i;
 node* rb_str_new(char *, int);
 node* rb_ary_new();
 
-char* yytos(char *, int);
-
 void stack_push();
 void stack_add(node*);
-node* stack_pop();
+node** stack_pop();
 
 node* create_int_node(char*, int);
 node* create_str_node(char*, int);
 node* create_rng_node(node*, node*);
-node* create_var_node(char*);
-node* create_call_node(char*, int, node**);
+node* create_var_node(node*);
+node* create_call_node(node*, int, node**);
 node* create_err_node(char*, int);
 
 
@@ -300,17 +298,17 @@ YY_ACTION(void) yy_1_integer(char *yytext, int yyleng)
 YY_ACTION(void) yy_1_identifier(char *yytext, int yyleng)
 {
   yyprintf((stderr, "do yy_1_identifier\n"));
-   yy = yytos(yytext, yyleng); ;
+   yy = create_str_node(yytext, yyleng); ;
 }
 YY_ACTION(void) yy_2_symbol(char *yytext, int yyleng)
 {
   yyprintf((stderr, "do yy_2_symbol\n"));
-   yy = yytos(yytext, yyleng); ;
+   yy = create_str_node(yytext, yyleng); ;
 }
 YY_ACTION(void) yy_1_symbol(char *yytext, int yyleng)
 {
   yyprintf((stderr, "do yy_1_symbol\n"));
-   yy = yytos(yytext, yyleng); ;
+   yy = create_str_node(yytext, yyleng); ;
 }
 YY_ACTION(void) yy_1_comment(char *yytext, int yyleng)
 {
@@ -1132,18 +1130,11 @@ void stack_add(node* n) {
   stack[stackp][stack_argc[stackp]++] = n;
 }
 
-node* stack_pop() {
+node** stack_pop() {
   node** args = malloc(sizeof(node*) * stack_argc[stackp]);
   for(i=0; i<stack_argc[stackp]; i++) args[i] = stack[stackp][i];
   stackp--;
   return args;
-}
-
-char* yytos(char* yytext, int yyleng) {
-  char* s = malloc(sizeof(char) * (yyleng + 1));
-  strcpy(s, "");
-  strncat(s, yytext, yyleng);
-  return s;
 }
 
 node* create_int_node(char* yytext, int yyleng) {
@@ -1171,20 +1162,19 @@ node* create_rng_node(node* first, node* last) {
   return n;
 }
 
-node* create_var_node(char* name) {
+node* create_var_node(node* name) {
   node* n = malloc(sizeof(node));
   n->type = VAR_TYPE;
   n->value.v = malloc(sizeof(struct var));
-  n->value.v->name = name;
+  n->value.v->name = name->value.s;
   return n;
 }
 
-node* create_call_node(char* name, int argc, node** args) {
-  printf("argc=%d\n", argc);
+node* create_call_node(node* name, int argc, node** args) {
   node* n = malloc(sizeof(node));
   n->type = CALL_TYPE;
   n->value.c = malloc(sizeof(struct call));
-  n->value.c->name = name;
+  n->value.c->name = name->value.s;
   n->value.c->argc = argc;
   n->value.c->args = args;
   return n;
