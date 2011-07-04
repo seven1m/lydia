@@ -8,6 +8,8 @@
 #define CALL_TYPE 7
 #define ASSN_TYPE 8
 
+#define MAX_ARG_COUNT 255
+
 struct node;
 
 struct list {
@@ -22,6 +24,9 @@ struct func {
 };
 
 struct call {
+  char *name;
+  int argc;
+  struct node** args;
 };
 
 struct assign {

@@ -11,14 +11,13 @@ int yy_input(char *buf, int max_size);
 
 GSList* parse_ast;
 
-#define SPUSH() \
-  printf("noop\n")
+#define STACK_LEN 1024
 
-#define SADD(val) \
-  printf("noop\n")
-
-#define SPOP() \
-  printf("noop\n")
+node* stack[STACK_LEN][MAX_ARG_COUNT];
+int stack_argc[STACK_LEN];
+int stackp = 0;
+int argp = 0;
+int i;
 
 #define P_NEW(n, v)           malloc(sizeof(node*))
 #define P_NEW2(n, v1, v2)     malloc(sizeof(node*))
@@ -30,10 +29,15 @@ node* rb_ary_new();
 
 char* yytos(char *, int);
 
+void stack_push();
+void stack_add(node*);
+node* stack_pop();
+
 node* create_int_node(char*, int);
 node* create_str_node(char*, int);
 node* create_rng_node(node*, node*);
 node* create_var_node(char*);
+node* create_call_node(char*, int, node**);
 node* create_err_node(char*, int);
 
 %}
@@ -57,15 +61,15 @@ assign     = (name:identifier | name:symbol) -+
              "=" -+
              (val:icall | val:expr)                { $$ = P_NEW2("assign", name, val); }
 
-icall      = name:identifier                       { SPUSH(); }
+icall      = name:identifier                       { stack_push(); }
              (
-             arg-sep arg:expr                      { SADD(arg); }
-             )+                                    { $$ = P_NEW2("call", name, SPOP()); }
+             arg-sep arg:expr                      { stack_add(arg); }
+             )+                                    { $$ = create_call_node(name, stack_argc[stackp], stack_pop()); }
 
-ecall      = "(" name:identifier                   { SPUSH(); }
+ecall      = "(" name:identifier                   { stack_push(); }
              (
-             arg-sep arg:expr                      { SADD(arg); }
-             )* ")"                                { $$ = P_NEW2("call", name, SPOP()); }
+             arg-sep arg:expr                      { stack_add(arg); }
+             )* ")"                                { $$ = create_call_node(name, stack_argc[stackp], stack_pop()); }
 
 arg-sep    = "," (- | --)* | -+
 
@@ -77,22 +81,25 @@ expr       = op
            | atom
 
 func       = args:func-args
-             "{" (- | --)*                         { SPUSH(); }
+             "{" (- | --)*                         { stack_push(); }
              (
-             e:lexpr                               { e && SADD(e); }
+             e:lexpr                               { if(e) stack_add(e); }
              )+
-             -* "}"                                { $$ = P_NEW2("func", args ? args : rb_ary_new(), SPOP()); }
+             -* "}"                                { $$ = P_NEW2("func", args ? args : rb_ary_new(), stack_pop()); }
 
-func-args  = "["                                   { SPUSH(); }
+func-args  = "["                                   { stack_push(); }
              ( -*
-             arg:identifier                        { SADD(arg); }
+             arg:identifier                        { stack_add(arg); }
              )+ -*
-             "]" -*                                { $$ = SPOP(); }
+             "]" -*                                { $$ = stack_pop(); }
            | &"{"                                  { $$ = 0; }
 
 op         = left:operand -+
              symbol:symbol -+
-             right:operand                         { $$ = P_NEW3("op", symbol, left, right); }
+             right:operand                         { node** args = malloc(sizeof(node*) * 2);
+                                                     args[0] = left;
+                                                     args[1] = right;
+                                                     $$ = create_call_node(symbol, 2, args); }
 
 eop        = "(" op ")"
 
@@ -108,11 +115,11 @@ atom       = var
 
 list-sep   = - | -- | ","
 
-list       = "[" -*                                { SPUSH(); }
+list       = "[" -*                                { stack_push(); }
              (
-             e:expr list-sep*                      { SADD(e); }
+             e:expr list-sep*                      { stack_add(e); }
              )*
-             "]"                                   { $$ = P_NEW("list", SPOP()); }
+             "]"                                   { $$ = P_NEW("list", stack_pop()); }
 
 rangeop    = var
            | integer
@@ -134,9 +141,9 @@ string     = dq < (esc | ndq)* > dq                { $$ = create_str_node(yytext
 empty-line = -* --                                 { $$ = 0; }
 comment    = -* '#' [^\r\n]* --?                   { $$ = 0; }
 
-symbol     = < [-~`!?@$%^&*_+|/,.<>]+ >            { $$ = rb_str_new(yytext, yyleng); }
+symbol     = < [-~`!?@$%^&*_+|/,.<>]+ >            { $$ = yytos(yytext, yyleng); }
            | < [-~`!?@$%^&*_+|/,.<>=]
-               [-~`!?@$%^&*_+|/,.<>=]+ >           { $$ = rb_str_new(yytext, yyleng); }
+               [-~`!?@$%^&*_+|/,.<>=]+ >           { $$ = yytos(yytext, yyleng); }
 
 identifier = < [a-z] [a-z0-9-]* >                  { $$ = yytos(yytext, yyleng); }
 
@@ -162,6 +169,23 @@ node* rb_str_new(char * text, int length) {
 node* rb_ary_new() {
   printf("noop\n");
   return (node*)malloc(sizeof(node));
+}
+
+void stack_push() {
+  if(++stackp == STACK_LEN) exit(1);
+  stack_argc[stackp] = 0;
+}
+
+void stack_add(node* n) {
+  argp = 0;
+  stack[stackp][stack_argc[stackp]++] = n;
+}
+
+node* stack_pop() {
+  node** args = malloc(sizeof(node*) * stack_argc[stackp]);
+  for(i=0; i<stack_argc[stackp]; i++) args[i] = stack[stackp][i];
+  stackp--;
+  return args;
 }
 
 char* yytos(char* yytext, int yyleng) {
@@ -201,6 +225,17 @@ node* create_var_node(char* name) {
   n->type = VAR_TYPE;
   n->value.v = malloc(sizeof(struct var));
   n->value.v->name = name;
+  return n;
+}
+
+node* create_call_node(char* name, int argc, node** args) {
+  printf("argc=%d\n", argc);
+  node* n = malloc(sizeof(node));
+  n->type = CALL_TYPE;
+  n->value.c = malloc(sizeof(struct call));
+  n->value.c->name = name;
+  n->value.c->argc = argc;
+  n->value.c->args = args;
   return n;
 }
 
