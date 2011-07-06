@@ -42,6 +42,7 @@ node* create_str_node(char*, int);
 node* create_rng_node(node*, node*);
 node* create_var_node(char*);
 node* create_call_node(char*, int, node**);
+node* create_list_node(int, node**);
 node* create_err_node(char*);
 
 
@@ -350,7 +351,8 @@ YY_ACTION(void) yy_3_list(char *yytext, int yyleng)
 {
 #define e yyval[-1]
   yyprintf((stderr, "do yy_3_list\n"));
-   yy = P_NEW("list", stack_pop()); ;
+   int count = stack_count[stackp];
+                                                     yy = create_list_node(count, stack_pop()); ;
 #undef e
 }
 YY_ACTION(void) yy_2_list(char *yytext, int yyleng)
@@ -1178,6 +1180,14 @@ node* create_call_node(char* name, int argc, node** args) {
   n->value.call.name = name;
   n->value.call.argc = argc;
   n->value.call.args = args;
+  return n;
+}
+
+node* create_list_node(int itemc, node** items) {
+  node* n = malloc(sizeof(node));
+  n->type = list_type;
+  n->value.list.count = itemc;
+  n->value.list.items = items;
   return n;
 }
 

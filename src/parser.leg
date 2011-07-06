@@ -36,6 +36,7 @@ node* create_str_node(char*, int);
 node* create_rng_node(node*, node*);
 node* create_var_node(char*);
 node* create_call_node(char*, int, node**);
+node* create_list_node(int, node**);
 node* create_err_node(char*);
 
 %}
@@ -119,7 +120,8 @@ list       = "[" -*                                { stack_push(); }
              (
              e:expr list-sep*                      { stack_add(e); }
              )*
-             "]"                                   { $$ = P_NEW("list", stack_pop()); }
+             "]"                                   { int count = stack_count[stackp];
+                                                     $$ = create_list_node(count, stack_pop()); }
 
 rangeop    = var
            | integer
@@ -227,6 +229,14 @@ node* create_call_node(char* name, int argc, node** args) {
   n->value.call.name = name;
   n->value.call.argc = argc;
   n->value.call.args = args;
+  return n;
+}
+
+node* create_list_node(int itemc, node** items) {
+  node* n = malloc(sizeof(node));
+  n->type = list_type;
+  n->value.list.count = itemc;
+  n->value.list.items = items;
   return n;
 }
 

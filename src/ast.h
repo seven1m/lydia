@@ -8,7 +8,8 @@ typedef struct node {
     char*                    err;
     char*                    var;
     struct {
-      /* TODO */ }           list;
+      int count;
+      struct node** items; } list;
     struct {
       struct node* first;
       struct node* last; }   range;
