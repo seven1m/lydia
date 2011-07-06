@@ -13,37 +13,36 @@ int yy_input(char *buf, int max_size);
 
 #define YY_INPUT(b, r, ms) (r = yy_input(b, ms))
 
-#define YYSTYPE node*
+#define YYSTYPE void*
 
 GSList* parse_ast;
 
 #define STACK_LEN 1024
 #define MAX_ARG_COUNT 255
 
-node* stack[STACK_LEN][MAX_ARG_COUNT];
-int stack_argc[STACK_LEN];
-int stackp = 0;
-int argp = 0;
-int i;
+node* stack[STACK_LEN][MAX_ARG_COUNT]; /* holds lists of data */
+int stack_count[STACK_LEN];             /* number of items at each level in the stack */
+int stackp = 0;                        /* position on stack */
 
 #define P_NEW(n, v)           malloc(sizeof(node*))
 #define P_NEW2(n, v1, v2)     malloc(sizeof(node*))
 #define P_NEW3(n, v1, v2, v3) malloc(sizeof(node*))
 #define P_ADD(node)           (parse_ast = g_slist_append(parse_ast, node))
 
-node* rb_str_new(char *, int);
 node* rb_ary_new();
 
 void stack_push();
 void stack_add(node*);
 node** stack_pop();
 
+char* yytos(char*, int);
+
 node* create_int_node(char*, int);
 node* create_str_node(char*, int);
 node* create_rng_node(node*, node*);
-node* create_var_node(node*);
-node* create_call_node(node*, int, node**);
-node* create_err_node(char*, int);
+node* create_var_node(char*);
+node* create_call_node(char*, int, node**);
+node* create_err_node(char*);
 
 
 #ifndef YY_VARIABLE
@@ -299,17 +298,17 @@ YY_ACTION(void) yy_1_integer(char *yytext, int yyleng)
 YY_ACTION(void) yy_1_identifier(char *yytext, int yyleng)
 {
   yyprintf((stderr, "do yy_1_identifier\n"));
-   yy = create_str_node(yytext, yyleng); ;
+   yy = yytos(yytext, yyleng); ;
 }
 YY_ACTION(void) yy_2_symbol(char *yytext, int yyleng)
 {
   yyprintf((stderr, "do yy_2_symbol\n"));
-   yy = create_str_node(yytext, yyleng); ;
+   yy = yytos(yytext, yyleng); ;
 }
 YY_ACTION(void) yy_1_symbol(char *yytext, int yyleng)
 {
   yyprintf((stderr, "do yy_1_symbol\n"));
-   yy = create_str_node(yytext, yyleng); ;
+   yy = yytos(yytext, yyleng); ;
 }
 YY_ACTION(void) yy_1_comment(char *yytext, int yyleng)
 {
@@ -442,7 +441,7 @@ YY_ACTION(void) yy_3_ecall(char *yytext, int yyleng)
 #define arg yyval[-1]
 #define name yyval[-2]
   yyprintf((stderr, "do yy_3_ecall\n"));
-   yy = create_call_node(name, stack_argc[stackp], stack_pop()); ;
+   yy = create_call_node(name, stack_count[stackp], stack_pop()); ;
 #undef arg
 #undef name
 }
@@ -469,7 +468,7 @@ YY_ACTION(void) yy_3_icall(char *yytext, int yyleng)
 #define arg yyval[-1]
 #define name yyval[-2]
   yyprintf((stderr, "do yy_3_icall\n"));
-   yy = create_call_node(name, stack_argc[stackp], stack_pop()); ;
+   yy = create_call_node(name, stack_count[stackp], stack_pop()); ;
 #undef arg
 #undef name
 }
@@ -503,7 +502,7 @@ YY_ACTION(void) yy_1_assign(char *yytext, int yyleng)
 YY_ACTION(void) yy_1_bad(char *yytext, int yyleng)
 {
   yyprintf((stderr, "do yy_1_bad\n"));
-   P_ADD(create_err_node(yytext, yyleng)); ;
+   P_ADD(create_err_node(yytos(yytext, yyleng))); ;
 }
 YY_ACTION(void) yy_1_body(char *yytext, int yyleng)
 {
@@ -1111,11 +1110,6 @@ YY_PARSE(int) YYPARSE(void)
 char *yy_input_ptr;
 int yy_input_len;
 
-node* rb_str_new(char * text, int length) {
-  printf("noop\n");
-  return (node*)malloc(sizeof(node));
-}
-
 node* rb_ary_new() {
   printf("noop\n");
   return (node*)malloc(sizeof(node));
@@ -1123,19 +1117,26 @@ node* rb_ary_new() {
 
 void stack_push() {
   if(++stackp == STACK_LEN) exit(1);
-  stack_argc[stackp] = 0;
+  stack_count[stackp] = 0;
 }
 
 void stack_add(node* n) {
-  argp = 0;
-  stack[stackp][stack_argc[stackp]++] = n;
+  stack[stackp][stack_count[stackp]++] = n;
 }
 
 node** stack_pop() {
-  node** args = malloc(sizeof(node*) * stack_argc[stackp]);
-  for(i=0; i<stack_argc[stackp]; i++) args[i] = stack[stackp][i];
+  int i;
+  node** args = malloc(sizeof(node*) * stack_count[stackp]);
+  for(i=0; i<stack_count[stackp]; i++) args[i] = stack[stackp][i];
   stackp--;
   return args;
+}
+
+char* yytos(char* yytext, int yyleng) {
+  char* s = malloc(sizeof(char) * (yyleng + 1));
+  strcpy(s, "");
+  strncat(s, yytext, yyleng);
+  return s;
 }
 
 node* create_int_node(char* yytext, int yyleng) {
@@ -1162,27 +1163,26 @@ node* create_rng_node(node* first, node* last) {
   return n;
 }
 
-node* create_var_node(node* name) {
+node* create_var_node(char* name) {
   node* n = malloc(sizeof(node));
   n->type = var_type;
-  n->value.var = name->value.var;
+  n->value.var = name;
   return n;
 }
 
-node* create_call_node(node* name, int argc, node** args) {
+node* create_call_node(char* name, int argc, node** args) {
   node* n = malloc(sizeof(node));
   n->type = call_type;
-  n->value.call.name = name->value.str;
+  n->value.call.name = name;
   n->value.call.argc = argc;
   n->value.call.args = args;
   return n;
 }
 
-node* create_err_node(char* yytext, int yyleng) {
+node* create_err_node(char* error) {
   node* n = malloc(sizeof(node));
   n->type = err_type;
-  strcpy(n->value.err, "");
-  strncat(n->value.err, yytext, yyleng);
+  n->value.err = error;
   return n;
 }
 
