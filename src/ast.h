@@ -14,7 +14,9 @@ typedef struct node {
       struct node* first;
       struct node* last; }   range;
     struct {
-      /* TODO */ }           func;
+      struct node* args;
+      int exprc;
+      struct node** exprs; } func;
     struct {
       char* name;
       int argc;

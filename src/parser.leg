@@ -37,6 +37,7 @@ node* create_rng_node(node*, node*);
 node* create_var_node(char*);
 node* create_call_node(char*, int, node**);
 node* create_list_node(int, node**);
+node* create_func_node(node*, int, node**);
 node* create_err_node(char*);
 
 %}
@@ -86,14 +87,16 @@ func       = args:func-args
              (
              e:lexpr                               { if(e) stack_add(e); }
              )+
-             -* "}"                                { $$ = P_NEW2("func", args ? args : rb_ary_new(), stack_pop()); }
+             -* "}"                                { int count = stack_count[stackp];
+                                                     $$ = create_func_node(args, count, stack_pop()); }
 
 func-args  = "["                                   { stack_push(); }
              ( -*
-             arg:identifier                        { stack_add(arg); }
+             arg:identifier                        { stack_add(create_var_node(arg)); }
              )+ -*
-             "]" -*                                { $$ = stack_pop(); }
-           | &"{"                                  { $$ = 0; }
+             "]" -*                                { int count = stack_count[stackp];
+                                                     $$ = create_list_node(count, stack_pop()); }
+           | &"{"                                  { $$ = create_list_node(0, NULL); }
 
 op         = left:operand -+
              symbol:symbol -+
@@ -237,6 +240,15 @@ node* create_list_node(int itemc, node** items) {
   n->type = list_type;
   n->value.list.count = itemc;
   n->value.list.items = items;
+  return n;
+}
+
+node* create_func_node(node* args, int exprc, node** exprs) {
+  node* n = malloc(sizeof(node));
+  n->type = func_type;
+  n->value.func.args = args;
+  n->value.func.exprc = exprc;
+  n->value.func.exprs = exprs;
   return n;
 }
 

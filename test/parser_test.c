@@ -189,6 +189,129 @@ void test_nested_list(CuTest *tc) {
   g_slist_free(ast);
 }
 
+void test_op(CuTest *tc) {
+  GSList* ast = airball_parse("x * 3");
+  node* n;
+  CuAssertIntEquals(tc, 1, g_slist_length(ast));
+  n = g_slist_nth_data(ast, 0);
+  CuAssertIntEquals(tc, call_type, n->type);
+  CuAssertStrEquals(tc, "*",       n->value.call.name);
+  CuAssertIntEquals(tc, 2,         n->value.call.argc);
+  CuAssertStrEquals(tc, "x",       n->value.call.args[0]->value.var);
+  CuAssertIntEquals(tc, 3,         n->value.call.args[1]->value.num);
+  g_slist_free(ast);
+}
+
+void test_non_assign_equals(CuTest *tc) {
+  GSList* ast = airball_parse("1 == 1");
+  node* n;
+  CuAssertIntEquals(tc, 1, g_slist_length(ast));
+  n = g_slist_nth_data(ast, 0);
+  CuAssertIntEquals(tc, call_type, n->type);
+  CuAssertStrEquals(tc, "==",      n->value.call.name);
+  CuAssertIntEquals(tc, 2,         n->value.call.argc);
+  CuAssertIntEquals(tc, 1,         n->value.call.args[0]->value.num);
+  CuAssertIntEquals(tc, 1,         n->value.call.args[1]->value.num);
+  g_slist_free(ast);
+}
+
+void test_simple_call(CuTest *tc) {
+  GSList* ast = airball_parse("foo 1 2");
+  node* n;
+  CuAssertIntEquals(tc, 1, g_slist_length(ast));
+  n = g_slist_nth_data(ast, 0);
+  CuAssertIntEquals(tc, call_type, n->type);
+  CuAssertStrEquals(tc, "foo",     n->value.call.name);
+  CuAssertIntEquals(tc, 2,         n->value.call.argc);
+  CuAssertIntEquals(tc, 1,         n->value.call.args[0]->value.num);
+  CuAssertIntEquals(tc, 2,         n->value.call.args[1]->value.num);
+  g_slist_free(ast);
+}
+
+void test_multiline_call(CuTest *tc) {
+  GSList* ast = airball_parse("foo 1,    \n"
+                              "    2     \n"
+                              "bar 3,    \n"
+                              "    [],   \n"
+                              "    { 4 }   ");
+  node* n;
+  CuAssertIntEquals(tc, 2, g_slist_length(ast));
+  n = g_slist_nth_data(ast, 0);
+  CuAssertIntEquals(tc, call_type, n->type);
+  CuAssertStrEquals(tc, "foo",     n->value.call.name);
+  CuAssertIntEquals(tc, 2,         n->value.call.argc);
+  CuAssertIntEquals(tc, 1,         n->value.call.args[0]->value.num);
+  CuAssertIntEquals(tc, 2,         n->value.call.args[1]->value.num);
+  /*
+  n = g_slist_nth_data(ast, 1);
+  CuAssertIntEquals(tc, call_type, n->type);
+  CuAssertStrEquals(tc, "bar",     n->value.call.name);
+  CuAssertIntEquals(tc, 3,         n->value.call.argc);
+  CuAssertIntEquals(tc, num_type,  n->value.call.args[0]->type);
+  CuAssertIntEquals(tc, list_type, n->value.call.args[1]->type);
+  CuAssertIntEquals(tc, func_type, n->value.call.args[2]->type);
+  */
+  g_slist_free(ast);
+}
+
+void test_func_without_args(CuTest *tc) {
+  GSList* ast = airball_parse("{ foo 1 2 }");
+  node* n;
+  CuAssertIntEquals(tc, 1, g_slist_length(ast));
+  n = g_slist_nth_data(ast, 0);
+  CuAssertIntEquals(tc, func_type, n->type);
+  CuAssertIntEquals(tc, 0,         n->value.func.args->value.list.count);
+  CuAssertIntEquals(tc, 1,         n->value.func.exprc);
+  CuAssertIntEquals(tc, call_type, n->value.func.exprs[0]->type);
+  CuAssertStrEquals(tc, "foo",     n->value.func.exprs[0]->value.call.name);
+  ast = airball_parse("{\n foo 1 2\n }");
+  CuAssertIntEquals(tc, 1, g_slist_length(ast));
+  n = g_slist_nth_data(ast, 0);
+  CuAssertIntEquals(tc, func_type, n->type);
+  CuAssertIntEquals(tc, 0,         n->value.func.args->value.list.count);
+  CuAssertIntEquals(tc, 1,         n->value.func.exprc);
+  CuAssertIntEquals(tc, call_type, n->value.func.exprs[0]->type);
+  CuAssertStrEquals(tc, "foo",     n->value.func.exprs[0]->value.call.name);
+  ast = airball_parse("{\n x = 1\n x * 3\n }");
+  CuAssertIntEquals(tc, 1, g_slist_length(ast));
+  n = g_slist_nth_data(ast, 0);
+  CuAssertIntEquals(tc, func_type, n->type);
+  CuAssertIntEquals(tc, 0,         n->value.func.args->value.list.count);
+  CuAssertIntEquals(tc, 2,         n->value.func.exprc);
+  CuAssertIntEquals(tc, call_type, n->value.func.exprs[1]->type);
+  CuAssertStrEquals(tc, "*",       n->value.func.exprs[1]->value.call.name);
+  g_slist_free(ast);
+}
+
+void test_func_with_args(CuTest *tc) {
+  GSList* ast = airball_parse("[x y]{ foo x y }");
+  node* n;
+  CuAssertIntEquals(tc, 1, g_slist_length(ast));
+  n = g_slist_nth_data(ast, 0);
+  CuAssertIntEquals(tc, func_type, n->type);
+  CuAssertIntEquals(tc, 2,         n->value.func.args->value.list.count);
+  CuAssertIntEquals(tc, var_type,  n->value.func.args->value.list.items[0]->type);
+  CuAssertStrEquals(tc, "x",       n->value.func.args->value.list.items[0]->value.var);
+  CuAssertIntEquals(tc, var_type,  n->value.func.args->value.list.items[1]->type);
+  CuAssertStrEquals(tc, "y",       n->value.func.args->value.list.items[1]->value.var);
+  CuAssertIntEquals(tc, 1,         n->value.func.exprc);
+  CuAssertIntEquals(tc, call_type, n->value.func.exprs[0]->type);
+  CuAssertStrEquals(tc, "foo",     n->value.func.exprs[0]->value.call.name);
+  ast = airball_parse("[ x y ] {\n foo x y\n }");
+  CuAssertIntEquals(tc, 1, g_slist_length(ast));
+  n = g_slist_nth_data(ast, 0);
+  CuAssertIntEquals(tc, func_type, n->type);
+  CuAssertIntEquals(tc, 2,         n->value.func.args->value.list.count);
+  CuAssertIntEquals(tc, var_type,  n->value.func.args->value.list.items[0]->type);
+  CuAssertStrEquals(tc, "x",       n->value.func.args->value.list.items[0]->value.var);
+  CuAssertIntEquals(tc, var_type,  n->value.func.args->value.list.items[1]->type);
+  CuAssertStrEquals(tc, "y",       n->value.func.args->value.list.items[1]->value.var);
+  CuAssertIntEquals(tc, 1,         n->value.func.exprc);
+  CuAssertIntEquals(tc, call_type, n->value.func.exprs[0]->type);
+  CuAssertStrEquals(tc, "foo",     n->value.func.exprs[0]->value.call.name);
+  g_slist_free(ast);
+}
+
 CuSuite* parser_test_suite() {
   CuSuite* suite = CuSuiteNew();
   SUITE_ADD_TEST(suite, test_parse_empty_line);
@@ -207,5 +330,11 @@ CuSuite* parser_test_suite() {
   SUITE_ADD_TEST(suite, test_empty_list);
   SUITE_ADD_TEST(suite, test_multiline_list);
   SUITE_ADD_TEST(suite, test_nested_list);
+  SUITE_ADD_TEST(suite, test_op);
+  SUITE_ADD_TEST(suite, test_non_assign_equals);
+  SUITE_ADD_TEST(suite, test_simple_call);
+  SUITE_ADD_TEST(suite, test_multiline_call);
+  SUITE_ADD_TEST(suite, test_func_without_args);
+  SUITE_ADD_TEST(suite, test_func_with_args);
   return suite;
 }

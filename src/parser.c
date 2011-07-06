@@ -43,6 +43,7 @@ node* create_rng_node(node*, node*);
 node* create_var_node(char*);
 node* create_call_node(char*, int, node**);
 node* create_list_node(int, node**);
+node* create_func_node(node*, int, node**);
 node* create_err_node(char*);
 
 
@@ -387,21 +388,22 @@ YY_ACTION(void) yy_4_func_args(char *yytext, int yyleng)
 {
 #define arg yyval[-1]
   yyprintf((stderr, "do yy_4_func_args\n"));
-   yy = 0; ;
+   yy = create_list_node(0, NULL); ;
 #undef arg
 }
 YY_ACTION(void) yy_3_func_args(char *yytext, int yyleng)
 {
 #define arg yyval[-1]
   yyprintf((stderr, "do yy_3_func_args\n"));
-   yy = stack_pop(); ;
+   int count = stack_count[stackp];
+                                                     yy = create_list_node(count, stack_pop()); ;
 #undef arg
 }
 YY_ACTION(void) yy_2_func_args(char *yytext, int yyleng)
 {
 #define arg yyval[-1]
   yyprintf((stderr, "do yy_2_func_args\n"));
-   stack_add(arg); ;
+   stack_add(create_var_node(arg)); ;
 #undef arg
 }
 YY_ACTION(void) yy_1_func_args(char *yytext, int yyleng)
@@ -416,7 +418,8 @@ YY_ACTION(void) yy_3_func(char *yytext, int yyleng)
 #define e yyval[-1]
 #define args yyval[-2]
   yyprintf((stderr, "do yy_3_func\n"));
-   yy = P_NEW2("func", args ? args : rb_ary_new(), stack_pop()); ;
+   int count = stack_count[stackp];
+                                                     yy = create_func_node(args, count, stack_pop()); ;
 #undef e
 #undef args
 }
@@ -1188,6 +1191,15 @@ node* create_list_node(int itemc, node** items) {
   n->type = list_type;
   n->value.list.count = itemc;
   n->value.list.items = items;
+  return n;
+}
+
+node* create_func_node(node* args, int exprc, node** exprs) {
+  node* n = malloc(sizeof(node));
+  n->type = func_type;
+  n->value.func.args = args;
+  n->value.func.exprc = exprc;
+  n->value.func.exprs = exprs;
   return n;
 }
 
