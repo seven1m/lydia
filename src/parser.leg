@@ -62,12 +62,14 @@ assign     = (name:identifier | name:symbol) -+
 icall      = name:identifier                       { stack_push(); }
              (
              arg-sep arg:expr                      { stack_add(arg); }
-             )+                                    { $$ = create_call_node(name, stack_count[stackp], stack_pop()); }
+             )+                                    { int count = stack_count[stackp];
+                                                     $$ = create_call_node(name, count, stack_pop()); }
 
 ecall      = "(" name:identifier                   { stack_push(); }
              (
              arg-sep arg:expr                      { stack_add(arg); }
-             )* ")"                                { $$ = create_call_node(name, stack_count[stackp], stack_pop()); }
+             )* ")"                                { int count = stack_count[stackp];
+                                                     $$ = create_call_node(name, count, stack_pop()); }
 
 arg-sep    = "," (- | --)* | -+
 

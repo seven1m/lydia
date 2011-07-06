@@ -441,7 +441,8 @@ YY_ACTION(void) yy_3_ecall(char *yytext, int yyleng)
 #define arg yyval[-1]
 #define name yyval[-2]
   yyprintf((stderr, "do yy_3_ecall\n"));
-   yy = create_call_node(name, stack_count[stackp], stack_pop()); ;
+   int count = stack_count[stackp];
+                                                     yy = create_call_node(name, count, stack_pop()); ;
 #undef arg
 #undef name
 }
@@ -468,7 +469,8 @@ YY_ACTION(void) yy_3_icall(char *yytext, int yyleng)
 #define arg yyval[-1]
 #define name yyval[-2]
   yyprintf((stderr, "do yy_3_icall\n"));
-   yy = create_call_node(name, stack_count[stackp], stack_pop()); ;
+   int count = stack_count[stackp];
+                                                     yy = create_call_node(name, count, stack_pop()); ;
 #undef arg
 #undef name
 }
