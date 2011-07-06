@@ -18,6 +18,7 @@ int yy_input(char *buf, int max_size);
 GSList* parse_ast;
 
 #define STACK_LEN 1024
+#define MAX_ARG_COUNT 255
 
 node* stack[STACK_LEN][MAX_ARG_COUNT];
 int stack_argc[STACK_LEN];
@@ -1139,53 +1140,49 @@ node** stack_pop() {
 
 node* create_int_node(char* yytext, int yyleng) {
   node* n = malloc(sizeof(node));
-  n->type = INT_TYPE;
-  n->value.i = atoi(yytext);
+  n->type = num_type;
+  n->value.num = atoi(yytext);
   return n;
 }
 
 node* create_str_node(char* yytext, int yyleng) {
   node* n = malloc(sizeof(node));
-  n->type = STR_TYPE;
-  n->value.s = malloc(sizeof(char) * (yyleng + 1));
-  strcpy(n->value.s, "");
-  strncat(n->value.s, yytext, yyleng);
+  n->type = str_type;
+  n->value.str = malloc(sizeof(char) * (yyleng + 1));
+  strcpy(n->value.str, "");
+  strncat(n->value.str, yytext, yyleng);
   return n;
 }
 
 node* create_rng_node(node* first, node* last) {
   node* n = malloc(sizeof(node));
-  n->type = RNG_TYPE;
-  n->value.r = malloc(sizeof(struct range));
-  n->value.r->first = first;
-  n->value.r->last = last;
+  n->type = range_type;
+  n->value.range.first = first;
+  n->value.range.last = last;
   return n;
 }
 
 node* create_var_node(node* name) {
   node* n = malloc(sizeof(node));
-  n->type = VAR_TYPE;
-  n->value.v = malloc(sizeof(struct var));
-  n->value.v->name = name->value.s;
+  n->type = var_type;
+  n->value.var = name->value.var;
   return n;
 }
 
 node* create_call_node(node* name, int argc, node** args) {
   node* n = malloc(sizeof(node));
-  n->type = CALL_TYPE;
-  n->value.c = malloc(sizeof(struct call));
-  n->value.c->name = name->value.s;
-  n->value.c->argc = argc;
-  n->value.c->args = args;
+  n->type = call_type;
+  n->value.call.name = name->value.str;
+  n->value.call.argc = argc;
+  n->value.call.args = args;
   return n;
 }
 
 node* create_err_node(char* yytext, int yyleng) {
   node* n = malloc(sizeof(node));
-  n->type = ERR_TYPE;
-  n->value.e = malloc(sizeof(char) * (yyleng + 1));
-  strcpy(n->value.e, "");
-  strncat(n->value.e, yytext, yyleng);
+  n->type = err_type;
+  strcpy(n->value.err, "");
+  strncat(n->value.err, yytext, yyleng);
   return n;
 }
 

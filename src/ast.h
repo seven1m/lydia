@@ -1,56 +1,24 @@
-#define ERR_TYPE  0
-#define INT_TYPE  1
-#define STR_TYPE  2
-#define VAR_TYPE  3
-#define LST_TYPE  4
-#define RNG_TYPE  5
-#define FUNC_TYPE 6
-#define CALL_TYPE 7
-#define ASSN_TYPE 8
+enum node_type { err_type, num_type, str_type, var_type, list_type, range_type, func_type, call_type, assign_type };
 
-#define MAX_ARG_COUNT 255
-
-struct node;
-
-struct list {
-};
-
-struct range {
-  struct node *first;
-  struct node *last;
-};
-
-struct func {
-};
-
-struct call {
-  char *name;
-  int argc;
-  struct node** args;
-};
-
-struct assign {
-};
-
-struct var {
-  char *name;
-};
-
-typedef int node_type;
-
-struct node {
-  node_type type;
+typedef struct node {
+  enum node_type type;
   union {
-    int            i;
-    char          *s;
-    char          *e;
-    struct var    *v;
-    struct list   *l;
-    struct range  *r;
-    struct func   *f;
-    struct call   *c;
-    struct assign *a;
+    int                      num;
+    char*                    str;
+    char*                    err;
+    char*                    var;
+    struct {
+      /* TODO */ }           list;
+    struct {
+      struct node* first;
+      struct node* last; }   range;
+    struct {
+      /* TODO */ }           func;
+    struct {
+      char* name;
+      int argc;
+      struct node** args; } call;
+    struct {
+      /* TODO */ }           assign;
   } value;
-};
-
-typedef struct node node;
+} node;
