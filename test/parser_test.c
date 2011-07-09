@@ -312,6 +312,19 @@ void test_func_with_args(CuTest *tc) {
   g_slist_free(ast);
 }
 
+void test_assign(CuTest *tc) {
+  GSList* ast = airball_parse("x = 1");
+  node* n;
+  CuAssertIntEquals(tc, 1, g_slist_length(ast));
+  n = g_slist_nth_data(ast, 0);
+  CuAssertIntEquals(tc, call_type, n->type);
+  CuAssertStrEquals(tc, "=", n->value.call.name);
+  CuAssertIntEquals(tc, 2,   n->value.call.argc);
+  CuAssertStrEquals(tc, "x", n->value.call.args[0]->value.var);
+  CuAssertIntEquals(tc, 1,   n->value.call.args[1]->value.num);
+  g_slist_free(ast);
+}
+
 CuSuite* parser_test_suite() {
   CuSuite* suite = CuSuiteNew();
   SUITE_ADD_TEST(suite, test_parse_empty_line);
@@ -336,5 +349,6 @@ CuSuite* parser_test_suite() {
   SUITE_ADD_TEST(suite, test_multiline_call);
   SUITE_ADD_TEST(suite, test_func_without_args);
   SUITE_ADD_TEST(suite, test_func_with_args);
+  SUITE_ADD_TEST(suite, test_assign);
   return suite;
 }

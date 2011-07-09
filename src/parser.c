@@ -5,47 +5,7 @@
 #include <string.h>
 #define YYRULECOUNT 34
 
-
-#include <string.h>
-#include <glib.h>
-
-int yy_input(char *buf, int max_size);
-
-#define YY_INPUT(b, r, ms) (r = yy_input(b, ms))
-
-#define YYSTYPE void*
-
-GSList* parse_ast;
-
-#define STACK_LEN 1024
-#define MAX_ARG_COUNT 255
-
-node* stack[STACK_LEN][MAX_ARG_COUNT]; /* holds lists of data */
-int stack_count[STACK_LEN];             /* number of items at each level in the stack */
-int stackp = 0;                        /* position on stack */
-
-#define P_NEW(n, v)           malloc(sizeof(node*))
-#define P_NEW2(n, v1, v2)     malloc(sizeof(node*))
-#define P_NEW3(n, v1, v2, v3) malloc(sizeof(node*))
-#define P_ADD(node)           (parse_ast = g_slist_append(parse_ast, node))
-
-node* rb_ary_new();
-
-void stack_push();
-void stack_add(node*);
-node** stack_pop();
-
-char* yytos(char*, int);
-
-node* create_int_node(char*, int);
-node* create_str_node(char*, int);
-node* create_rng_node(node*, node*);
-node* create_var_node(char*);
-node* create_call_node(char*, int, node**);
-node* create_list_node(int, node**);
-node* create_func_node(node*, int, node**);
-node* create_err_node(char*);
-
+#include "parser.h"
 
 #ifndef YY_VARIABLE
 #define YY_VARIABLE(T)	static T
@@ -502,20 +462,24 @@ YY_ACTION(void) yy_1_assign(char *yytext, int yyleng)
 #define val yyval[-1]
 #define name yyval[-2]
   yyprintf((stderr, "do yy_1_assign\n"));
-   yy = P_NEW2("assign", name, val); ;
+   node** args = malloc(sizeof(node*) * 2);
+                                                     node* n = create_var_node(name);
+                                                     args[0] = n;
+                                                     args[1] = val;
+                                                     yy = create_call_node("=", 2, args); ;
 #undef val
 #undef name
 }
 YY_ACTION(void) yy_1_bad(char *yytext, int yyleng)
 {
   yyprintf((stderr, "do yy_1_bad\n"));
-   P_ADD(create_err_node(yytos(yytext, yyleng))); ;
+   ADD_NODE(create_err_node(yytos(yytext, yyleng))); ;
 }
 YY_ACTION(void) yy_1_body(char *yytext, int yyleng)
 {
 #define e yyval[-1]
   yyprintf((stderr, "do yy_1_body\n"));
-   e && P_ADD(e); ;
+   if(e) ADD_NODE(e); ;
 #undef e
 }
 
@@ -1113,15 +1077,6 @@ YY_PARSE(int) YYPARSE(void)
 #endif
 
 
-/* borrowed from O'Reilly book "lex & yacc" pg. 157 */
-char *yy_input_ptr;
-int yy_input_len;
-
-node* rb_ary_new() {
-  printf("noop\n");
-  return (node*)malloc(sizeof(node));
-}
-
 void stack_push() {
   if(++stackp == STACK_LEN) exit(1);
   stack_count[stackp] = 0;
@@ -1210,6 +1165,7 @@ node* create_err_node(char* error) {
   return n;
 }
 
+/* borrowed from O'Reilly book "lex & yacc" pg. 157 */
 int yy_input(char *buf, int max_size) {
   int len = strlen(yy_input_ptr);
   int n = max_size < len ? max_size : len;

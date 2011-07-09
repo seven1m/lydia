@@ -1,53 +1,13 @@
 %{
-
-#include <string.h>
-#include <glib.h>
-
-int yy_input(char *buf, int max_size);
-
-#define YY_INPUT(b, r, ms) (r = yy_input(b, ms))
-
-#define YYSTYPE void*
-
-GSList* parse_ast;
-
-#define STACK_LEN 1024
-#define MAX_ARG_COUNT 255
-
-node* stack[STACK_LEN][MAX_ARG_COUNT]; /* holds lists of data */
-int stack_count[STACK_LEN];             /* number of items at each level in the stack */
-int stackp = 0;                        /* position on stack */
-
-#define P_NEW(n, v)           malloc(sizeof(node*))
-#define P_NEW2(n, v1, v2)     malloc(sizeof(node*))
-#define P_NEW3(n, v1, v2, v3) malloc(sizeof(node*))
-#define P_ADD(node)           (parse_ast = g_slist_append(parse_ast, node))
-
-node* rb_ary_new();
-
-void stack_push();
-void stack_add(node*);
-node** stack_pop();
-
-char* yytos(char*, int);
-
-node* create_int_node(char*, int);
-node* create_str_node(char*, int);
-node* create_rng_node(node*, node*);
-node* create_var_node(char*);
-node* create_call_node(char*, int, node**);
-node* create_list_node(int, node**);
-node* create_func_node(node*, int, node**);
-node* create_err_node(char*);
-
+#include "parser.h"
 %}
 
 body       = (
-             e:lexpr                               { e && P_ADD(e); }
+             e:lexpr                               { if(e) ADD_NODE(e); }
              )+ eof
            | lexpr* bad eof
 
-bad        = < .+ >                                { P_ADD(create_err_node(yytos(yytext, yyleng))); }
+bad        = < .+ >                                { ADD_NODE(create_err_node(yytos(yytext, yyleng))); }
 
 lexpr      = -* (
              empty-line
@@ -59,7 +19,11 @@ lexpr      = -* (
 
 assign     = (name:identifier | name:symbol) -+
              "=" -+
-             (val:icall | val:expr)                { $$ = P_NEW2("assign", name, val); }
+             (val:icall | val:expr)                { node** args = malloc(sizeof(node*) * 2);
+                                                     node* n = create_var_node(name);
+                                                     args[0] = n;
+                                                     args[1] = val;
+                                                     $$ = create_call_node("=", 2, args); }
 
 icall      = name:identifier                       { stack_push(); }
              (
@@ -162,15 +126,6 @@ eof        = !.
 
 %%
 
-/* borrowed from O'Reilly book "lex & yacc" pg. 157 */
-char *yy_input_ptr;
-int yy_input_len;
-
-node* rb_ary_new() {
-  printf("noop\n");
-  return (node*)malloc(sizeof(node));
-}
-
 void stack_push() {
   if(++stackp == STACK_LEN) exit(1);
   stack_count[stackp] = 0;
@@ -259,6 +214,7 @@ node* create_err_node(char* error) {
   return n;
 }
 
+/* borrowed from O'Reilly book "lex & yacc" pg. 157 */
 int yy_input(char *buf, int max_size) {
   int len = strlen(yy_input_ptr);
   int n = max_size < len ? max_size : len;
