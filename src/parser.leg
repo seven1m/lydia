@@ -1,53 +1,13 @@
 %{
-
-#include <string.h>
-#include <glib.h>
-
-int yy_input(char *buf, int max_size);
-
-#define YY_INPUT(b, r, ms) (r = yy_input(b, ms))
-
-#define YYSTYPE void*
-
-GSList* parse_ast;
-
-#define STACK_LEN 1024
-#define MAX_ARG_COUNT 255
-
-node* stack[STACK_LEN][MAX_ARG_COUNT]; /* holds lists of data */
-int stack_count[STACK_LEN];             /* number of items at each level in the stack */
-int stackp = 0;                        /* position on stack */
-
-#define P_NEW(n, v)           malloc(sizeof(node*))
-#define P_NEW2(n, v1, v2)     malloc(sizeof(node*))
-#define P_NEW3(n, v1, v2, v3) malloc(sizeof(node*))
-#define P_ADD(node)           (parse_ast = g_slist_append(parse_ast, node))
-
-node* rb_ary_new();
-
-void stack_push();
-void stack_add(node*);
-node** stack_pop();
-
-char* yytos(char*, int);
-
-node* create_int_node(char*, int);
-node* create_str_node(char*, int);
-node* create_rng_node(node*, node*);
-node* create_var_node(char*);
-node* create_call_node(char*, int, node**);
-node* create_list_node(int, node**);
-node* create_func_node(node*, int, node**);
-node* create_err_node(char*);
-
+#include "parser.h"
 %}
 
 body       = (
-             e:lexpr                               { e && P_ADD(e); }
+             e:lexpr                               { if(e) AIRB_ADD_NODE(e); }
              )+ eof
            | lexpr* bad eof
 
-bad        = < .+ >                                { P_ADD(create_err_node(yytos(yytext, yyleng))); }
+bad        = < .+ >                                { AIRB_ADD_NODE(airb_create_err_node(yytos(yytext, yyleng))); }
 
 lexpr      = -* (
              empty-line
@@ -59,19 +19,23 @@ lexpr      = -* (
 
 assign     = (name:identifier | name:symbol) -+
              "=" -+
-             (val:icall | val:expr)                { $$ = P_NEW2("assign", name, val); }
+             (val:icall | val:expr)                { airb_node** args = malloc(sizeof(airb_node*) * 2);
+                                                     airb_node* n = airb_create_var_node(name);
+                                                     args[0] = n;
+                                                     args[1] = val;
+                                                     $$ = airb_create_call_node("=", 2, args); }
 
-icall      = name:identifier                       { stack_push(); }
+icall      = name:identifier                       { airb_stack_push(); }
              (
-             arg-sep arg:expr                      { stack_add(arg); }
-             )+                                    { int count = stack_count[stackp];
-                                                     $$ = create_call_node(name, count, stack_pop()); }
+             arg-sep arg:expr                      { airb_stack_add(arg); }
+             )+                                    { int count = airb_stack_count[airb_stackp];
+                                                     $$ = airb_create_call_node(name, count, airb_stack_pop()); }
 
-ecall      = "(" name:identifier                   { stack_push(); }
+ecall      = "(" name:identifier                   { airb_stack_push(); }
              (
-             arg-sep arg:expr                      { stack_add(arg); }
-             )* ")"                                { int count = stack_count[stackp];
-                                                     $$ = create_call_node(name, count, stack_pop()); }
+             arg-sep arg:expr                      { airb_stack_add(arg); }
+             )* ")"                                { int count = airb_stack_count[airb_stackp];
+                                                     $$ = airb_create_call_node(name, count, airb_stack_pop()); }
 
 arg-sep    = "," (- | --)* | -+
 
@@ -83,27 +47,27 @@ expr       = op
            | atom
 
 func       = args:func-args
-             "{" (- | --)*                         { stack_push(); }
+             "{" (- | --)*                         { airb_stack_push(); }
              (
-             e:lexpr                               { if(e) stack_add(e); }
+             e:lexpr                               { if(e) airb_stack_add(e); }
              )+
-             -* "}"                                { int count = stack_count[stackp];
-                                                     $$ = create_func_node(args, count, stack_pop()); }
+             -* "}"                                { int count = airb_stack_count[airb_stackp];
+                                                     $$ = airb_create_func_node(args, count, airb_stack_pop()); }
 
-func-args  = "["                                   { stack_push(); }
+func-args  = "["                                   { airb_stack_push(); }
              ( -*
-             arg:identifier                        { stack_add(create_var_node(arg)); }
+             arg:identifier                        { airb_stack_add(airb_create_var_node(arg)); }
              )+ -*
-             "]" -*                                { int count = stack_count[stackp];
-                                                     $$ = create_list_node(count, stack_pop()); }
-           | &"{"                                  { $$ = create_list_node(0, NULL); }
+             "]" -*                                { int count = airb_stack_count[airb_stackp];
+                                                     $$ = airb_create_list_node(count, airb_stack_pop()); }
+           | &"{"                                  { $$ = airb_create_list_node(0, NULL); }
 
 op         = left:operand -+
              symbol:symbol -+
-             right:operand                         { node** args = malloc(sizeof(node*) * 2);
+             right:operand                         { airb_node** args = malloc(sizeof(airb_node*) * 2);
                                                      args[0] = left;
                                                      args[1] = right;
-                                                     $$ = create_call_node(symbol, 2, args); }
+                                                     $$ = airb_create_call_node(symbol, 2, args); }
 
 eop        = "(" op ")"
 
@@ -119,29 +83,29 @@ atom       = var
 
 list-sep   = - | -- | ","
 
-list       = "[" -*                                { stack_push(); }
+list       = "[" -*                                { airb_stack_push(); }
              (
-             e:expr list-sep*                      { stack_add(e); }
+             e:expr list-sep*                      { airb_stack_add(e); }
              )*
-             "]"                                   { int count = stack_count[stackp];
-                                                     $$ = create_list_node(count, stack_pop()); }
+             "]"                                   { int count = airb_stack_count[airb_stackp];
+                                                     $$ = airb_create_list_node(count, airb_stack_pop()); }
 
 rangeop    = var
            | integer
            | eop
            | ecall
 
-range      = first:rangeop ".." last:rangeop       { $$ = create_rng_node(first, last); }
+range      = first:rangeop ".." last:rangeop       { $$ = airb_create_rng_node(first, last); }
 
-var        = name:identifier                       { $$ = create_var_node(name); }
+var        = name:identifier                       { $$ = airb_create_var_node(name); }
 
 dq         = "\""
 sq         = "\'"
 ndq        = !dq .
 nsq        = !sq .
 esc        = "\\" .
-string     = dq < (esc | ndq)* > dq                { $$ = create_str_node(yytext, yyleng); }
-           | sq < (esc | nsq)* > sq                { $$ = create_str_node(yytext, yyleng); }
+string     = dq < (esc | ndq)* > dq                { $$ = airb_create_str_node(yytext, yyleng); }
+           | sq < (esc | nsq)* > sq                { $$ = airb_create_str_node(yytext, yyleng); }
 
 empty-line = -* --                                 { $$ = 0; }
 comment    = -* '#' [^\r\n]* --?                   { $$ = 0; }
@@ -152,7 +116,7 @@ symbol     = < [-~`!?@$%^&*_+|/,.<>]+ >            { $$ = yytos(yytext, yyleng);
 
 identifier = < [a-z] [a-z0-9-]* >                  { $$ = yytos(yytext, yyleng); }
 
-integer    = < digit+ >                            { $$ = create_int_node(yytext, yyleng); }
+integer    = < digit+ >                            { $$ = airb_create_int_node(yytext, yyleng); }
 
 digit      = [0-9]
 
@@ -162,29 +126,20 @@ eof        = !.
 
 %%
 
-/* borrowed from O'Reilly book "lex & yacc" pg. 157 */
-char *yy_input_ptr;
-int yy_input_len;
-
-node* rb_ary_new() {
-  printf("noop\n");
-  return (node*)malloc(sizeof(node));
+void airb_stack_push() {
+  if(++airb_stackp == STACK_LEN) exit(1);
+  airb_stack_count[airb_stackp] = 0;
 }
 
-void stack_push() {
-  if(++stackp == STACK_LEN) exit(1);
-  stack_count[stackp] = 0;
+void airb_stack_add(airb_node* n) {
+  airb_stack[airb_stackp][airb_stack_count[airb_stackp]++] = n;
 }
 
-void stack_add(node* n) {
-  stack[stackp][stack_count[stackp]++] = n;
-}
-
-node** stack_pop() {
+airb_node** airb_stack_pop() {
   int i;
-  node** args = malloc(sizeof(node*) * stack_count[stackp]);
-  for(i=0; i<stack_count[stackp]; i++) args[i] = stack[stackp][i];
-  stackp--;
+  airb_node** args = malloc(sizeof(airb_node*) * airb_stack_count[airb_stackp]);
+  for(i=0; i<airb_stack_count[airb_stackp]; i++) args[i] = airb_stack[airb_stackp][i];
+  airb_stackp--;
   return args;
 }
 
@@ -195,15 +150,15 @@ char* yytos(char* yytext, int yyleng) {
   return s;
 }
 
-node* create_int_node(char* yytext, int yyleng) {
-  node* n = malloc(sizeof(node));
+airb_node* airb_create_int_node(char* yytext, int yyleng) {
+  airb_node* n = malloc(sizeof(airb_node));
   n->type = num_type;
   n->value.num = atoi(yytext);
   return n;
 }
 
-node* create_str_node(char* yytext, int yyleng) {
-  node* n = malloc(sizeof(node));
+airb_node* airb_create_str_node(char* yytext, int yyleng) {
+  airb_node* n = malloc(sizeof(airb_node));
   n->type = str_type;
   n->value.str = malloc(sizeof(char) * (yyleng + 1));
   strcpy(n->value.str, "");
@@ -211,23 +166,23 @@ node* create_str_node(char* yytext, int yyleng) {
   return n;
 }
 
-node* create_rng_node(node* first, node* last) {
-  node* n = malloc(sizeof(node));
+airb_node* airb_create_rng_node(airb_node* first, airb_node* last) {
+  airb_node* n = malloc(sizeof(airb_node));
   n->type = range_type;
   n->value.range.first = first;
   n->value.range.last = last;
   return n;
 }
 
-node* create_var_node(char* name) {
-  node* n = malloc(sizeof(node));
+airb_node* airb_create_var_node(char* name) {
+  airb_node* n = malloc(sizeof(airb_node));
   n->type = var_type;
   n->value.var = name;
   return n;
 }
 
-node* create_call_node(char* name, int argc, node** args) {
-  node* n = malloc(sizeof(node));
+airb_node* airb_create_call_node(char* name, int argc, airb_node** args) {
+  airb_node* n = malloc(sizeof(airb_node));
   n->type = call_type;
   n->value.call.name = name;
   n->value.call.argc = argc;
@@ -235,16 +190,16 @@ node* create_call_node(char* name, int argc, node** args) {
   return n;
 }
 
-node* create_list_node(int itemc, node** items) {
-  node* n = malloc(sizeof(node));
+airb_node* airb_create_list_node(int itemc, airb_node** items) {
+  airb_node* n = malloc(sizeof(airb_node));
   n->type = list_type;
   n->value.list.count = itemc;
   n->value.list.items = items;
   return n;
 }
 
-node* create_func_node(node* args, int exprc, node** exprs) {
-  node* n = malloc(sizeof(node));
+airb_node* airb_create_func_node(airb_node* args, int exprc, airb_node** exprs) {
+  airb_node* n = malloc(sizeof(airb_node));
   n->type = func_type;
   n->value.func.args = args;
   n->value.func.exprc = exprc;
@@ -252,13 +207,14 @@ node* create_func_node(node* args, int exprc, node** exprs) {
   return n;
 }
 
-node* create_err_node(char* error) {
-  node* n = malloc(sizeof(node));
+airb_node* airb_create_err_node(char* error) {
+  airb_node* n = malloc(sizeof(airb_node));
   n->type = err_type;
   n->value.err = error;
   return n;
 }
 
+/* borrowed from O'Reilly book "lex & yacc" pg. 157 */
 int yy_input(char *buf, int max_size) {
   int len = strlen(yy_input_ptr);
   int n = max_size < len ? max_size : len;
@@ -270,9 +226,9 @@ int yy_input(char *buf, int max_size) {
 }
 
 GSList* airball_parse(char *source) {
-  parse_ast = NULL;
+  airb_ast = NULL;
   yy_input_ptr = source;
   yy_input_len = strlen(yy_input_ptr);
   while (yyparse());
-  return parse_ast;
+  return airb_ast;
 }

@@ -1,7 +1,7 @@
-enum node_type { err_type, num_type, str_type, var_type, list_type, range_type, func_type, call_type, assign_type };
+enum airb_node_type { err_type, num_type, str_type, var_type, list_type, range_type, func_type, call_type, assign_type };
 
-typedef struct node {
-  enum node_type type;
+typedef struct airb_node {
+  enum airb_node_type type;
   union {
     int                      num;
     char*                    str;
@@ -9,19 +9,19 @@ typedef struct node {
     char*                    var;
     struct {
       int count;
-      struct node** items; } list;
+      struct airb_node** items; } list;
     struct {
-      struct node* first;
-      struct node* last; }   range;
+      struct airb_node* first;
+      struct airb_node* last; }   range;
     struct {
-      struct node* args;
+      struct airb_node* args;
       int exprc;
-      struct node** exprs; } func;
+      struct airb_node** exprs; } func;
     struct {
       char* name;
       int argc;
-      struct node** args; } call;
+      struct airb_node** args; } call;
     struct {
       /* TODO */ }           assign;
   } value;
-} node;
+} airb_node;

@@ -5,47 +5,7 @@
 #include <string.h>
 #define YYRULECOUNT 34
 
-
-#include <string.h>
-#include <glib.h>
-
-int yy_input(char *buf, int max_size);
-
-#define YY_INPUT(b, r, ms) (r = yy_input(b, ms))
-
-#define YYSTYPE void*
-
-GSList* parse_ast;
-
-#define STACK_LEN 1024
-#define MAX_ARG_COUNT 255
-
-node* stack[STACK_LEN][MAX_ARG_COUNT]; /* holds lists of data */
-int stack_count[STACK_LEN];             /* number of items at each level in the stack */
-int stackp = 0;                        /* position on stack */
-
-#define P_NEW(n, v)           malloc(sizeof(node*))
-#define P_NEW2(n, v1, v2)     malloc(sizeof(node*))
-#define P_NEW3(n, v1, v2, v3) malloc(sizeof(node*))
-#define P_ADD(node)           (parse_ast = g_slist_append(parse_ast, node))
-
-node* rb_ary_new();
-
-void stack_push();
-void stack_add(node*);
-node** stack_pop();
-
-char* yytos(char*, int);
-
-node* create_int_node(char*, int);
-node* create_str_node(char*, int);
-node* create_rng_node(node*, node*);
-node* create_var_node(char*);
-node* create_call_node(char*, int, node**);
-node* create_list_node(int, node**);
-node* create_func_node(node*, int, node**);
-node* create_err_node(char*);
-
+#include "parser.h"
 
 #ifndef YY_VARIABLE
 #define YY_VARIABLE(T)	static T
@@ -295,7 +255,7 @@ YY_RULE(int) yy_body(); /* 1 */
 YY_ACTION(void) yy_1_integer(char *yytext, int yyleng)
 {
   yyprintf((stderr, "do yy_1_integer\n"));
-   yy = create_int_node(yytext, yyleng); ;
+   yy = airb_create_int_node(yytext, yyleng); ;
 }
 YY_ACTION(void) yy_1_identifier(char *yytext, int yyleng)
 {
@@ -325,18 +285,18 @@ YY_ACTION(void) yy_1_empty_line(char *yytext, int yyleng)
 YY_ACTION(void) yy_2_string(char *yytext, int yyleng)
 {
   yyprintf((stderr, "do yy_2_string\n"));
-   yy = create_str_node(yytext, yyleng); ;
+   yy = airb_create_str_node(yytext, yyleng); ;
 }
 YY_ACTION(void) yy_1_string(char *yytext, int yyleng)
 {
   yyprintf((stderr, "do yy_1_string\n"));
-   yy = create_str_node(yytext, yyleng); ;
+   yy = airb_create_str_node(yytext, yyleng); ;
 }
 YY_ACTION(void) yy_1_var(char *yytext, int yyleng)
 {
 #define name yyval[-1]
   yyprintf((stderr, "do yy_1_var\n"));
-   yy = create_var_node(name); ;
+   yy = airb_create_var_node(name); ;
 #undef name
 }
 YY_ACTION(void) yy_1_range(char *yytext, int yyleng)
@@ -344,7 +304,7 @@ YY_ACTION(void) yy_1_range(char *yytext, int yyleng)
 #define last yyval[-1]
 #define first yyval[-2]
   yyprintf((stderr, "do yy_1_range\n"));
-   yy = create_rng_node(first, last); ;
+   yy = airb_create_rng_node(first, last); ;
 #undef last
 #undef first
 }
@@ -352,22 +312,22 @@ YY_ACTION(void) yy_3_list(char *yytext, int yyleng)
 {
 #define e yyval[-1]
   yyprintf((stderr, "do yy_3_list\n"));
-   int count = stack_count[stackp];
-                                                     yy = create_list_node(count, stack_pop()); ;
+   int count = airb_stack_count[airb_stackp];
+                                                     yy = airb_create_list_node(count, airb_stack_pop()); ;
 #undef e
 }
 YY_ACTION(void) yy_2_list(char *yytext, int yyleng)
 {
 #define e yyval[-1]
   yyprintf((stderr, "do yy_2_list\n"));
-   stack_add(e); ;
+   airb_stack_add(e); ;
 #undef e
 }
 YY_ACTION(void) yy_1_list(char *yytext, int yyleng)
 {
 #define e yyval[-1]
   yyprintf((stderr, "do yy_1_list\n"));
-   stack_push(); ;
+   airb_stack_push(); ;
 #undef e
 }
 YY_ACTION(void) yy_1_op(char *yytext, int yyleng)
@@ -376,10 +336,10 @@ YY_ACTION(void) yy_1_op(char *yytext, int yyleng)
 #define symbol yyval[-2]
 #define left yyval[-3]
   yyprintf((stderr, "do yy_1_op\n"));
-   node** args = malloc(sizeof(node*) * 2);
+   airb_node** args = malloc(sizeof(airb_node*) * 2);
                                                      args[0] = left;
                                                      args[1] = right;
-                                                     yy = create_call_node(symbol, 2, args); ;
+                                                     yy = airb_create_call_node(symbol, 2, args); ;
 #undef right
 #undef symbol
 #undef left
@@ -388,29 +348,29 @@ YY_ACTION(void) yy_4_func_args(char *yytext, int yyleng)
 {
 #define arg yyval[-1]
   yyprintf((stderr, "do yy_4_func_args\n"));
-   yy = create_list_node(0, NULL); ;
+   yy = airb_create_list_node(0, NULL); ;
 #undef arg
 }
 YY_ACTION(void) yy_3_func_args(char *yytext, int yyleng)
 {
 #define arg yyval[-1]
   yyprintf((stderr, "do yy_3_func_args\n"));
-   int count = stack_count[stackp];
-                                                     yy = create_list_node(count, stack_pop()); ;
+   int count = airb_stack_count[airb_stackp];
+                                                     yy = airb_create_list_node(count, airb_stack_pop()); ;
 #undef arg
 }
 YY_ACTION(void) yy_2_func_args(char *yytext, int yyleng)
 {
 #define arg yyval[-1]
   yyprintf((stderr, "do yy_2_func_args\n"));
-   stack_add(create_var_node(arg)); ;
+   airb_stack_add(airb_create_var_node(arg)); ;
 #undef arg
 }
 YY_ACTION(void) yy_1_func_args(char *yytext, int yyleng)
 {
 #define arg yyval[-1]
   yyprintf((stderr, "do yy_1_func_args\n"));
-   stack_push(); ;
+   airb_stack_push(); ;
 #undef arg
 }
 YY_ACTION(void) yy_3_func(char *yytext, int yyleng)
@@ -418,8 +378,8 @@ YY_ACTION(void) yy_3_func(char *yytext, int yyleng)
 #define e yyval[-1]
 #define args yyval[-2]
   yyprintf((stderr, "do yy_3_func\n"));
-   int count = stack_count[stackp];
-                                                     yy = create_func_node(args, count, stack_pop()); ;
+   int count = airb_stack_count[airb_stackp];
+                                                     yy = airb_create_func_node(args, count, airb_stack_pop()); ;
 #undef e
 #undef args
 }
@@ -428,7 +388,7 @@ YY_ACTION(void) yy_2_func(char *yytext, int yyleng)
 #define e yyval[-1]
 #define args yyval[-2]
   yyprintf((stderr, "do yy_2_func\n"));
-   if(e) stack_add(e); ;
+   if(e) airb_stack_add(e); ;
 #undef e
 #undef args
 }
@@ -437,7 +397,7 @@ YY_ACTION(void) yy_1_func(char *yytext, int yyleng)
 #define e yyval[-1]
 #define args yyval[-2]
   yyprintf((stderr, "do yy_1_func\n"));
-   stack_push(); ;
+   airb_stack_push(); ;
 #undef e
 #undef args
 }
@@ -446,8 +406,8 @@ YY_ACTION(void) yy_3_ecall(char *yytext, int yyleng)
 #define arg yyval[-1]
 #define name yyval[-2]
   yyprintf((stderr, "do yy_3_ecall\n"));
-   int count = stack_count[stackp];
-                                                     yy = create_call_node(name, count, stack_pop()); ;
+   int count = airb_stack_count[airb_stackp];
+                                                     yy = airb_create_call_node(name, count, airb_stack_pop()); ;
 #undef arg
 #undef name
 }
@@ -456,7 +416,7 @@ YY_ACTION(void) yy_2_ecall(char *yytext, int yyleng)
 #define arg yyval[-1]
 #define name yyval[-2]
   yyprintf((stderr, "do yy_2_ecall\n"));
-   stack_add(arg); ;
+   airb_stack_add(arg); ;
 #undef arg
 #undef name
 }
@@ -465,7 +425,7 @@ YY_ACTION(void) yy_1_ecall(char *yytext, int yyleng)
 #define arg yyval[-1]
 #define name yyval[-2]
   yyprintf((stderr, "do yy_1_ecall\n"));
-   stack_push(); ;
+   airb_stack_push(); ;
 #undef arg
 #undef name
 }
@@ -474,8 +434,8 @@ YY_ACTION(void) yy_3_icall(char *yytext, int yyleng)
 #define arg yyval[-1]
 #define name yyval[-2]
   yyprintf((stderr, "do yy_3_icall\n"));
-   int count = stack_count[stackp];
-                                                     yy = create_call_node(name, count, stack_pop()); ;
+   int count = airb_stack_count[airb_stackp];
+                                                     yy = airb_create_call_node(name, count, airb_stack_pop()); ;
 #undef arg
 #undef name
 }
@@ -484,7 +444,7 @@ YY_ACTION(void) yy_2_icall(char *yytext, int yyleng)
 #define arg yyval[-1]
 #define name yyval[-2]
   yyprintf((stderr, "do yy_2_icall\n"));
-   stack_add(arg); ;
+   airb_stack_add(arg); ;
 #undef arg
 #undef name
 }
@@ -493,7 +453,7 @@ YY_ACTION(void) yy_1_icall(char *yytext, int yyleng)
 #define arg yyval[-1]
 #define name yyval[-2]
   yyprintf((stderr, "do yy_1_icall\n"));
-   stack_push(); ;
+   airb_stack_push(); ;
 #undef arg
 #undef name
 }
@@ -502,20 +462,24 @@ YY_ACTION(void) yy_1_assign(char *yytext, int yyleng)
 #define val yyval[-1]
 #define name yyval[-2]
   yyprintf((stderr, "do yy_1_assign\n"));
-   yy = P_NEW2("assign", name, val); ;
+   airb_node** args = malloc(sizeof(airb_node*) * 2);
+                                                     airb_node* n = airb_create_var_node(name);
+                                                     args[0] = n;
+                                                     args[1] = val;
+                                                     yy = airb_create_call_node("=", 2, args); ;
 #undef val
 #undef name
 }
 YY_ACTION(void) yy_1_bad(char *yytext, int yyleng)
 {
   yyprintf((stderr, "do yy_1_bad\n"));
-   P_ADD(create_err_node(yytos(yytext, yyleng))); ;
+   AIRB_ADD_NODE(airb_create_err_node(yytos(yytext, yyleng))); ;
 }
 YY_ACTION(void) yy_1_body(char *yytext, int yyleng)
 {
 #define e yyval[-1]
   yyprintf((stderr, "do yy_1_body\n"));
-   e && P_ADD(e); ;
+   if(e) AIRB_ADD_NODE(e); ;
 #undef e
 }
 
@@ -1113,29 +1077,20 @@ YY_PARSE(int) YYPARSE(void)
 #endif
 
 
-/* borrowed from O'Reilly book "lex & yacc" pg. 157 */
-char *yy_input_ptr;
-int yy_input_len;
-
-node* rb_ary_new() {
-  printf("noop\n");
-  return (node*)malloc(sizeof(node));
+void airb_stack_push() {
+  if(++airb_stackp == STACK_LEN) exit(1);
+  airb_stack_count[airb_stackp] = 0;
 }
 
-void stack_push() {
-  if(++stackp == STACK_LEN) exit(1);
-  stack_count[stackp] = 0;
+void airb_stack_add(airb_node* n) {
+  airb_stack[airb_stackp][airb_stack_count[airb_stackp]++] = n;
 }
 
-void stack_add(node* n) {
-  stack[stackp][stack_count[stackp]++] = n;
-}
-
-node** stack_pop() {
+airb_node** airb_stack_pop() {
   int i;
-  node** args = malloc(sizeof(node*) * stack_count[stackp]);
-  for(i=0; i<stack_count[stackp]; i++) args[i] = stack[stackp][i];
-  stackp--;
+  airb_node** args = malloc(sizeof(airb_node*) * airb_stack_count[airb_stackp]);
+  for(i=0; i<airb_stack_count[airb_stackp]; i++) args[i] = airb_stack[airb_stackp][i];
+  airb_stackp--;
   return args;
 }
 
@@ -1146,15 +1101,15 @@ char* yytos(char* yytext, int yyleng) {
   return s;
 }
 
-node* create_int_node(char* yytext, int yyleng) {
-  node* n = malloc(sizeof(node));
+airb_node* airb_create_int_node(char* yytext, int yyleng) {
+  airb_node* n = malloc(sizeof(airb_node));
   n->type = num_type;
   n->value.num = atoi(yytext);
   return n;
 }
 
-node* create_str_node(char* yytext, int yyleng) {
-  node* n = malloc(sizeof(node));
+airb_node* airb_create_str_node(char* yytext, int yyleng) {
+  airb_node* n = malloc(sizeof(airb_node));
   n->type = str_type;
   n->value.str = malloc(sizeof(char) * (yyleng + 1));
   strcpy(n->value.str, "");
@@ -1162,23 +1117,23 @@ node* create_str_node(char* yytext, int yyleng) {
   return n;
 }
 
-node* create_rng_node(node* first, node* last) {
-  node* n = malloc(sizeof(node));
+airb_node* airb_create_rng_node(airb_node* first, airb_node* last) {
+  airb_node* n = malloc(sizeof(airb_node));
   n->type = range_type;
   n->value.range.first = first;
   n->value.range.last = last;
   return n;
 }
 
-node* create_var_node(char* name) {
-  node* n = malloc(sizeof(node));
+airb_node* airb_create_var_node(char* name) {
+  airb_node* n = malloc(sizeof(airb_node));
   n->type = var_type;
   n->value.var = name;
   return n;
 }
 
-node* create_call_node(char* name, int argc, node** args) {
-  node* n = malloc(sizeof(node));
+airb_node* airb_create_call_node(char* name, int argc, airb_node** args) {
+  airb_node* n = malloc(sizeof(airb_node));
   n->type = call_type;
   n->value.call.name = name;
   n->value.call.argc = argc;
@@ -1186,16 +1141,16 @@ node* create_call_node(char* name, int argc, node** args) {
   return n;
 }
 
-node* create_list_node(int itemc, node** items) {
-  node* n = malloc(sizeof(node));
+airb_node* airb_create_list_node(int itemc, airb_node** items) {
+  airb_node* n = malloc(sizeof(airb_node));
   n->type = list_type;
   n->value.list.count = itemc;
   n->value.list.items = items;
   return n;
 }
 
-node* create_func_node(node* args, int exprc, node** exprs) {
-  node* n = malloc(sizeof(node));
+airb_node* airb_create_func_node(airb_node* args, int exprc, airb_node** exprs) {
+  airb_node* n = malloc(sizeof(airb_node));
   n->type = func_type;
   n->value.func.args = args;
   n->value.func.exprc = exprc;
@@ -1203,13 +1158,14 @@ node* create_func_node(node* args, int exprc, node** exprs) {
   return n;
 }
 
-node* create_err_node(char* error) {
-  node* n = malloc(sizeof(node));
+airb_node* airb_create_err_node(char* error) {
+  airb_node* n = malloc(sizeof(airb_node));
   n->type = err_type;
   n->value.err = error;
   return n;
 }
 
+/* borrowed from O'Reilly book "lex & yacc" pg. 157 */
 int yy_input(char *buf, int max_size) {
   int len = strlen(yy_input_ptr);
   int n = max_size < len ? max_size : len;
@@ -1221,10 +1177,10 @@ int yy_input(char *buf, int max_size) {
 }
 
 GSList* airball_parse(char *source) {
-  parse_ast = NULL;
+  airb_ast = NULL;
   yy_input_ptr = source;
   yy_input_len = strlen(yy_input_ptr);
   while (yyparse());
-  return parse_ast;
+  return airb_ast;
 }
 
