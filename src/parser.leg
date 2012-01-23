@@ -19,11 +19,7 @@ lexpr      = -* (
 
 assign     = (name:identifier | name:symbol) -+
              "=" -+
-             (val:icall | val:expr)                { airb_node** args = malloc(sizeof(airb_node*) * 2);
-                                                     airb_node* n = airb_create_var_node(name);
-                                                     args[0] = n;
-                                                     args[1] = val;
-                                                     $$ = airb_create_call_node("=", 2, args); }
+             (val:icall | val:expr)                { $$ = airb_create_assign_node(name, val); }
 
 icall      = name:identifier                       { airb_stack_push(); }
              (
@@ -178,6 +174,14 @@ airb_node* airb_create_var_node(char* name) {
   airb_node* n = malloc(sizeof(airb_node));
   n->type = var_type;
   n->value.var = name;
+  return n;
+}
+
+airb_node* airb_create_assign_node(char* name, airb_node* expr) {
+  airb_node* n = malloc(sizeof(airb_node));
+  n->type = assign_type;
+  n->value.assign.name = name;
+  n->value.assign.expr = expr;
   return n;
 }
 

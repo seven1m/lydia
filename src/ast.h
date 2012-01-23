@@ -12,7 +12,7 @@ typedef struct airb_node {
       struct airb_node** items; } list;
     struct {
       struct airb_node* first;
-      struct airb_node* last; }   range;
+      struct airb_node* last;   } range;
     struct {
       struct airb_node* args;
       int exprc;
@@ -20,8 +20,9 @@ typedef struct airb_node {
     struct {
       char* name;
       int argc;
-      struct airb_node** args; } call;
+      struct airb_node** args;  } call;
     struct {
-      /* TODO */ }           assign;
+      char* name;
+      struct airb_node* expr;   } assign;
   } value;
 } airb_node;

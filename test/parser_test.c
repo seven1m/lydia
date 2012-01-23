@@ -317,11 +317,9 @@ void test_assign(CuTest *tc) {
   airb_node* n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
-  CuAssertIntEquals(tc, call_type, n->type);
-  CuAssertStrEquals(tc, "=", n->value.call.name);
-  CuAssertIntEquals(tc, 2,   n->value.call.argc);
-  CuAssertStrEquals(tc, "x", n->value.call.args[0]->value.var);
-  CuAssertIntEquals(tc, 1,   n->value.call.args[1]->value.num);
+  CuAssertIntEquals(tc, assign_type, n->type);
+  CuAssertStrEquals(tc, "x", n->value.assign.name);
+  CuAssertIntEquals(tc, 1,   n->value.assign.expr->value.num);
   g_slist_free(ast);
 }
 

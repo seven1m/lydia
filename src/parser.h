@@ -28,6 +28,7 @@ airb_node* airb_create_int_node(char*, int);
 airb_node* airb_create_str_node(char*, int);
 airb_node* airb_create_rng_node(airb_node*, airb_node*);
 airb_node* airb_create_var_node(char*);
+airb_node* airb_create_assign_node(char*, airb_node*);
 airb_node* airb_create_call_node(char*, int, airb_node**);
 airb_node* airb_create_list_node(int, airb_node**);
 airb_node* airb_create_func_node(airb_node*, int, airb_node**);

@@ -462,11 +462,7 @@ YY_ACTION(void) yy_1_assign(char *yytext, int yyleng)
 #define val yyval[-1]
 #define name yyval[-2]
   yyprintf((stderr, "do yy_1_assign\n"));
-   airb_node** args = malloc(sizeof(airb_node*) * 2);
-                                                     airb_node* n = airb_create_var_node(name);
-                                                     args[0] = n;
-                                                     args[1] = val;
-                                                     yy = airb_create_call_node("=", 2, args); ;
+   yy = airb_create_assign_node(name, val); ;
 #undef val
 #undef name
 }
@@ -1129,6 +1125,14 @@ airb_node* airb_create_var_node(char* name) {
   airb_node* n = malloc(sizeof(airb_node));
   n->type = var_type;
   n->value.var = name;
+  return n;
+}
+
+airb_node* airb_create_assign_node(char* name, airb_node* expr) {
+  airb_node* n = malloc(sizeof(airb_node));
+  n->type = assign_type;
+  n->value.assign.name = name;
+  n->value.assign.expr = expr;
   return n;
 }
 
