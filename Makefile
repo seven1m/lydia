@@ -1,7 +1,7 @@
 .PHONY: test src/parser.c
 
 CC=gcc
-CFLAGS=-I.
+CFLAGS=-I. -Wall
 DEPS = src/airball.h
 
 test: src/airball.o
