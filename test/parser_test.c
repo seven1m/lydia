@@ -1,4 +1,4 @@
-#include <airball.h>
+#include "../src/airball.h"
 
 void test_parse_empty_line(CuTest *tc) {
   GSList* ast = airball_parse("\n");
@@ -116,7 +116,7 @@ void test_parse_range_with_call(CuTest *tc) {
 }
 
 
-void test_list(CuTest *tc) {
+void test_parse_list(CuTest *tc) {
   GSList* ast = airball_parse("[1 'string' x 3 * 5]");
   airb_node* n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
@@ -130,7 +130,7 @@ void test_list(CuTest *tc) {
   g_slist_free(ast);
 }
 
-void test_list_with_commas(CuTest *tc) {
+void test_parse_list_with_commas(CuTest *tc) {
   GSList* ast = airball_parse("[1, 'string', x, 3 * 5]");
   airb_node* n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
@@ -140,7 +140,7 @@ void test_list_with_commas(CuTest *tc) {
   g_slist_free(ast);
 }
 
-void test_list_as_operand(CuTest *tc) {
+void test_parse_list_as_operand(CuTest *tc) {
   GSList* ast = airball_parse("[1 2 3] + [4 5 6]");
   airb_node* n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
@@ -153,7 +153,7 @@ void test_list_as_operand(CuTest *tc) {
   g_slist_free(ast);
 }
 
-void test_empty_list(CuTest *tc) {
+void test_parse_empty_list(CuTest *tc) {
   GSList* ast = airball_parse("[]");
   airb_node* n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
@@ -163,7 +163,7 @@ void test_empty_list(CuTest *tc) {
   g_slist_free(ast);
 }
 
-void test_multiline_list(CuTest *tc) {
+void test_parse_multiline_list(CuTest *tc) {
   GSList* ast = airball_parse("[1\n2\n3]");
   airb_node* n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
@@ -176,7 +176,7 @@ void test_multiline_list(CuTest *tc) {
   g_slist_free(ast);
 }
 
-void test_nested_list(CuTest *tc) {
+void test_parse_nested_list(CuTest *tc) {
   GSList* ast = airball_parse("[1 [x y] 2]");
   airb_node* n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
@@ -189,7 +189,7 @@ void test_nested_list(CuTest *tc) {
   g_slist_free(ast);
 }
 
-void test_op(CuTest *tc) {
+void test_parse_op(CuTest *tc) {
   GSList* ast = airball_parse("x * 3");
   airb_node* n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
@@ -202,7 +202,7 @@ void test_op(CuTest *tc) {
   g_slist_free(ast);
 }
 
-void test_non_assign_equals(CuTest *tc) {
+void test_parse_non_assign_equals(CuTest *tc) {
   GSList* ast = airball_parse("1 == 1");
   airb_node* n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
@@ -215,7 +215,7 @@ void test_non_assign_equals(CuTest *tc) {
   g_slist_free(ast);
 }
 
-void test_simple_call(CuTest *tc) {
+void test_parse_simple_call(CuTest *tc) {
   GSList* ast = airball_parse("foo 1 2");
   airb_node* n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
@@ -228,7 +228,7 @@ void test_simple_call(CuTest *tc) {
   g_slist_free(ast);
 }
 
-void test_multiline_call(CuTest *tc) {
+void test_parse_multiline_call(CuTest *tc) {
   GSList* ast = airball_parse("foo 1,    \n"
                               "    2     \n"
                               "bar 3,    \n"
@@ -254,7 +254,7 @@ void test_multiline_call(CuTest *tc) {
   g_slist_free(ast);
 }
 
-void test_func_without_args(CuTest *tc) {
+void test_parse_func_without_args(CuTest *tc) {
   GSList* ast = airball_parse("{ foo 1 2 }");
   airb_node* n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
@@ -283,7 +283,7 @@ void test_func_without_args(CuTest *tc) {
   g_slist_free(ast);
 }
 
-void test_func_with_args(CuTest *tc) {
+void test_parse_func_with_args(CuTest *tc) {
   GSList* ast = airball_parse("[x y]{ foo x y }");
   airb_node* n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
@@ -312,7 +312,7 @@ void test_func_with_args(CuTest *tc) {
   g_slist_free(ast);
 }
 
-void test_assign(CuTest *tc) {
+void test_parse_assign(CuTest *tc) {
   GSList* ast = airball_parse("x = 1");
   airb_node* n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
@@ -335,18 +335,18 @@ CuSuite* parser_test_suite() {
   SUITE_ADD_TEST(suite, test_parse_range_with_num);
   SUITE_ADD_TEST(suite, test_parse_range_with_var);
   SUITE_ADD_TEST(suite, test_parse_range_with_call);
-  SUITE_ADD_TEST(suite, test_list);
-  SUITE_ADD_TEST(suite, test_list_with_commas);
-  SUITE_ADD_TEST(suite, test_list_as_operand);
-  SUITE_ADD_TEST(suite, test_empty_list);
-  SUITE_ADD_TEST(suite, test_multiline_list);
-  SUITE_ADD_TEST(suite, test_nested_list);
-  SUITE_ADD_TEST(suite, test_op);
-  SUITE_ADD_TEST(suite, test_non_assign_equals);
-  SUITE_ADD_TEST(suite, test_simple_call);
-  SUITE_ADD_TEST(suite, test_multiline_call);
-  SUITE_ADD_TEST(suite, test_func_without_args);
-  SUITE_ADD_TEST(suite, test_func_with_args);
-  SUITE_ADD_TEST(suite, test_assign);
+  SUITE_ADD_TEST(suite, test_parse_list);
+  SUITE_ADD_TEST(suite, test_parse_list_with_commas);
+  SUITE_ADD_TEST(suite, test_parse_list_as_operand);
+  SUITE_ADD_TEST(suite, test_parse_empty_list);
+  SUITE_ADD_TEST(suite, test_parse_multiline_list);
+  SUITE_ADD_TEST(suite, test_parse_nested_list);
+  SUITE_ADD_TEST(suite, test_parse_op);
+  SUITE_ADD_TEST(suite, test_parse_non_assign_equals);
+  SUITE_ADD_TEST(suite, test_parse_simple_call);
+  SUITE_ADD_TEST(suite, test_parse_multiline_call);
+  SUITE_ADD_TEST(suite, test_parse_func_without_args);
+  SUITE_ADD_TEST(suite, test_parse_func_with_args);
+  SUITE_ADD_TEST(suite, test_parse_assign);
   return suite;
 }

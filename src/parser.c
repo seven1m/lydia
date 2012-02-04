@@ -5,7 +5,8 @@
 #include <string.h>
 #define YYRULECOUNT 34
 
-#include "parser.h"
+#include "airball.h"
+int airb_stackp = 0;
 
 #ifndef YY_VARIABLE
 #define YY_VARIABLE(T)	static T

@@ -1,11 +1,10 @@
-#ifndef PARSER_H_
-#define PARSER_H_
-
-#include <string.h>
-#include <glib.h>
+#ifndef PARSER_H
+#define PARSER_H
 
 #define YY_INPUT(b, r, ms) (r = yy_input(b, ms))
 #define YYSTYPE void*
+
+GSList* airball_parse(char *);
 
 char *yy_input_ptr;
 int yy_input_len;
@@ -16,7 +15,7 @@ int yy_input(char *buf, int max_size);
 
 airb_node* airb_stack[STACK_LEN][MAX_ARG_COUNT];
 int airb_stack_count[STACK_LEN];
-int airb_stackp = 0;
+extern int airb_stackp;
 
 void airb_stack_push();
 void airb_stack_add(airb_node*);

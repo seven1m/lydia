@@ -1,2 +1,5 @@
 #include "airball.h"
 #include "parser.c"
+#include "value.c"
+#include "heap.c"
+#include "closure.c"

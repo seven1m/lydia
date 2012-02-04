@@ -1,5 +1,6 @@
 %{
-#include "parser.h"
+#include "airball.h"
+int airb_stackp = 0;
 %}
 
 body       = (

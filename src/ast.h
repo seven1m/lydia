@@ -1,3 +1,6 @@
+#ifndef AST_H
+#define AST_H
+
 enum airb_node_type { err_type, num_type, str_type, var_type, list_type, range_type, func_type, call_type, assign_type };
 
 typedef struct airb_node {
@@ -26,3 +29,5 @@ typedef struct airb_node {
       struct airb_node* expr;   } assign;
   } value;
 } airb_node;
+
+#endif

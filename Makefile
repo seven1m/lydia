@@ -5,7 +5,7 @@ CFLAGS=-I. -Wall
 DEPS = src/airball.h
 
 test: src/airball.o
-	$(CC) test/runner.c -Ideps -Isrc src/airball.o deps/CuTest.c `pkg-config --cflags glib-2.0 --libs glib-2.0` -o test/runner
+	$(CC) test/runner.c -Ideps -Isrc ${CFLAGS} src/airball.o deps/CuTest.c `pkg-config --cflags glib-2.0 --libs glib-2.0` -o test/runner
 	test/runner
 
 leg: clean src/parser.c
@@ -17,4 +17,4 @@ src/parser.c:
 	$(CC) -c -o $@ $< $(CFLAGS) `pkg-config --cflags glib-2.0`
 
 clean:
-	rm -f src/*.o src/*.so
+	rm -f src/*.o src/*.so test/*.o test/*.so

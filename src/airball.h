@@ -1,4 +1,9 @@
 #include <glib.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "ast.h"
-
-GSList* airball_parse(char *);
+#include "parser.h"
+#include "value.h"
+#include "heap.h"
+#include "closure.h"
