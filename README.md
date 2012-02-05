@@ -1,8 +1,8 @@
-# Airball
+# Lidija
 
-This is a toy language I am creating using the C library [peg/leg](http://piumarta.com/software/peg/).
+This is a toy scripting language that's taking shape as I learn, and **not meant for real work**.
 
-The language is taking shape as I learn, and **not meant for real work**. For now, it's starting to resemble a functional language.
+For now, it's starting to resemble a functional language with very terse syntax.
 
 ## Syntax
 
@@ -12,9 +12,8 @@ The language is taking shape as I learn, and **not meant for real work**. For no
     l = ["list" { out "func" } 3 * 5]
 
     # functions
-    # anything wrapped in { and }
+    # anything wrapped in { and }, optionally having arguments in [ and ]
     f1 = { 2 * 3 }
-    # function parameters go in [ and ]
     f2 = [x y] { x * y }
 
     # if/else is just a higher-order function
@@ -65,11 +64,9 @@ There's a few things to note:
 * Variables have lexical (static) scope.
 * Functions are first-class citizens, and can be passed to and returned from other functions.
 * Functions are closures.
-* Airball has a decent test suite.
 
 ## The Bad
 
-* Slow.
 * No tail-call optimization.
 * Lots of missing stuff.
 
@@ -77,19 +74,19 @@ There's a few things to note:
 
 Download the source and build:
 
-    rake build
+    make build
 
 ## Usage
 
-    bin/airball scriptname [args]
+    bin/lidija scriptname [args]
 
 ## Tests
 
-    rake test
+    make test
 
 ## License
 
-MIT license. Copyright 2011, me.
+MIT license. Copyright 2012, me.
 
 ## Author
 

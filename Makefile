@@ -2,10 +2,10 @@
 
 CC=gcc
 CFLAGS=-I. -Wall
-DEPS = src/airball.h
+DEPS = src/lidija.h
 
-test: src/airball.o
-	$(CC) test/runner.c -Ideps -Isrc ${CFLAGS} src/airball.o deps/CuTest.c `pkg-config --cflags glib-2.0 --libs glib-2.0` -o test/runner
+test: src/lidija.o
+	$(CC) test/runner.c -Ideps -Isrc ${CFLAGS} src/lidija.o deps/CuTest.c `pkg-config --cflags glib-2.0 --libs glib-2.0` -o test/runner
 	test/runner
 
 leg: clean src/parser.c

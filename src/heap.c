@@ -1,10 +1,10 @@
 #include <glib.h>
-#include "airball.h"
+#include "lidija.h"
 
-void airb_heap_add(airb_heap* heap, airb_value* value) {
+void l_heap_add(LHeap* heap, LValue* value) {
   g_ptr_array_add(heap, value);
 }
 
-airb_heap* airb_heap_new() {
+LHeap* l_heap_new() {
   return g_ptr_array_new();
 }

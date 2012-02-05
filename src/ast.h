@@ -1,10 +1,10 @@
 #ifndef AST_H
 #define AST_H
 
-enum airb_node_type { err_type, num_type, str_type, var_type, list_type, range_type, func_type, call_type, assign_type };
+enum LNodeType { l_err_type, l_num_type, l_str_type, l_var_type, l_list_type, l_range_type, l_func_type, l_call_type, l_assign_type };
 
-typedef struct airb_node {
-  enum airb_node_type type;
+typedef struct LNode {
+  enum LNodeType type;
   union {
     int                      num;
     char*                    str;
@@ -12,22 +12,22 @@ typedef struct airb_node {
     char*                    var;
     struct {
       int count;
-      struct airb_node** items; } list;
+      struct LNode** items; } list;
     struct {
-      struct airb_node* first;
-      struct airb_node* last;   } range;
+      struct LNode* first;
+      struct LNode* last;   } range;
     struct {
-      struct airb_node* args;
+      struct LNode* args;
       int exprc;
-      struct airb_node** exprs; } func;
+      struct LNode** exprs; } func;
     struct {
       char* name;
       int argc;
-      struct airb_node** args;  } call;
+      struct LNode** args;  } call;
     struct {
       char* name;
-      struct airb_node* expr;   } assign;
+      struct LNode* expr;   } assign;
   } value;
-} airb_node;
+} LNode;
 
 #endif

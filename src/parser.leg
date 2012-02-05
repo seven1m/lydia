@@ -1,14 +1,14 @@
 %{
-#include "airball.h"
-int airb_stackp = 0;
+#include "lidija.h"
+int l_stackp = 0;
 %}
 
 body       = (
-             e:lexpr                               { if(e) AIRB_ADD_NODE(e); }
+             e:lexpr                               { if(e) L_ADD_NODE(e); }
              )+ eof
            | lexpr* bad eof
 
-bad        = < .+ >                                { AIRB_ADD_NODE(airb_create_err_node(yytos(yytext, yyleng))); }
+bad        = < .+ >                                { L_ADD_NODE(l_create_err_node(yytos(yytext, yyleng))); }
 
 lexpr      = -* (
              empty-line
@@ -20,19 +20,19 @@ lexpr      = -* (
 
 assign     = (name:identifier | name:symbol) -+
              "=" -+
-             (val:icall | val:expr)                { $$ = airb_create_assign_node(name, val); }
+             (val:icall | val:expr)                { $$ = l_create_assign_node(name, val); }
 
-icall      = name:identifier                       { airb_stack_push(); }
+icall      = name:identifier                       { l_stack_push(); }
              (
-             arg-sep arg:expr                      { airb_stack_add(arg); }
-             )+                                    { int count = airb_stack_count[airb_stackp];
-                                                     $$ = airb_create_call_node(name, count, airb_stack_pop()); }
+             arg-sep arg:expr                      { l_stack_add(arg); }
+             )+                                    { int count = l_stack_count[l_stackp];
+                                                     $$ = l_create_call_node(name, count, l_stack_pop()); }
 
-ecall      = "(" name:identifier                   { airb_stack_push(); }
+ecall      = "(" name:identifier                   { l_stack_push(); }
              (
-             arg-sep arg:expr                      { airb_stack_add(arg); }
-             )* ")"                                { int count = airb_stack_count[airb_stackp];
-                                                     $$ = airb_create_call_node(name, count, airb_stack_pop()); }
+             arg-sep arg:expr                      { l_stack_add(arg); }
+             )* ")"                                { int count = l_stack_count[l_stackp];
+                                                     $$ = l_create_call_node(name, count, l_stack_pop()); }
 
 arg-sep    = "," (- | --)* | -+
 
@@ -44,27 +44,27 @@ expr       = op
            | atom
 
 func       = args:func-args
-             "{" (- | --)*                         { airb_stack_push(); }
+             "{" (- | --)*                         { l_stack_push(); }
              (
-             e:lexpr                               { if(e) airb_stack_add(e); }
+             e:lexpr                               { if(e) l_stack_add(e); }
              )+
-             -* "}"                                { int count = airb_stack_count[airb_stackp];
-                                                     $$ = airb_create_func_node(args, count, airb_stack_pop()); }
+             -* "}"                                { int count = l_stack_count[l_stackp];
+                                                     $$ = l_create_func_node(args, count, l_stack_pop()); }
 
-func-args  = "["                                   { airb_stack_push(); }
+func-args  = "["                                   { l_stack_push(); }
              ( -*
-             arg:identifier                        { airb_stack_add(airb_create_var_node(arg)); }
+             arg:identifier                        { l_stack_add(l_create_var_node(arg)); }
              )+ -*
-             "]" -*                                { int count = airb_stack_count[airb_stackp];
-                                                     $$ = airb_create_list_node(count, airb_stack_pop()); }
-           | &"{"                                  { $$ = airb_create_list_node(0, NULL); }
+             "]" -*                                { int count = l_stack_count[l_stackp];
+                                                     $$ = l_create_list_node(count, l_stack_pop()); }
+           | &"{"                                  { $$ = l_create_list_node(0, NULL); }
 
 op         = left:operand -+
              symbol:symbol -+
-             right:operand                         { airb_node** args = malloc(sizeof(airb_node*) * 2);
+             right:operand                         { LNode** args = malloc(sizeof(LNode*) * 2);
                                                      args[0] = left;
                                                      args[1] = right;
-                                                     $$ = airb_create_call_node(symbol, 2, args); }
+                                                     $$ = l_create_call_node(symbol, 2, args); }
 
 eop        = "(" op ")"
 
@@ -80,29 +80,29 @@ atom       = var
 
 list-sep   = - | -- | ","
 
-list       = "[" -*                                { airb_stack_push(); }
+list       = "[" -*                                { l_stack_push(); }
              (
-             e:expr list-sep*                      { airb_stack_add(e); }
+             e:expr list-sep*                      { l_stack_add(e); }
              )*
-             "]"                                   { int count = airb_stack_count[airb_stackp];
-                                                     $$ = airb_create_list_node(count, airb_stack_pop()); }
+             "]"                                   { int count = l_stack_count[l_stackp];
+                                                     $$ = l_create_list_node(count, l_stack_pop()); }
 
 rangeop    = var
            | integer
            | eop
            | ecall
 
-range      = first:rangeop ".." last:rangeop       { $$ = airb_create_rng_node(first, last); }
+range      = first:rangeop ".." last:rangeop       { $$ = l_create_rng_node(first, last); }
 
-var        = name:identifier                       { $$ = airb_create_var_node(name); }
+var        = name:identifier                       { $$ = l_create_var_node(name); }
 
 dq         = "\""
 sq         = "\'"
 ndq        = !dq .
 nsq        = !sq .
 esc        = "\\" .
-string     = dq < (esc | ndq)* > dq                { $$ = airb_create_str_node(yytext, yyleng); }
-           | sq < (esc | nsq)* > sq                { $$ = airb_create_str_node(yytext, yyleng); }
+string     = dq < (esc | ndq)* > dq                { $$ = l_create_str_node(yytext, yyleng); }
+           | sq < (esc | nsq)* > sq                { $$ = l_create_str_node(yytext, yyleng); }
 
 empty-line = -* --                                 { $$ = 0; }
 comment    = -* '#' [^\r\n]* --?                   { $$ = 0; }
@@ -113,7 +113,7 @@ symbol     = < [-~`!?@$%^&*_+|/,.<>]+ >            { $$ = yytos(yytext, yyleng);
 
 identifier = < [a-z] [a-z0-9-]* >                  { $$ = yytos(yytext, yyleng); }
 
-integer    = < digit+ >                            { $$ = airb_create_int_node(yytext, yyleng); }
+integer    = < digit+ >                            { $$ = l_create_int_node(yytext, yyleng); }
 
 digit      = [0-9]
 
@@ -123,20 +123,20 @@ eof        = !.
 
 %%
 
-void airb_stack_push() {
-  if(++airb_stackp == STACK_LEN) exit(1);
-  airb_stack_count[airb_stackp] = 0;
+void l_stack_push() {
+  if(++l_stackp == STACK_LEN) exit(1);
+  l_stack_count[l_stackp] = 0;
 }
 
-void airb_stack_add(airb_node* n) {
-  airb_stack[airb_stackp][airb_stack_count[airb_stackp]++] = n;
+void l_stack_add(LNode* n) {
+  l_stack[l_stackp][l_stack_count[l_stackp]++] = n;
 }
 
-airb_node** airb_stack_pop() {
+LNode** l_stack_pop() {
   int i;
-  airb_node** args = malloc(sizeof(airb_node*) * airb_stack_count[airb_stackp]);
-  for(i=0; i<airb_stack_count[airb_stackp]; i++) args[i] = airb_stack[airb_stackp][i];
-  airb_stackp--;
+  LNode** args = malloc(sizeof(LNode*) * l_stack_count[l_stackp]);
+  for(i=0; i<l_stack_count[l_stackp]; i++) args[i] = l_stack[l_stackp][i];
+  l_stackp--;
   return args;
 }
 
@@ -147,74 +147,74 @@ char* yytos(char* yytext, int yyleng) {
   return s;
 }
 
-airb_node* airb_create_int_node(char* yytext, int yyleng) {
-  airb_node* n = malloc(sizeof(airb_node));
-  n->type = num_type;
+LNode* l_create_int_node(char* yytext, int yyleng) {
+  LNode* n = malloc(sizeof(LNode));
+  n->type = l_num_type;
   n->value.num = atoi(yytext);
   return n;
 }
 
-airb_node* airb_create_str_node(char* yytext, int yyleng) {
-  airb_node* n = malloc(sizeof(airb_node));
-  n->type = str_type;
+LNode* l_create_str_node(char* yytext, int yyleng) {
+  LNode* n = malloc(sizeof(LNode));
+  n->type = l_str_type;
   n->value.str = malloc(sizeof(char) * (yyleng + 1));
   strcpy(n->value.str, "");
   strncat(n->value.str, yytext, yyleng);
   return n;
 }
 
-airb_node* airb_create_rng_node(airb_node* first, airb_node* last) {
-  airb_node* n = malloc(sizeof(airb_node));
-  n->type = range_type;
+LNode* l_create_rng_node(LNode* first, LNode* last) {
+  LNode* n = malloc(sizeof(LNode));
+  n->type = l_range_type;
   n->value.range.first = first;
   n->value.range.last = last;
   return n;
 }
 
-airb_node* airb_create_var_node(char* name) {
-  airb_node* n = malloc(sizeof(airb_node));
-  n->type = var_type;
+LNode* l_create_var_node(char* name) {
+  LNode* n = malloc(sizeof(LNode));
+  n->type = l_var_type;
   n->value.var = name;
   return n;
 }
 
-airb_node* airb_create_assign_node(char* name, airb_node* expr) {
-  airb_node* n = malloc(sizeof(airb_node));
-  n->type = assign_type;
+LNode* l_create_assign_node(char* name, LNode* expr) {
+  LNode* n = malloc(sizeof(LNode));
+  n->type = l_assign_type;
   n->value.assign.name = name;
   n->value.assign.expr = expr;
   return n;
 }
 
-airb_node* airb_create_call_node(char* name, int argc, airb_node** args) {
-  airb_node* n = malloc(sizeof(airb_node));
-  n->type = call_type;
+LNode* l_create_call_node(char* name, int argc, LNode** args) {
+  LNode* n = malloc(sizeof(LNode));
+  n->type = l_call_type;
   n->value.call.name = name;
   n->value.call.argc = argc;
   n->value.call.args = args;
   return n;
 }
 
-airb_node* airb_create_list_node(int itemc, airb_node** items) {
-  airb_node* n = malloc(sizeof(airb_node));
-  n->type = list_type;
+LNode* l_create_list_node(int itemc, LNode** items) {
+  LNode* n = malloc(sizeof(LNode));
+  n->type = l_list_type;
   n->value.list.count = itemc;
   n->value.list.items = items;
   return n;
 }
 
-airb_node* airb_create_func_node(airb_node* args, int exprc, airb_node** exprs) {
-  airb_node* n = malloc(sizeof(airb_node));
-  n->type = func_type;
+LNode* l_create_func_node(LNode* args, int exprc, LNode** exprs) {
+  LNode* n = malloc(sizeof(LNode));
+  n->type = l_func_type;
   n->value.func.args = args;
   n->value.func.exprc = exprc;
   n->value.func.exprs = exprs;
   return n;
 }
 
-airb_node* airb_create_err_node(char* error) {
-  airb_node* n = malloc(sizeof(airb_node));
-  n->type = err_type;
+LNode* l_create_err_node(char* error) {
+  LNode* n = malloc(sizeof(LNode));
+  n->type = l_err_type;
   n->value.err = error;
   return n;
 }
@@ -230,10 +230,10 @@ int yy_input(char *buf, int max_size) {
   return n;
 }
 
-GSList* airball_parse(char *source) {
-  airb_ast = NULL;
+GSList* l_parse(char *source) {
+  L_AST = NULL;
   yy_input_ptr = source;
   yy_input_len = strlen(yy_input_ptr);
   while (yyparse());
-  return airb_ast;
+  return L_AST;
 }

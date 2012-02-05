@@ -3,9 +3,9 @@
 
 #include <glib.h>
 
-typedef GPtrArray airb_heap;
+typedef GPtrArray LHeap;
 
-void       airb_heap_add(airb_heap*, airb_value*);
-airb_heap* airb_heap_new();
+void   l_heap_add(LHeap*, LValue*);
+LHeap* l_heap_new();
 
 #endif

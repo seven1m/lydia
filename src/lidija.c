@@ -1,4 +1,4 @@
-#include "airball.h"
+#include "lidija.h"
 #include "parser.c"
 #include "value.c"
 #include "heap.c"

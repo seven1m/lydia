@@ -1,8 +1,8 @@
 #include <glib.h>
-#include "airball.h"
+#include "lidija.h"
 
-airb_value* airb_value_new(airb_node* node) {
-  airb_value* value = malloc(sizeof(airb_value));
+LValue* l_value_new(LNode* node) {
+  LValue* value = malloc(sizeof(LValue));
   value->node = node;
   value->ref_count = 0;
   return value;

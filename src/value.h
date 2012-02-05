@@ -3,11 +3,11 @@
 
 #include <glib.h>
 
-typedef struct airb_value {
-  airb_node* node;
+typedef struct LValue {
+  LNode* node;
   int ref_count;
-} airb_value;
+} LValue;
 
-airb_value* airb_value_new(airb_node*);
+LValue* l_value_new(LNode*);
 
 #endif
