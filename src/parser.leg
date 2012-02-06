@@ -4,11 +4,11 @@ int l_stackp = 0;
 %}
 
 body       = (
-             e:lexpr                               { if(e) L_ADD_NODE(e); }
+             e:lexpr                               { if(e) l_ast_add_node(e); }
              )+ eof
            | lexpr* bad eof
 
-bad        = < .+ >                                { L_ADD_NODE(l_create_err_node(yytos(yytext, yyleng))); }
+bad        = < .+ >                                { l_ast_add_node(l_create_err_node(yytos(yytext, yyleng))); }
 
 lexpr      = -* (
              empty-line
@@ -230,7 +230,7 @@ int yy_input(char *buf, int max_size) {
   return n;
 }
 
-LAst *l_parse(char *source) {
+LAst *l_parse(const char *source) {
   L_AST = NULL;
   yy_input_ptr = source;
   yy_input_len = strlen(yy_input_ptr);

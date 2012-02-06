@@ -470,13 +470,13 @@ YY_ACTION(void) yy_1_assign(char *yytext, int yyleng)
 YY_ACTION(void) yy_1_bad(char *yytext, int yyleng)
 {
   yyprintf((stderr, "do yy_1_bad\n"));
-   L_ADD_NODE(l_create_err_node(yytos(yytext, yyleng))); ;
+   l_ast_add_node(l_create_err_node(yytos(yytext, yyleng))); ;
 }
 YY_ACTION(void) yy_1_body(char *yytext, int yyleng)
 {
 #define e yyval[-1]
   yyprintf((stderr, "do yy_1_body\n"));
-   if(e) L_ADD_NODE(e); ;
+   if(e) l_ast_add_node(e); ;
 #undef e
 }
 
@@ -1181,7 +1181,7 @@ int yy_input(char *buf, int max_size) {
   return n;
 }
 
-LAst *l_parse(char *source) {
+LAst *l_parse(const char *source) {
   L_AST = NULL;
   yy_input_ptr = source;
   yy_input_len = strlen(yy_input_ptr);

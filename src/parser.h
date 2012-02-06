@@ -6,9 +6,7 @@
 
 typedef GSList LAst;
 
-LAst *l_parse(char*);
-
-char *yy_input_ptr;
+const char *yy_input_ptr;
 int yy_input_len;
 int yy_input(char *buf, int max_size);
 
@@ -36,10 +34,10 @@ LNode *l_create_func_node(LNode *args, int exprc, LNode **exprs);
 LNode *l_create_err_node(char *error);
 
 int yy_input(char *buf, int max_size);
-LAst *l_parse(char *source);
+LAst *l_parse(const char *source);
 
 LAst *L_AST;
 
-#define L_ADD_NODE(n) L_AST = g_slist_append(L_AST, n)
+#define l_ast_add_node(n) L_AST = g_slist_append(L_AST, n)
 
 #endif
