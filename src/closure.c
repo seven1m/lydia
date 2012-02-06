@@ -26,6 +26,6 @@ void l_closure_set(LClosure *closure, char *name, LValue *value) {
 }
 
 // gets a key in the closure
-LValue *l_closureget(LClosure *closure, char *name) {
+LValue *l_closure_get(LClosure *closure, char *name) {
   return g_hash_table_lookup(closure->vars, name);
 }
