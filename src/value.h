@@ -8,6 +8,6 @@ typedef struct LValue {
   int ref_count;
 } LValue;
 
-LValue *l_value_new(LNode*);
+LValue *l_value_new(LNode *node);
 
 #endif

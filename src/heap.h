@@ -5,7 +5,7 @@
 
 typedef GPtrArray LHeap;
 
-void   l_heap_add(LHeap*, LValue*);
+void l_heap_add(LHeap *heap, LValue *value);
 LHeap *l_heap_new();
 
 #endif

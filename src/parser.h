@@ -20,20 +20,23 @@ int l_stack_count[STACK_LEN];
 extern int l_stackp;
 
 void l_stack_push();
-void l_stack_add(LNode*);
+void l_stack_add(LNode *n);
 LNode **l_stack_pop();
 
-char *yytos(char*, int);
+char *yytos(char *yytext, int yyleng);
 
-LNode *l_create_int_node(char*, int);
-LNode *l_create_str_node(char*, int);
-LNode *l_create_rng_node(LNode*, LNode*);
-LNode *l_create_var_node(char*);
-LNode *l_create_assign_node(char*, LNode*);
-LNode *l_create_call_node(char*, int, LNode**);
-LNode *l_create_list_node(int, LNode**);
-LNode *l_create_func_node(LNode*, int, LNode**);
-LNode *l_create_err_node(char*);
+LNode *l_create_int_node(char *yytext, int yyleng);
+LNode *l_create_str_node(char *yytext, int yyleng);
+LNode *l_create_rng_node(LNode *first, LNode *last);
+LNode *l_create_var_node(char *name);
+LNode *l_create_assign_node(char *name, LNode *expr);
+LNode *l_create_call_node(char *name, int argc, LNode **args);
+LNode *l_create_list_node(int itemc, LNode **items);
+LNode *l_create_func_node(LNode *args, int exprc, LNode **exprs);
+LNode *l_create_err_node(char *error);
+
+int yy_input(char *buf, int max_size);
+LAst *l_parse(char *source);
 
 LAst *L_AST;
 
