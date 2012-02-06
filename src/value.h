@@ -4,10 +4,10 @@
 #include <glib.h>
 
 typedef struct LValue {
-  LNode* node;
+  LNode *node;
   int ref_count;
 } LValue;
 
-LValue* l_value_new(LNode*);
+LValue *l_value_new(LNode*);
 
 #endif

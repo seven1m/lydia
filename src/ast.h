@@ -7,26 +7,26 @@ typedef struct LNode {
   enum LNodeType type;
   union {
     int                      num;
-    char*                    str;
-    char*                    err;
-    char*                    var;
+    char                    *str;
+    char                    *err;
+    char                    *var;
     struct {
       int count;
-      struct LNode** items; } list;
+      struct LNode **items; } list;
     struct {
-      struct LNode* first;
-      struct LNode* last;   } range;
+      struct LNode *first;
+      struct LNode *last;   } range;
     struct {
-      struct LNode* args;
+      struct LNode *args;
       int exprc;
-      struct LNode** exprs; } func;
+      struct LNode **exprs; } func;
     struct {
-      char* name;
+      char *name;
       int argc;
-      struct LNode** args;  } call;
+      struct LNode **args;  } call;
     struct {
-      char* name;
-      struct LNode* expr;   } assign;
+      char *name;
+      struct LNode *expr;   } assign;
   } value;
 } LNode;
 

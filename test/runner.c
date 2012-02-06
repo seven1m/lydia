@@ -5,7 +5,7 @@
 
 void RunAllTests(void) {
   CuString *output = CuStringNew();
-  CuSuite* suite = CuSuiteNew();
+  CuSuite *suite = CuSuiteNew();
 
   CuSuiteAddSuite(suite, parser_test_suite());
 

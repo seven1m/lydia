@@ -337,7 +337,7 @@ YY_ACTION(void) yy_1_op(char *yytext, int yyleng)
 #define symbol yyval[-2]
 #define left yyval[-3]
   yyprintf((stderr, "do yy_1_op\n"));
-   LNode** args = malloc(sizeof(LNode*) * 2);
+   LNode **args = malloc(sizeof(LNode*) * 2);
                                                      args[0] = left;
                                                      args[1] = right;
                                                      yy = l_create_call_node(symbol, 2, args); ;
@@ -1079,34 +1079,34 @@ void l_stack_push() {
   l_stack_count[l_stackp] = 0;
 }
 
-void l_stack_add(LNode* n) {
+void l_stack_add(LNode *n) {
   l_stack[l_stackp][l_stack_count[l_stackp]++] = n;
 }
 
-LNode** l_stack_pop() {
+LNode **l_stack_pop() {
   int i;
-  LNode** args = malloc(sizeof(LNode*) * l_stack_count[l_stackp]);
+  LNode **args = malloc(sizeof(LNode*) * l_stack_count[l_stackp]);
   for(i=0; i<l_stack_count[l_stackp]; i++) args[i] = l_stack[l_stackp][i];
   l_stackp--;
   return args;
 }
 
-char* yytos(char* yytext, int yyleng) {
-  char* s = malloc(sizeof(char) * (yyleng + 1));
+char *yytos(char *yytext, int yyleng) {
+  char *s = malloc(sizeof(char) * (yyleng + 1));
   strcpy(s, "");
   strncat(s, yytext, yyleng);
   return s;
 }
 
-LNode* l_create_int_node(char* yytext, int yyleng) {
-  LNode* n = malloc(sizeof(LNode));
+LNode *l_create_int_node(char *yytext, int yyleng) {
+  LNode *n = malloc(sizeof(LNode));
   n->type = l_num_type;
   n->value.num = atoi(yytext);
   return n;
 }
 
-LNode* l_create_str_node(char* yytext, int yyleng) {
-  LNode* n = malloc(sizeof(LNode));
+LNode *l_create_str_node(char *yytext, int yyleng) {
+  LNode *n = malloc(sizeof(LNode));
   n->type = l_str_type;
   n->value.str = malloc(sizeof(char) * (yyleng + 1));
   strcpy(n->value.str, "");
@@ -1114,31 +1114,31 @@ LNode* l_create_str_node(char* yytext, int yyleng) {
   return n;
 }
 
-LNode* l_create_rng_node(LNode* first, LNode* last) {
-  LNode* n = malloc(sizeof(LNode));
+LNode *l_create_rng_node(LNode *first, LNode *last) {
+  LNode *n = malloc(sizeof(LNode));
   n->type = l_range_type;
   n->value.range.first = first;
   n->value.range.last = last;
   return n;
 }
 
-LNode* l_create_var_node(char* name) {
-  LNode* n = malloc(sizeof(LNode));
+LNode *l_create_var_node(char *name) {
+  LNode *n = malloc(sizeof(LNode));
   n->type = l_var_type;
   n->value.var = name;
   return n;
 }
 
-LNode* l_create_assign_node(char* name, LNode* expr) {
-  LNode* n = malloc(sizeof(LNode));
+LNode *l_create_assign_node(char *name, LNode *expr) {
+  LNode *n = malloc(sizeof(LNode));
   n->type = l_assign_type;
   n->value.assign.name = name;
   n->value.assign.expr = expr;
   return n;
 }
 
-LNode* l_create_call_node(char* name, int argc, LNode** args) {
-  LNode* n = malloc(sizeof(LNode));
+LNode *l_create_call_node(char *name, int argc, LNode **args) {
+  LNode *n = malloc(sizeof(LNode));
   n->type = l_call_type;
   n->value.call.name = name;
   n->value.call.argc = argc;
@@ -1146,16 +1146,16 @@ LNode* l_create_call_node(char* name, int argc, LNode** args) {
   return n;
 }
 
-LNode* l_create_list_node(int itemc, LNode** items) {
-  LNode* n = malloc(sizeof(LNode));
+LNode *l_create_list_node(int itemc, LNode **items) {
+  LNode *n = malloc(sizeof(LNode));
   n->type = l_list_type;
   n->value.list.count = itemc;
   n->value.list.items = items;
   return n;
 }
 
-LNode* l_create_func_node(LNode* args, int exprc, LNode** exprs) {
-  LNode* n = malloc(sizeof(LNode));
+LNode *l_create_func_node(LNode *args, int exprc, LNode **exprs) {
+  LNode *n = malloc(sizeof(LNode));
   n->type = l_func_type;
   n->value.func.args = args;
   n->value.func.exprc = exprc;
@@ -1163,14 +1163,14 @@ LNode* l_create_func_node(LNode* args, int exprc, LNode** exprs) {
   return n;
 }
 
-LNode* l_create_err_node(char* error) {
-  LNode* n = malloc(sizeof(LNode));
+LNode *l_create_err_node(char *error) {
+  LNode *n = malloc(sizeof(LNode));
   n->type = l_err_type;
   n->value.err = error;
   return n;
 }
 
-/* borrowed from O'Reilly book "lex & yacc" pg. 157 */
+// borrowed from O'Reilly book "lex & yacc" pg. 157
 int yy_input(char *buf, int max_size) {
   int len = strlen(yy_input_ptr);
   int n = max_size < len ? max_size : len;
@@ -1181,7 +1181,7 @@ int yy_input(char *buf, int max_size) {
   return n;
 }
 
-LAst* l_parse(char *source) {
+LAst *l_parse(char *source) {
   L_AST = NULL;
   yy_input_ptr = source;
   yy_input_len = strlen(yy_input_ptr);
