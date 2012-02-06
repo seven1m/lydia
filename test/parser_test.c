@@ -1,13 +1,13 @@
 #include "../src/lidija.h"
 
 void test_parse_empty_line(CuTest *tc) {
-  GSList* ast = l_parse("\n");
+  LAst* ast = l_parse("\n");
   CuAssertIntEquals(tc, 0, g_slist_length(ast));
   g_slist_free(ast);
 }
 
 void test_parse_num(CuTest *tc) {
-  GSList* ast = l_parse("3");
+  LAst* ast = l_parse("3");
   LNode* n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
@@ -17,7 +17,7 @@ void test_parse_num(CuTest *tc) {
 }
 
 void test_parse_syntax_error(CuTest *tc) {
-  GSList* ast = l_parse("[error}");
+  LAst* ast = l_parse("[error}");
   LNode* n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
@@ -27,7 +27,7 @@ void test_parse_syntax_error(CuTest *tc) {
 }
 
 void test_parse_comment(CuTest *tc) {
-  GSList* ast = l_parse("# this is a comment\n"
+  LAst* ast = l_parse("# this is a comment\n"
                         "1 # inline with code\n"
                         "  # not left-aligned");
   LNode* n;
@@ -38,7 +38,7 @@ void test_parse_comment(CuTest *tc) {
 }
 
 void test_parse_double_quoted_string(CuTest *tc) {
-  GSList* ast = l_parse("\"foo\"");
+  LAst* ast = l_parse("\"foo\"");
   LNode* n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
@@ -48,7 +48,7 @@ void test_parse_double_quoted_string(CuTest *tc) {
 }
 
 void test_parse_single_quoted_string(CuTest *tc) {
-  GSList* ast = l_parse("'bar'");
+  LAst* ast = l_parse("'bar'");
   LNode* n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
@@ -58,7 +58,7 @@ void test_parse_single_quoted_string(CuTest *tc) {
 }
 
 void test_parse_nested_quoted_string(CuTest *tc) {
-  GSList* ast = l_parse("\"\\\"OK, now I'm supposed to say, 'Hmm, that's interesting, but... ', then you say...\\\"\"\n"
+  LAst* ast = l_parse("\"\\\"OK, now I'm supposed to say, 'Hmm, that's interesting, but... ', then you say...\\\"\"\n"
                         "'\"But what?\"'");
   LNode* n;
   CuAssertIntEquals(tc, 2, g_slist_length(ast));
@@ -72,7 +72,7 @@ void test_parse_nested_quoted_string(CuTest *tc) {
 }
 
 void test_parse_range_with_num(CuTest *tc) {
-  GSList* ast = l_parse("1..10");
+  LAst* ast = l_parse("1..10");
   LNode* n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
@@ -85,7 +85,7 @@ void test_parse_range_with_num(CuTest *tc) {
 }
 
 void test_parse_range_with_var(CuTest *tc) {
-  GSList* ast = l_parse("1..x");
+  LAst* ast = l_parse("1..x");
   LNode* n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
@@ -98,7 +98,7 @@ void test_parse_range_with_var(CuTest *tc) {
 }
 
 void test_parse_range_with_call(CuTest *tc) {
-  GSList* ast = l_parse("3..(x + 12)");
+  LAst* ast = l_parse("3..(x + 12)");
   LNode* n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
@@ -117,7 +117,7 @@ void test_parse_range_with_call(CuTest *tc) {
 
 
 void test_parse_list(CuTest *tc) {
-  GSList* ast = l_parse("[1 'string' x 3 * 5]");
+  LAst* ast = l_parse("[1 'string' x 3 * 5]");
   LNode* n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
@@ -131,7 +131,7 @@ void test_parse_list(CuTest *tc) {
 }
 
 void test_parse_list_with_commas(CuTest *tc) {
-  GSList* ast = l_parse("[1, 'string', x, 3 * 5]");
+  LAst* ast = l_parse("[1, 'string', x, 3 * 5]");
   LNode* n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
@@ -141,7 +141,7 @@ void test_parse_list_with_commas(CuTest *tc) {
 }
 
 void test_parse_list_as_operand(CuTest *tc) {
-  GSList* ast = l_parse("[1 2 3] + [4 5 6]");
+  LAst* ast = l_parse("[1 2 3] + [4 5 6]");
   LNode* n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
@@ -154,7 +154,7 @@ void test_parse_list_as_operand(CuTest *tc) {
 }
 
 void test_parse_empty_list(CuTest *tc) {
-  GSList* ast = l_parse("[]");
+  LAst* ast = l_parse("[]");
   LNode* n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
@@ -164,7 +164,7 @@ void test_parse_empty_list(CuTest *tc) {
 }
 
 void test_parse_multiline_list(CuTest *tc) {
-  GSList* ast = l_parse("[1\n2\n3]");
+  LAst* ast = l_parse("[1\n2\n3]");
   LNode* n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
@@ -177,7 +177,7 @@ void test_parse_multiline_list(CuTest *tc) {
 }
 
 void test_parse_nested_list(CuTest *tc) {
-  GSList* ast = l_parse("[1 [x y] 2]");
+  LAst* ast = l_parse("[1 [x y] 2]");
   LNode* n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
@@ -190,7 +190,7 @@ void test_parse_nested_list(CuTest *tc) {
 }
 
 void test_parse_op(CuTest *tc) {
-  GSList* ast = l_parse("x * 3");
+  LAst* ast = l_parse("x * 3");
   LNode* n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
@@ -203,7 +203,7 @@ void test_parse_op(CuTest *tc) {
 }
 
 void test_parse_non_assign_equals(CuTest *tc) {
-  GSList* ast = l_parse("1 == 1");
+  LAst* ast = l_parse("1 == 1");
   LNode* n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
@@ -216,7 +216,7 @@ void test_parse_non_assign_equals(CuTest *tc) {
 }
 
 void test_parse_simple_call(CuTest *tc) {
-  GSList* ast = l_parse("foo 1 2");
+  LAst* ast = l_parse("foo 1 2");
   LNode* n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
@@ -229,7 +229,7 @@ void test_parse_simple_call(CuTest *tc) {
 }
 
 void test_parse_multiline_call(CuTest *tc) {
-  GSList* ast = l_parse("foo 1,    \n"
+  LAst* ast = l_parse("foo 1,    \n"
                         "    2     \n"
                         "bar 3,    \n"
                         "    [],   \n"
@@ -255,7 +255,7 @@ void test_parse_multiline_call(CuTest *tc) {
 }
 
 void test_parse_func_without_args(CuTest *tc) {
-  GSList* ast = l_parse("{ foo 1 2 }");
+  LAst* ast = l_parse("{ foo 1 2 }");
   LNode* n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
@@ -284,7 +284,7 @@ void test_parse_func_without_args(CuTest *tc) {
 }
 
 void test_parse_func_with_args(CuTest *tc) {
-  GSList* ast = l_parse("[x y]{ foo x y }");
+  LAst* ast = l_parse("[x y]{ foo x y }");
   LNode* n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
@@ -313,7 +313,7 @@ void test_parse_func_with_args(CuTest *tc) {
 }
 
 void test_parse_assign(CuTest *tc) {
-  GSList* ast = l_parse("x = 1");
+  LAst* ast = l_parse("x = 1");
   LNode* n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);

@@ -1181,7 +1181,7 @@ int yy_input(char *buf, int max_size) {
   return n;
 }
 
-GSList* l_parse(char *source) {
+LAst* l_parse(char *source) {
   L_AST = NULL;
   yy_input_ptr = source;
   yy_input_len = strlen(yy_input_ptr);
