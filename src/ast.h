@@ -1,7 +1,17 @@
 #ifndef AST_H
 #define AST_H
 
-enum LNodeType { l_err_type, l_num_type, l_str_type, l_var_type, l_list_type, l_range_type, l_func_type, l_call_type, l_assign_type };
+enum LNodeType {
+  L_ERR_TYPE,
+  L_NUM_TYPE,
+  L_STR_TYPE,
+  L_VAR_TYPE,
+  L_LIST_TYPE,
+  L_RANGE_TYPE,
+  L_FUNC_TYPE,
+  L_CALL_TYPE,
+  L_ASSIGN_TYPE
+};
 
 typedef struct LNode {
   enum LNodeType type;

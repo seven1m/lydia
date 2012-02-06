@@ -11,7 +11,7 @@ void test_parse_num(CuTest *tc) {
   LNode *n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
-  CuAssertIntEquals(tc, l_num_type, n->type);
+  CuAssertIntEquals(tc, L_NUM_TYPE, n->type);
   CuAssertIntEquals(tc, 3, n->value.num);
   g_slist_free(ast);
 }
@@ -21,7 +21,7 @@ void test_parse_syntax_error(CuTest *tc) {
   LNode *n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
-  CuAssertIntEquals(tc, l_err_type, n->type);
+  CuAssertIntEquals(tc, L_ERR_TYPE, n->type);
   CuAssertStrEquals(tc, "[error}", n->value.err);
   g_slist_free(ast);
 }
@@ -33,7 +33,7 @@ void test_parse_comment(CuTest *tc) {
   LNode *n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
-  CuAssertIntEquals(tc, l_num_type, n->type);
+  CuAssertIntEquals(tc, L_NUM_TYPE, n->type);
   g_slist_free(ast);
 }
 
@@ -42,7 +42,7 @@ void test_parse_double_quoted_string(CuTest *tc) {
   LNode *n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
-  CuAssertIntEquals(tc, l_str_type, n->type);
+  CuAssertIntEquals(tc, L_STR_TYPE, n->type);
   CuAssertStrEquals(tc, "foo", n->value.str);
   g_slist_free(ast);
 }
@@ -52,7 +52,7 @@ void test_parse_single_quoted_string(CuTest *tc) {
   LNode *n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
-  CuAssertIntEquals(tc, l_str_type, n->type);
+  CuAssertIntEquals(tc, L_STR_TYPE, n->type);
   CuAssertStrEquals(tc, "bar", n->value.str);
   g_slist_free(ast);
 }
@@ -63,10 +63,10 @@ void test_parse_nested_quoted_string(CuTest *tc) {
   LNode *n;
   CuAssertIntEquals(tc, 2, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
-  CuAssertIntEquals(tc, l_str_type, n->type);
+  CuAssertIntEquals(tc, L_STR_TYPE, n->type);
   CuAssertStrEquals(tc, "\\\"OK, now I'm supposed to say, 'Hmm, that's interesting, but... ', then you say...\\\"", n->value.str);
   n = g_slist_nth_data(ast, 1);
-  CuAssertIntEquals(tc, l_str_type, n->type);
+  CuAssertIntEquals(tc, L_STR_TYPE, n->type);
   CuAssertStrEquals(tc, "\"But what?\"", n->value.str);
   g_slist_free(ast);
 }
@@ -76,10 +76,10 @@ void test_parse_range_with_num(CuTest *tc) {
   LNode *n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
-  CuAssertIntEquals(tc, l_range_type, n->type);
-  CuAssertIntEquals(tc, l_num_type, n->value.range.first->type);
+  CuAssertIntEquals(tc, L_RANGE_TYPE, n->type);
+  CuAssertIntEquals(tc, L_NUM_TYPE, n->value.range.first->type);
   CuAssertIntEquals(tc, 1, n->value.range.first->value.num);
-  CuAssertIntEquals(tc, l_num_type, n->value.range.last->type);
+  CuAssertIntEquals(tc, L_NUM_TYPE, n->value.range.last->type);
   CuAssertIntEquals(tc, 10, n->value.range.last->value.num);
   g_slist_free(ast);
 }
@@ -89,10 +89,10 @@ void test_parse_range_with_var(CuTest *tc) {
   LNode *n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
-  CuAssertIntEquals(tc, l_range_type, n->type);
-  CuAssertIntEquals(tc, l_num_type, n->value.range.first->type);
+  CuAssertIntEquals(tc, L_RANGE_TYPE, n->type);
+  CuAssertIntEquals(tc, L_NUM_TYPE, n->value.range.first->type);
   CuAssertIntEquals(tc, 1, n->value.range.first->value.num);
-  CuAssertIntEquals(tc, l_var_type, n->value.range.last->type);
+  CuAssertIntEquals(tc, L_VAR_TYPE, n->value.range.last->type);
   CuAssertStrEquals(tc, "x", n->value.range.last->value.var);
   g_slist_free(ast);
 }
@@ -102,15 +102,15 @@ void test_parse_range_with_call(CuTest *tc) {
   LNode *n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
-  CuAssertIntEquals(tc, l_range_type, n->type);
-  CuAssertIntEquals(tc, l_num_type, n->value.range.first->type);
+  CuAssertIntEquals(tc, L_RANGE_TYPE, n->type);
+  CuAssertIntEquals(tc, L_NUM_TYPE, n->value.range.first->type);
   CuAssertIntEquals(tc, 3, n->value.range.first->value.num);
-  CuAssertIntEquals(tc, l_call_type, n->value.range.last->type);
+  CuAssertIntEquals(tc, L_CALL_TYPE, n->value.range.last->type);
   CuAssertStrEquals(tc, "+", n->value.range.last->value.call.name);
   CuAssertIntEquals(tc,  2,  n->value.range.last->value.call.argc);
-  CuAssertIntEquals(tc, l_var_type, n->value.range.last->value.call.args[0]->type);
+  CuAssertIntEquals(tc, L_VAR_TYPE, n->value.range.last->value.call.args[0]->type);
   CuAssertStrEquals(tc, "x", n->value.range.last->value.call.args[0]->value.var);
-  CuAssertIntEquals(tc, l_num_type, n->value.range.last->value.call.args[1]->type);
+  CuAssertIntEquals(tc, L_NUM_TYPE, n->value.range.last->value.call.args[1]->type);
   CuAssertIntEquals(tc,  12, n->value.range.last->value.call.args[1]->value.num);
   g_slist_free(ast);
 }
@@ -121,12 +121,12 @@ void test_parse_list(CuTest *tc) {
   LNode *n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
-  CuAssertIntEquals(tc, l_list_type, n->type);
+  CuAssertIntEquals(tc, L_LIST_TYPE, n->type);
   CuAssertIntEquals(tc, 4,         n->value.list.count);
   CuAssertIntEquals(tc, 1,         n->value.list.items[0]->value.num);
   CuAssertStrEquals(tc, "string",  n->value.list.items[1]->value.str);
   CuAssertStrEquals(tc, "x",       n->value.list.items[2]->value.var);
-  CuAssertIntEquals(tc, l_call_type, n->value.list.items[3]->type);
+  CuAssertIntEquals(tc, L_CALL_TYPE, n->value.list.items[3]->type);
   g_slist_free(ast);
 }
 
@@ -135,7 +135,7 @@ void test_parse_list_with_commas(CuTest *tc) {
   LNode *n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
-  CuAssertIntEquals(tc, l_list_type, n->type);
+  CuAssertIntEquals(tc, L_LIST_TYPE, n->type);
   CuAssertIntEquals(tc, 4,         n->value.list.count);
   g_slist_free(ast);
 }
@@ -145,11 +145,11 @@ void test_parse_list_as_operand(CuTest *tc) {
   LNode *n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
-  CuAssertIntEquals(tc, l_call_type, n->type);
+  CuAssertIntEquals(tc, L_CALL_TYPE, n->type);
   CuAssertStrEquals(tc, "+",       n->value.call.name);
   CuAssertIntEquals(tc, 2,         n->value.call.argc);
-  CuAssertIntEquals(tc, l_list_type, n->value.call.args[0]->type);
-  CuAssertIntEquals(tc, l_list_type, n->value.call.args[1]->type);
+  CuAssertIntEquals(tc, L_LIST_TYPE, n->value.call.args[0]->type);
+  CuAssertIntEquals(tc, L_LIST_TYPE, n->value.call.args[1]->type);
   g_slist_free(ast);
 }
 
@@ -158,7 +158,7 @@ void test_parse_empty_list(CuTest *tc) {
   LNode *n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
-  CuAssertIntEquals(tc, l_list_type, n->type);
+  CuAssertIntEquals(tc, L_LIST_TYPE, n->type);
   CuAssertIntEquals(tc, 0,         n->value.list.count);
   g_slist_free(ast);
 }
@@ -168,7 +168,7 @@ void test_parse_multiline_list(CuTest *tc) {
   LNode *n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
-  CuAssertIntEquals(tc, l_list_type, n->type);
+  CuAssertIntEquals(tc, L_LIST_TYPE, n->type);
   CuAssertIntEquals(tc, 3,         n->value.list.count);
   CuAssertIntEquals(tc, 1,         n->value.list.items[0]->value.num);
   CuAssertIntEquals(tc, 2,         n->value.list.items[1]->value.num);
@@ -181,10 +181,10 @@ void test_parse_nested_list(CuTest *tc) {
   LNode *n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
-  CuAssertIntEquals(tc, l_list_type, n->type);
+  CuAssertIntEquals(tc, L_LIST_TYPE, n->type);
   CuAssertIntEquals(tc, 3,         n->value.list.count);
   CuAssertIntEquals(tc, 1,         n->value.list.items[0]->value.num);
-  CuAssertIntEquals(tc, l_list_type, n->value.list.items[1]->type);
+  CuAssertIntEquals(tc, L_LIST_TYPE, n->value.list.items[1]->type);
   CuAssertIntEquals(tc, 2,         n->value.list.items[2]->value.num);
   g_slist_free(ast);
 }
@@ -194,7 +194,7 @@ void test_parse_op(CuTest *tc) {
   LNode *n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
-  CuAssertIntEquals(tc, l_call_type, n->type);
+  CuAssertIntEquals(tc, L_CALL_TYPE, n->type);
   CuAssertStrEquals(tc, "*",       n->value.call.name);
   CuAssertIntEquals(tc, 2,         n->value.call.argc);
   CuAssertStrEquals(tc, "x",       n->value.call.args[0]->value.var);
@@ -207,7 +207,7 @@ void test_parse_non_assign_equals(CuTest *tc) {
   LNode *n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
-  CuAssertIntEquals(tc, l_call_type, n->type);
+  CuAssertIntEquals(tc, L_CALL_TYPE, n->type);
   CuAssertStrEquals(tc, "==",      n->value.call.name);
   CuAssertIntEquals(tc, 2,         n->value.call.argc);
   CuAssertIntEquals(tc, 1,         n->value.call.args[0]->value.num);
@@ -220,7 +220,7 @@ void test_parse_simple_call(CuTest *tc) {
   LNode *n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
-  CuAssertIntEquals(tc, l_call_type, n->type);
+  CuAssertIntEquals(tc, L_CALL_TYPE, n->type);
   CuAssertStrEquals(tc, "foo",     n->value.call.name);
   CuAssertIntEquals(tc, 2,         n->value.call.argc);
   CuAssertIntEquals(tc, 1,         n->value.call.args[0]->value.num);
@@ -237,19 +237,19 @@ void test_parse_multiline_call(CuTest *tc) {
   LNode *n;
   CuAssertIntEquals(tc, 2, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
-  CuAssertIntEquals(tc, l_call_type, n->type);
+  CuAssertIntEquals(tc, L_CALL_TYPE, n->type);
   CuAssertStrEquals(tc, "foo",     n->value.call.name);
   CuAssertIntEquals(tc, 2,         n->value.call.argc);
   CuAssertIntEquals(tc, 1,         n->value.call.args[0]->value.num);
   CuAssertIntEquals(tc, 2,         n->value.call.args[1]->value.num);
   /*
   n = g_slist_nth_data(ast, 1);
-  CuAssertIntEquals(tc, l_call_type, n->type);
+  CuAssertIntEquals(tc, L_CALL_TYPE, n->type);
   CuAssertStrEquals(tc, "bar",     n->value.call.name);
   CuAssertIntEquals(tc, 3,         n->value.call.argc);
-  CuAssertIntEquals(tc, l_num_type,  n->value.call.args[0]->type);
-  CuAssertIntEquals(tc, l_list_type, n->value.call.args[1]->type);
-  CuAssertIntEquals(tc, l_func_type, n->value.call.args[2]->type);
+  CuAssertIntEquals(tc, L_NUM_TYPE,  n->value.call.args[0]->type);
+  CuAssertIntEquals(tc, L_LIST_TYPE, n->value.call.args[1]->type);
+  CuAssertIntEquals(tc, L_FUNC_TYPE, n->value.call.args[2]->type);
   */
   g_slist_free(ast);
 }
@@ -259,26 +259,26 @@ void test_parse_func_without_args(CuTest *tc) {
   LNode *n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
-  CuAssertIntEquals(tc, l_func_type, n->type);
+  CuAssertIntEquals(tc, L_FUNC_TYPE, n->type);
   CuAssertIntEquals(tc, 0,         n->value.func.args->value.list.count);
   CuAssertIntEquals(tc, 1,         n->value.func.exprc);
-  CuAssertIntEquals(tc, l_call_type, n->value.func.exprs[0]->type);
+  CuAssertIntEquals(tc, L_CALL_TYPE, n->value.func.exprs[0]->type);
   CuAssertStrEquals(tc, "foo",     n->value.func.exprs[0]->value.call.name);
   ast = l_parse("{\n foo 1 2\n }");
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
-  CuAssertIntEquals(tc, l_func_type, n->type);
+  CuAssertIntEquals(tc, L_FUNC_TYPE, n->type);
   CuAssertIntEquals(tc, 0,         n->value.func.args->value.list.count);
   CuAssertIntEquals(tc, 1,         n->value.func.exprc);
-  CuAssertIntEquals(tc, l_call_type, n->value.func.exprs[0]->type);
+  CuAssertIntEquals(tc, L_CALL_TYPE, n->value.func.exprs[0]->type);
   CuAssertStrEquals(tc, "foo",     n->value.func.exprs[0]->value.call.name);
   ast = l_parse("{\n x = 1\n x * 3\n }");
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
-  CuAssertIntEquals(tc, l_func_type, n->type);
+  CuAssertIntEquals(tc, L_FUNC_TYPE, n->type);
   CuAssertIntEquals(tc, 0,         n->value.func.args->value.list.count);
   CuAssertIntEquals(tc, 2,         n->value.func.exprc);
-  CuAssertIntEquals(tc, l_call_type, n->value.func.exprs[1]->type);
+  CuAssertIntEquals(tc, L_CALL_TYPE, n->value.func.exprs[1]->type);
   CuAssertStrEquals(tc, "*",       n->value.func.exprs[1]->value.call.name);
   g_slist_free(ast);
 }
@@ -288,26 +288,26 @@ void test_parse_func_with_args(CuTest *tc) {
   LNode *n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
-  CuAssertIntEquals(tc, l_func_type, n->type);
+  CuAssertIntEquals(tc, L_FUNC_TYPE, n->type);
   CuAssertIntEquals(tc, 2,         n->value.func.args->value.list.count);
-  CuAssertIntEquals(tc, l_var_type,  n->value.func.args->value.list.items[0]->type);
+  CuAssertIntEquals(tc, L_VAR_TYPE,  n->value.func.args->value.list.items[0]->type);
   CuAssertStrEquals(tc, "x",       n->value.func.args->value.list.items[0]->value.var);
-  CuAssertIntEquals(tc, l_var_type,  n->value.func.args->value.list.items[1]->type);
+  CuAssertIntEquals(tc, L_VAR_TYPE,  n->value.func.args->value.list.items[1]->type);
   CuAssertStrEquals(tc, "y",       n->value.func.args->value.list.items[1]->value.var);
   CuAssertIntEquals(tc, 1,         n->value.func.exprc);
-  CuAssertIntEquals(tc, l_call_type, n->value.func.exprs[0]->type);
+  CuAssertIntEquals(tc, L_CALL_TYPE, n->value.func.exprs[0]->type);
   CuAssertStrEquals(tc, "foo",     n->value.func.exprs[0]->value.call.name);
   ast = l_parse("[ x y ] {\n foo x y\n }");
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
-  CuAssertIntEquals(tc, l_func_type, n->type);
+  CuAssertIntEquals(tc, L_FUNC_TYPE, n->type);
   CuAssertIntEquals(tc, 2,         n->value.func.args->value.list.count);
-  CuAssertIntEquals(tc, l_var_type,  n->value.func.args->value.list.items[0]->type);
+  CuAssertIntEquals(tc, L_VAR_TYPE,  n->value.func.args->value.list.items[0]->type);
   CuAssertStrEquals(tc, "x",       n->value.func.args->value.list.items[0]->value.var);
-  CuAssertIntEquals(tc, l_var_type,  n->value.func.args->value.list.items[1]->type);
+  CuAssertIntEquals(tc, L_VAR_TYPE,  n->value.func.args->value.list.items[1]->type);
   CuAssertStrEquals(tc, "y",       n->value.func.args->value.list.items[1]->value.var);
   CuAssertIntEquals(tc, 1,         n->value.func.exprc);
-  CuAssertIntEquals(tc, l_call_type, n->value.func.exprs[0]->type);
+  CuAssertIntEquals(tc, L_CALL_TYPE, n->value.func.exprs[0]->type);
   CuAssertStrEquals(tc, "foo",     n->value.func.exprs[0]->value.call.name);
   g_slist_free(ast);
 }
@@ -317,7 +317,7 @@ void test_parse_assign(CuTest *tc) {
   LNode *n;
   CuAssertIntEquals(tc, 1, g_slist_length(ast));
   n = g_slist_nth_data(ast, 0);
-  CuAssertIntEquals(tc, l_assign_type, n->type);
+  CuAssertIntEquals(tc, L_ASSIGN_TYPE, n->type);
   CuAssertStrEquals(tc, "x", n->value.assign.name);
   CuAssertIntEquals(tc, 1,   n->value.assign.expr->value.num);
   g_slist_free(ast);

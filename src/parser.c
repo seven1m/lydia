@@ -1100,14 +1100,14 @@ char *yytos(char *yytext, int yyleng) {
 
 LNode *l_create_int_node(char *yytext, int yyleng) {
   LNode *n = malloc(sizeof(LNode));
-  n->type = l_num_type;
+  n->type = L_NUM_TYPE;
   n->value.num = atoi(yytext);
   return n;
 }
 
 LNode *l_create_str_node(char *yytext, int yyleng) {
   LNode *n = malloc(sizeof(LNode));
-  n->type = l_str_type;
+  n->type = L_STR_TYPE;
   n->value.str = malloc(sizeof(char) * (yyleng + 1));
   strcpy(n->value.str, "");
   strncat(n->value.str, yytext, yyleng);
@@ -1116,7 +1116,7 @@ LNode *l_create_str_node(char *yytext, int yyleng) {
 
 LNode *l_create_rng_node(LNode *first, LNode *last) {
   LNode *n = malloc(sizeof(LNode));
-  n->type = l_range_type;
+  n->type = L_RANGE_TYPE;
   n->value.range.first = first;
   n->value.range.last = last;
   return n;
@@ -1124,14 +1124,14 @@ LNode *l_create_rng_node(LNode *first, LNode *last) {
 
 LNode *l_create_var_node(char *name) {
   LNode *n = malloc(sizeof(LNode));
-  n->type = l_var_type;
+  n->type = L_VAR_TYPE;
   n->value.var = name;
   return n;
 }
 
 LNode *l_create_assign_node(char *name, LNode *expr) {
   LNode *n = malloc(sizeof(LNode));
-  n->type = l_assign_type;
+  n->type = L_ASSIGN_TYPE;
   n->value.assign.name = name;
   n->value.assign.expr = expr;
   return n;
@@ -1139,7 +1139,7 @@ LNode *l_create_assign_node(char *name, LNode *expr) {
 
 LNode *l_create_call_node(char *name, int argc, LNode **args) {
   LNode *n = malloc(sizeof(LNode));
-  n->type = l_call_type;
+  n->type = L_CALL_TYPE;
   n->value.call.name = name;
   n->value.call.argc = argc;
   n->value.call.args = args;
@@ -1148,7 +1148,7 @@ LNode *l_create_call_node(char *name, int argc, LNode **args) {
 
 LNode *l_create_list_node(int itemc, LNode **items) {
   LNode *n = malloc(sizeof(LNode));
-  n->type = l_list_type;
+  n->type = L_LIST_TYPE;
   n->value.list.count = itemc;
   n->value.list.items = items;
   return n;
@@ -1156,7 +1156,7 @@ LNode *l_create_list_node(int itemc, LNode **items) {
 
 LNode *l_create_func_node(LNode *args, int exprc, LNode **exprs) {
   LNode *n = malloc(sizeof(LNode));
-  n->type = l_func_type;
+  n->type = L_FUNC_TYPE;
   n->value.func.args = args;
   n->value.func.exprc = exprc;
   n->value.func.exprs = exprs;
@@ -1165,7 +1165,7 @@ LNode *l_create_func_node(LNode *args, int exprc, LNode **exprs) {
 
 LNode *l_create_err_node(char *error) {
   LNode *n = malloc(sizeof(LNode));
-  n->type = l_err_type;
+  n->type = L_ERR_TYPE;
   n->value.err = error;
   return n;
 }
