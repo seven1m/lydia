@@ -13,33 +13,25 @@ enum LNodeType {
   L_ASSIGN_TYPE
 };
 
-// structure for representing static,
-// literal nodes in the source tree
+/* structure for representing static,
+   literal nodes in the source tree */
 typedef struct LNode {
   enum LNodeType type;
-  union {
-    int                      num;
-    char                    *str;
-    char                    *err;
-    char                    *var;
-    struct {
-      int count;
-      struct LNode **items; } list;
-    struct {
-      struct LNode *first;
-      struct LNode *last;   } range;
-    struct {
-      struct LNode *args;
-      int exprc;
-      struct LNode **exprs; } func;
-    struct {
-      char *name;
-      int argc;
-      struct LNode **args;  } call;
-    struct {
-      char *name;
-      struct LNode *expr;   } assign;
-  } value;
+  char *val;
+  int exprc;
+  struct LNode **exprs;
 } LNode;
+
+/* A Func node is represented like so:
+   val = NULL
+   exprc = 2 (always)
+   exprs[0] = LNode
+              type = L_LIST_TYPE
+              exprc = # of arguments
+              exprs = array of LNodes, one for each arg
+   exprs[1] = LNode
+              type = L_LIST_TYPE
+              exprc = # of exprs
+              exprs = array of LNodes, one for each expr */
 
 #endif
