@@ -72,7 +72,9 @@ There's a few things to note:
 
 ## Installation
 
-Download the source and build:
+First, install the prerequisites: `glib2` and `gmp`
+
+Then, download the source and build:
 
     make build
 
