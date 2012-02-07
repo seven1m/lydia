@@ -21,7 +21,7 @@ For now, it's starting to resemble a functional language with very terse syntax.
        { out "x is two" },
        { out "x is something else" }
 
-    # recursion
+    # recursion & infix calling
     ^ = [a b] { if b == 1,
                    a,
                    { a * (a ^ (b - 1)) } }
