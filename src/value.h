@@ -1,11 +1,14 @@
 #ifndef VALUE_H
 #define VALUE_H
 
-#include <glib.h>
-
+// structure for representing dynamic,
+// evaluated objects
 typedef struct LValue {
-  LNode *node;
   int ref_count;
+  enum LNodeType type;
+  union {
+    int num;
+  } value;
 } LValue;
 
 LValue *l_value_new(LNode *node);

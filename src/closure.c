@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include "lidija.h"
 
 // creates and initializes an empty closure

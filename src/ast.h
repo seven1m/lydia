@@ -13,6 +13,8 @@ enum LNodeType {
   L_ASSIGN_TYPE
 };
 
+// structure for representing static,
+// literal nodes in the source tree
 typedef struct LNode {
   enum LNodeType type;
   union {

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "../deps/CuTest.h"
+#include "../src/lidija.h"
 
 #include "parser_test.c"
 

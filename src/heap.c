@@ -1,4 +1,3 @@
-#include <glib.h>
 #include "lidija.h"
 
 void l_heap_add(LHeap *heap, LValue *value) {
