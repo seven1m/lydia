@@ -75,7 +75,6 @@ operand    = list
 
 atom       = var
            | string
-           | range
            | integer
 
 list-sep   = - | -- | ","
@@ -86,13 +85,6 @@ list       = "[" -*                                { l_stack_push(); }
              )*
              "]"                                   { int count = l_stack_count[l_stackp];
                                                      $$ = l_create_list_node(count, l_stack_pop()); }
-
-rangeop    = var
-           | integer
-           | eop
-           | ecall
-
-range      = first:rangeop ".." last:rangeop       { $$ = l_create_rng_node(first, last); }
 
 var        = name:identifier                       { $$ = l_create_var_node(name); }
 
@@ -158,16 +150,6 @@ LNode *l_create_str_node(char *yytext, int yyleng) {
   LNode *n = malloc(sizeof(LNode));
   n->type = L_STR_TYPE;
   n->val = yytos(yytext, yyleng);
-  return n;
-}
-
-LNode *l_create_rng_node(LNode *first, LNode *last) {
-  LNode *n = malloc(sizeof(LNode));
-  n->type = L_RANGE_TYPE;
-  n->exprc = 2;
-  n->exprs = malloc(sizeof(LNode*) * 2);
-  n->exprs[0] = first;
-  n->exprs[1] = last;
   return n;
 }
 

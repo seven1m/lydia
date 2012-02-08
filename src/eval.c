@@ -23,8 +23,6 @@ LValue *l_eval_node(LNode *node, LClosure *closure) {
       break;
     case L_LIST_TYPE:
       break;
-    case L_RANGE_TYPE:
-      break;
     case L_FUNC_TYPE:
       break;
     case L_CALL_TYPE:
@@ -77,16 +75,6 @@ char *l_inspect(LValue *value, char *buf, int bufLen) {
       break;
     case L_LIST_TYPE:
       //snprintf(buf, bufLen-1, "<List: %d>", node->exprc);
-      break;
-    case L_RANGE_TYPE:
-      //b1 = malloc(sizeof(char) * 255);
-      //b2 = malloc(sizeof(char) * 255);
-      //LNode *e1 = node->exprs[0];
-      //l_inspect(e1, b1, 255);
-      //l_inspect(node->exprs[1], b2, 255);
-      //snprintf(buf, bufLen-1, "<Range: %s..%s>", b1, b2);
-      //free(b1);
-      //free(b2);
       break;
     case L_FUNC_TYPE:
       //snprintf(buf, bufLen-1, "<Func with %d expr(s)>", node->exprs[1]->exprc);

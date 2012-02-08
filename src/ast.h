@@ -7,7 +7,6 @@ enum LNodeType {
   L_STR_TYPE,
   L_VAR_TYPE,
   L_LIST_TYPE,
-  L_RANGE_TYPE,
   L_FUNC_TYPE,
   L_CALL_TYPE,
   L_ASSIGN_TYPE
