@@ -43,6 +43,6 @@ void l_inspect_closure(LClosure* closure) {
 
 static void l_inspect_closure_iter(gpointer key, gpointer val, gpointer user_data) {
   char buf[255] = "";
-  printf("  %s = %s\n", key, l_inspect(val, buf, 255));
+  printf("  %s = %s\n", (char*)key, l_inspect(val, buf, 255));
 }
 

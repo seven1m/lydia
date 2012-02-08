@@ -64,7 +64,7 @@ void l_eval(const char *source) {
 }
 
 char *l_inspect(LValue *value, char *buf, int bufLen) {
-  char *b1, *b2, *repr;
+  char *repr;
   switch(value->type) {
     case L_ERR_TYPE:
       //snprintf(buf, bufLen-1, "<Err: %s>", node->val);
