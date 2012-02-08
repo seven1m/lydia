@@ -121,7 +121,7 @@ LValue *l_eval_call_node(LNode *node, LClosure *closure) {
 
     // set all passed args
     for(i=0; i<node->exprc; i++) {
-      v = l_eval_node(node->exprs[i], cl);
+      v = l_eval_node(node->exprs[i], closure); // use calling closure
       v->ref_count++;
       g_array_insert_val(args->core.list, i, v);
       if(i < func->core.func.argc) {
