@@ -33,7 +33,14 @@ void l_closure_set(LClosure *closure, char *name, LValue *value) {
 
 // gets a key in the closure
 LValue *l_closure_get(LClosure *closure, char *name) {
-  return g_hash_table_lookup(closure->vars, name);
+  LValue *value = g_hash_table_lookup(closure->vars, name);
+  if(value == NULL) {
+    char buf[255];
+    value = l_value_new(L_ERR_TYPE, closure);
+    snprintf(buf, 254, "%s not found", name);
+    value->core.str = g_string_new(buf);
+  }
+  return value;
 }
 
 // prints keys and vals in a closure
