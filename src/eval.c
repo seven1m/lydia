@@ -22,6 +22,7 @@ LValue *l_eval_node(LNode *node, LClosure *closure) {
       value = l_eval_string_node(node, closure);
       break;
     case L_VAR_TYPE:
+      value = l_eval_var_node(node, closure);
       break;
     case L_LIST_TYPE:
       break;
@@ -62,6 +63,11 @@ LValue *l_eval_assign_node(LNode *node, LClosure *closure) {
   return value;
 }
 
+LValue *l_eval_var_node(LNode *node, LClosure *closure) {
+  LValue *value = l_closure_get(closure, node->val);
+  return value;
+}
+
 void l_eval(const char *source) {
   LAst *ast = l_parse(source);
   LClosure *closure = l_closure_new();
@@ -83,9 +89,6 @@ char *l_inspect(LValue *value, char *buf, int bufLen) {
       break;
     case L_STR_TYPE:
       snprintf(buf, bufLen-1, "<Str: %s>", value->core.str->str);
-      break;
-    case L_VAR_TYPE:
-      //snprintf(buf, bufLen-1, "<Var: %s>", node->val);
       break;
     case L_LIST_TYPE:
       //snprintf(buf, bufLen-1, "<List: %d>", node->exprc);
