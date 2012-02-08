@@ -7,6 +7,8 @@ int main(int argc, char **argv) {
          "year = 2012\n"
          "'hello world'\n"
          "year\n"
-         "x = [a b] { a * b }");
+         "x = [a b] { a }\n"
+         "x 1 2"
+         );
   return 0;
 }

@@ -15,6 +15,7 @@ typedef struct LValue {
     GString* str;
     GArray* list;
     struct {
+      LClosure *closure;
       int argc;
       LNode **args;
       int exprc;

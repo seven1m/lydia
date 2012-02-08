@@ -32,6 +32,7 @@ LValue *l_eval_node(LNode *node, LClosure *closure) {
       value = l_eval_func_node(node, closure);
       break;
     case L_CALL_TYPE:
+      value = l_eval_call_node(node, closure);
       break;
     case L_ASSIGN_TYPE:
       value = l_eval_assign_node(node, closure);
@@ -86,10 +87,59 @@ LValue *l_eval_list_node(LNode *node, LClosure *closure) {
 
 LValue *l_eval_func_node(LNode *node, LClosure *closure) {
   LValue *value = l_value_new(L_FUNC_TYPE, closure);
+  value->core.func.closure = l_closure_clone(closure);
   value->core.func.argc = node->exprs[0]->exprc;
   value->core.func.args = node->exprs[0]->exprs;
   value->core.func.exprc = node->exprs[1]->exprc;
   value->core.func.exprs = node->exprs[1]->exprs;
+  return value;
+}
+
+LValue *l_eval_call_node(LNode *node, LClosure *closure) {
+  LValue *value;
+  LValue *func = l_closure_get(closure, node->val);
+  if(func->type == L_FUNC_TYPE) {
+    int i, len;
+    LValue *v;
+    LNode *n;
+
+    // create a scope to hold arguments and func self-ref
+    LClosure *cl = l_closure_clone(func->core.func.closure);
+    l_closure_set(cl, node->val, func);
+
+    // setup the arguments
+    LValue *args = l_value_new(L_LIST_TYPE, cl);
+    l_closure_set(cl, "args", args);
+    len = max(func->core.func.argc, node->exprs[0]->exprc);
+    args->core.list = g_array_sized_new(false, false, sizeof(LValue*), len);
+
+    // initialize all args to nil
+    for(i=0; i<func->core.func.argc; i++) {
+      v = l_value_new(L_NIL_TYPE, cl);
+      g_array_insert_val(args->core.list, i, v);
+    }
+
+    // set all passed args
+    for(i=0; i<node->exprc; i++) {
+      v = l_eval_node(node->exprs[i], cl);
+      v->ref_count++;
+      g_array_insert_val(args->core.list, i, v);
+      if(i < func->core.func.argc) {
+        l_closure_set(cl, func->core.func.args[i]->val, v);
+      }
+    }
+
+    int exprc = func->core.func.exprc;
+    for(i=0; i<exprc; i++) {
+      value = l_eval_node(func->core.func.exprs[i], cl);
+    }
+    if(exprc == 0) {
+      value = l_value_new(L_NIL_TYPE, closure);
+    }
+    // TODO: free(cl);
+  } else {
+    value = func; // error
+  }
   return value;
 }
 
@@ -120,15 +170,6 @@ char *l_inspect(LValue *value, char *buf, int bufLen) {
       break;
     case L_FUNC_TYPE:
       snprintf(buf, bufLen-1, "<Func with %d arg(s) and %d expr(s)>", value->core.func.argc, value->core.func.exprc);
-      break;
-    case L_CALL_TYPE:
-      //snprintf(buf, bufLen-1, "<Call with %d arg(s)>", node->exprc);
-      break;
-    case L_ASSIGN_TYPE:
-      //b1 = malloc(sizeof(char) * 255);
-      //l_inspect(node->exprs[0], b1, 255);
-      //snprintf(buf, bufLen-1, "<Assign: %s = %s>", node->val, b1);
-      //free(b1);
       break;
     default:
       sprintf(buf, "unable to inspect element");

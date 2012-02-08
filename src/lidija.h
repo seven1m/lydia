@@ -11,3 +11,7 @@
 #include "heap.h"
 #include "closure.h"
 #include "eval.h"
+
+#ifndef max
+#define max(a, b) (((a) > (b)) ? (a) : (b))
+#endif
