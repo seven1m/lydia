@@ -77,7 +77,7 @@ LValue *l_eval_list_node(LNode *node, LClosure *closure) {
   LValue *v;
   int i;
   for(i=0; i<node->exprc; i++) {
-    v = l_eval_node((node->exprs)[i], closure);
+    v = l_eval_node(node->exprs[i], closure);
     v->ref_count++;
     g_array_insert_val(value->core.list, i, v);
   }
