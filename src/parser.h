@@ -31,7 +31,7 @@ LNode *l_create_assign_node(char *name, LNode *expr);
 LNode *l_create_call_node(char *name, int argc, LNode **args);
 LNode *l_create_list_node(int itemc, LNode **items);
 LNode *l_create_func_node(LNode *args, int exprc, LNode **exprs);
-LNode *l_create_err_node(char *error);
+LNode *l_create_err_node(char *error, int line);
 
 int yy_input(char *buf, int max_size);
 LAst *l_parse(const char *source);

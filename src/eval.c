@@ -13,6 +13,7 @@ LValue *l_eval_node(LNode *node, LClosure *closure) {
   LValue *value;
   switch(node->type) {
     case L_ERR_TYPE:
+      value = l_eval_error_node(node, closure);
       break;
     case L_NUM_TYPE:
       value = l_eval_num_node(node, closure);
@@ -49,6 +50,12 @@ LValue *l_eval_string_node(LNode *node, LClosure *closure) {
   return value;
 }
 
+LValue *l_eval_error_node(LNode *node, LClosure *closure) {
+  LValue *value = l_value_new(L_ERR_TYPE, closure);
+  value->core.str = g_string_new(node->val);
+  return value;
+}
+
 LValue *l_eval_assign_node(LNode *node, LClosure *closure) {
   LValue *value = l_eval_node(node->exprs[0], closure);
   l_closure_set(closure, node->val, value);
@@ -67,7 +74,7 @@ char *l_inspect(LValue *value, char *buf, int bufLen) {
   char *repr;
   switch(value->type) {
     case L_ERR_TYPE:
-      //snprintf(buf, bufLen-1, "<Err: %s>", node->val);
+      snprintf(buf, bufLen-1, "<Err: %s>", value->core.str->str);
       break;
     case L_NUM_TYPE:
       repr = mpz_get_str(NULL, 10, value->core.num);

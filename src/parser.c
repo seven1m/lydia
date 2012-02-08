@@ -7,6 +7,7 @@
 
 #include "lidija.h"
 int l_stackp = 0;
+int line_no = 1;
 
 #ifndef YY_VARIABLE
 #define YY_VARIABLE(T)	static T
@@ -459,7 +460,7 @@ YY_ACTION(void) yy_1_assign(char *yytext, int yyleng)
 YY_ACTION(void) yy_1_bad(char *yytext, int yyleng)
 {
   yyprintf((stderr, "do yy_1_bad\n"));
-   l_ast_add_node(l_create_err_node(yytos(yytext, yyleng))); ;
+   l_ast_add_node(l_create_err_node(yytos(yytext, yyleng), line_no)); ;
 }
 YY_ACTION(void) yy_1_body(char *yytext, int yyleng)
 {
@@ -1124,10 +1125,12 @@ LNode *l_create_func_node(LNode *args, int exprc, LNode **exprs) {
   return n;
 }
 
-LNode *l_create_err_node(char *error) {
+LNode *l_create_err_node(char *error, int line) {
   LNode *n = malloc(sizeof(LNode));
   n->type = L_ERR_TYPE;
-  n->val = error;
+  char *buf = malloc(sizeof(char) * 255);
+  snprintf(buf, 254, "line %d: %s", line, error);
+  n->val = buf;
   return n;
 }
 
