@@ -16,7 +16,6 @@ typedef struct LValue {
   } core;
 } LValue;
 
-// note: have to use void* because of circular ref
 LValue *l_value_new(enum LNodeType type, LClosure *closure);
 
 #endif
