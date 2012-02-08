@@ -15,6 +15,7 @@ LClosure *l_closure_new() {
 LClosure *l_closure_clone(LClosure *parent) {
   LClosure *closure = malloc(sizeof(LClosure));
   closure->heap = parent->heap;
+  closure->vars = g_hash_table_new(g_str_hash, g_str_equal);
   g_hash_table_foreach(parent->vars, l_clone_closure_ref, closure);
   return closure;
 }
