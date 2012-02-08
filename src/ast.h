@@ -2,6 +2,7 @@
 #define AST_H
 
 enum LNodeType {
+  L_NIL_TYPE,
   L_ERR_TYPE,
   L_NUM_TYPE,
   L_STR_TYPE,
