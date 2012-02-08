@@ -7,10 +7,11 @@ typedef struct LValue {
   int ref_count;
   enum LNodeType type;
   union {
-    int num;
-  } value;
+    mpz_t num;
+  } core;
 } LValue;
 
-LValue *l_value_new(LNode *node);
+// note: have to use void* because of circular ref
+LValue *l_value_new(enum LNodeType type, void *closure);
 
 #endif

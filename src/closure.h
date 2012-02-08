@@ -13,5 +13,4 @@ LClosure *l_closure_clone(LClosure *parent);
 void l_closure_set(LClosure *closure, char *name, LValue *value);
 LValue *l_closure_get(LClosure *closure, char *name);
 
-
 #endif
