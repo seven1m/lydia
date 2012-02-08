@@ -87,6 +87,7 @@ LValue *l_eval_list_node(LNode *node, LClosure *closure) {
 
 LValue *l_eval_func_node(LNode *node, LClosure *closure) {
   LValue *value = l_value_new(L_FUNC_TYPE, closure);
+  value->core.func.ptr = NULL;
   value->core.func.closure = l_closure_clone(closure);
   value->core.func.argc = node->exprs[0]->exprc;
   value->core.func.args = node->exprs[0]->exprs;
@@ -129,12 +130,19 @@ LValue *l_eval_call_node(LNode *node, LClosure *closure) {
       }
     }
 
-    int exprc = func->core.func.exprc;
-    for(i=0; i<exprc; i++) {
-      value = l_eval_node(func->core.func.exprs[i], cl);
-    }
-    if(exprc == 0) {
-      value = l_value_new(L_NIL_TYPE, closure);
+    // eval func body
+    if(func->core.func.ptr != NULL) {
+      // native C code
+      value = func->core.func.ptr(args, cl);
+    } else {
+      // Lidija code
+      int exprc = func->core.func.exprc;
+      for(i=0; i<exprc; i++) {
+        value = l_eval_node(func->core.func.exprs[i], cl);
+      }
+      if(exprc == 0) {
+        value = l_value_new(L_NIL_TYPE, closure);
+      }
     }
     // TODO: free(cl);
   } else {
@@ -146,6 +154,7 @@ LValue *l_eval_call_node(LNode *node, LClosure *closure) {
 void l_eval(const char *source) {
   LAst *ast = l_parse(source);
   LClosure *closure = l_closure_new();
+  l_closure_set_funcs(closure);
   g_slist_foreach(ast, l_eval_node_iter, closure);
   free(closure);
   free(ast);
@@ -169,7 +178,11 @@ char *l_inspect(LValue *value, char *buf, int bufLen) {
       snprintf(buf, bufLen-1, "<List with %d item(s)>", value->core.list->len);
       break;
     case L_FUNC_TYPE:
-      snprintf(buf, bufLen-1, "<Func with %d arg(s) and %d expr(s)>", value->core.func.argc, value->core.func.exprc);
+      if(value->core.func.ptr != NULL) {
+        snprintf(buf, bufLen-1, "<Func Ptr>");
+      } else {
+        snprintf(buf, bufLen-1, "<Func with %d arg(s) and %d expr(s)>", value->core.func.argc, value->core.func.exprc);
+      }
       break;
     default:
       sprintf(buf, "unable to inspect element");

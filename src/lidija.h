@@ -10,6 +10,7 @@
 #include "value.h"
 #include "heap.h"
 #include "closure.h"
+#include "funcs.h"
 #include "eval.h"
 
 #ifndef max

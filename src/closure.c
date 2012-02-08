@@ -31,6 +31,18 @@ void l_closure_set(LClosure *closure, char *name, LValue *value) {
   g_hash_table_insert(closure->vars, name, value);
 }
 
+// sets all built-in functions
+void l_closure_set_funcs(LClosure *closure) {
+  LValue *f;
+  // FIXME
+  f = l_value_new(L_FUNC_TYPE, closure);
+  f->core.func.ptr = num_mult;
+  f->core.func.closure = closure;
+  f->core.func.argc = 0;
+  f->core.func.exprc = 0;
+  g_hash_table_insert(closure->vars, "*", f);
+}
+
 // gets a key in the closure
 LValue *l_closure_get(LClosure *closure, char *name) {
   LValue *value = g_hash_table_lookup(closure->vars, name);
