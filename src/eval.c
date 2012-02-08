@@ -102,7 +102,6 @@ LValue *l_eval_call_node(LNode *node, LClosure *closure) {
   if(func->type == L_FUNC_TYPE) {
     int i, len;
     LValue *v;
-    LNode *n;
 
     // create a scope to hold arguments and func self-ref
     LClosure *cl = l_closure_clone(func->core.func.closure);
