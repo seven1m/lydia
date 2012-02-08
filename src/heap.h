@@ -3,6 +3,8 @@
 
 #include <glib.h>
 
+// granted, not a true heap
+// we only use this to free memory, not allocate it
 typedef GPtrArray LHeap;
 
 void l_heap_add(LHeap *heap, LValue *value);

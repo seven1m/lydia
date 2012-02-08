@@ -1,5 +1,8 @@
 #include "lidija.h"
 
+static void l_inspect_closure_iter(gpointer key, gpointer val, gpointer user_data);
+static void l_clone_closure_ref(gpointer name, gpointer val, gpointer closure);
+
 // creates and initializes an empty closure
 LClosure *l_closure_new() {
   LClosure *closure = malloc(sizeof(LClosure));
@@ -12,10 +15,13 @@ LClosure *l_closure_new() {
 LClosure *l_closure_clone(LClosure *parent) {
   LClosure *closure = malloc(sizeof(LClosure));
   closure->heap = parent->heap;
-  // TODO clone, not ref copy
-  // TODO increment ref_counts in heap
-  closure->vars = parent->vars;
+  g_hash_table_foreach(parent->vars, l_clone_closure_ref, closure);
   return closure;
+}
+
+static void l_clone_closure_ref(gpointer name, gpointer val, gpointer closure) {
+  g_hash_table_insert(((LClosure*)closure)->vars, name, val);
+  ((LValue*)val)->ref_count++;
 }
 
 // sets a key in the closure
@@ -29,14 +35,15 @@ LValue *l_closure_get(LClosure *closure, char *name) {
   return g_hash_table_lookup(closure->vars, name);
 }
 
-static void l_inspect_closure_iter(gpointer key, gpointer val, gpointer user_data) {
-  char buf[255] = "";
-  printf("%s = %s\n", key, l_inspect(val, buf, 255));
-}
-
 // prints keys and vals in a closure
 void l_inspect_closure(LClosure* closure) {
   printf("Closure contents:\n");
   g_hash_table_foreach(closure->vars, l_inspect_closure_iter, NULL);
   puts("");
 }
+
+static void l_inspect_closure_iter(gpointer key, gpointer val, gpointer user_data) {
+  char buf[255] = "";
+  printf("%s = %s\n", key, l_inspect(val, buf, 255));
+}
+
