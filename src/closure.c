@@ -20,11 +20,23 @@ LClosure *l_closure_clone(LClosure *parent) {
 
 // sets a key in the closure
 void l_closure_set(LClosure *closure, char *name, LValue *value) {
+  value->ref_count++;
   g_hash_table_insert(closure->vars, name, value);
-  // TODO maybe increment ref_counts?
 }
 
 // gets a key in the closure
 LValue *l_closure_get(LClosure *closure, char *name) {
   return g_hash_table_lookup(closure->vars, name);
+}
+
+static void l_inspect_closure_iter(gpointer key, gpointer val, gpointer user_data) {
+  char buf[255] = "";
+  printf("%s = %s\n", key, l_inspect(val, buf, 255));
+}
+
+// prints keys and vals in a closure
+void l_inspect_closure(LClosure* closure) {
+  printf("Closure contents:\n");
+  g_hash_table_foreach(closure->vars, l_inspect_closure_iter, NULL);
+  puts("");
 }

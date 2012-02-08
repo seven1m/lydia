@@ -1,14 +1,21 @@
 #include "lidija.h"
 
-void l_eval_node(gpointer node, gpointer closure) {
-  LClosure *c = (LClosure*)closure;
-  LNode *n = (LNode*)node;
+void l_eval_node_iter(gpointer node, gpointer closure) {
+  LValue *value = l_eval_node((LNode*)node, (LClosure*)closure);
+  char buf[255] = "";
+  printf("%s\n", l_inspect(value, buf, 255));
+  printf("%d item(s) in the heap\n", l_heap_size(((LClosure*)closure)->heap));
+  l_inspect_heap(((LClosure*)closure)->heap);
+  l_inspect_closure(closure);
+}
+
+LValue *l_eval_node(LNode *node, LClosure *closure) {
   LValue *value;
-  switch(n->type) {
+  switch(node->type) {
     case L_ERR_TYPE:
       break;
     case L_NUM_TYPE:
-      value = l_eval_num_node(n, c);
+      value = l_eval_num_node(node, closure);
       break;
     case L_STR_TYPE:
       break;
@@ -23,13 +30,12 @@ void l_eval_node(gpointer node, gpointer closure) {
     case L_CALL_TYPE:
       break;
     case L_ASSIGN_TYPE:
+      value = l_eval_assign_node(node, closure);
       break;
     default:
       printf("ERROR: unable to eval element");
   }
-  char buf[255] = "";
-  printf("%s\n", l_inspect(value, buf, 255));
-  printf("%d item(s) in the heap\n", l_heap_size(c->heap));
+  return value;
 }
 
 LValue *l_eval_num_node(LNode *node, LClosure *closure) {
@@ -38,10 +44,16 @@ LValue *l_eval_num_node(LNode *node, LClosure *closure) {
   return value;
 }
 
+LValue *l_eval_assign_node(LNode *node, LClosure *closure) {
+  LValue *value = l_eval_node(node->exprs[0], closure);
+  l_closure_set(closure, node->val, value);
+  return value;
+}
+
 void l_eval(const char *source) {
   LAst *ast = l_parse(source);
   LClosure *closure = l_closure_new();
-  g_slist_foreach(ast, l_eval_node, closure);
+  g_slist_foreach(ast, l_eval_node_iter, closure);
   free(closure);
   free(ast);
 }
