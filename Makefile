@@ -1,6 +1,7 @@
 CC=gcc
 CFLAGS=-I. -Wall
 ALL = src/closure.c src/eval.c src/heap.c src/parser.c src/value.c
+DEPS = `pkg-config --cflags glib-2.0 --libs glib-2.0` -lgmp
 
 build: bin/lidija
 
@@ -16,4 +17,4 @@ clean:
 	rm -f bin/* src/*.o src/*.so
 
 bin/lidija:
-	$(CC) src/lidija.c -Isrc ${CFLAGS} ${ALL} `pkg-config --cflags glib-2.0 --libs glib-2.0` -o bin/lidija
+	${CC} src/lidija.c -Isrc ${CFLAGS} ${ALL} ${DEPS} -o bin/lidija

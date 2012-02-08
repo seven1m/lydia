@@ -1,9 +1,10 @@
-#include <glib.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+#include <glib.h>
+#include <gmp.h>
 #include "ast.h"
 #include "parser.h"
 #include "value.h"
