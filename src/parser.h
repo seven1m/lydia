@@ -23,8 +23,8 @@ LNode **l_stack_pop();
 
 char *yytos(char *yytext, int yyleng);
 
-LNode *l_create_int_node(char *yytext, int yyleng);
-LNode *l_create_str_node(char *yytext, int yyleng);
+LNode *l_create_num_node(char *num);
+LNode *l_create_str_node(char *str);
 LNode *l_create_rng_node(LNode *first, LNode *last);
 LNode *l_create_var_node(char *name);
 LNode *l_create_assign_node(char *name, LNode *expr);

@@ -94,8 +94,8 @@ sq         = "\'"
 ndq        = !dq .
 nsq        = !sq .
 esc        = "\\" .
-string     = dq < (esc | ndq)* > dq                { $$ = l_create_str_node(yytext, yyleng); }
-           | sq < (esc | nsq)* > sq                { $$ = l_create_str_node(yytext, yyleng); }
+string     = dq < (esc | ndq)* > dq                { $$ = l_create_str_node(yytos(yytext, yyleng)); }
+           | sq < (esc | nsq)* > sq                { $$ = l_create_str_node(yytos(yytext, yyleng)); }
 
 empty-line = -* --                                 { $$ = 0; }
 comment    = -* '#' [^\r\n]* --?                   { $$ = 0; }
@@ -106,7 +106,7 @@ symbol     = < [-~`!?@$%^&*_+|/,.<>]+ >            { $$ = yytos(yytext, yyleng);
 
 identifier = < [a-z] [a-z0-9-]* >                  { $$ = yytos(yytext, yyleng); }
 
-integer    = < digit+ >                            { $$ = l_create_int_node(yytext, yyleng); }
+integer    = < digit+ >                            { $$ = l_create_num_node(yytos(yytext, yyleng)); }
 
 digit      = [0-9]
 
@@ -140,17 +140,17 @@ char *yytos(char *yytext, int yyleng) {
   return s;
 }
 
-LNode *l_create_int_node(char *yytext, int yyleng) {
+LNode *l_create_num_node(char *num) {
   LNode *n = malloc(sizeof(LNode));
   n->type = L_NUM_TYPE;
-  n->val = yytos(yytext, yyleng);
+  n->val = num;
   return n;
 }
 
-LNode *l_create_str_node(char *yytext, int yyleng) {
+LNode *l_create_str_node(char *str) {
   LNode *n = malloc(sizeof(LNode));
   n->type = L_STR_TYPE;
-  n->val = yytos(yytext, yyleng);
+  n->val = str;
   return n;
 }
 

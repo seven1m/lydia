@@ -252,10 +252,15 @@ YY_RULE(int) yy_eof(); /* 3 */
 YY_RULE(int) yy_lexpr(); /* 2 */
 YY_RULE(int) yy_body(); /* 1 */
 
+YY_ACTION(void) yy_1___(char *yytext, int yyleng)
+{
+  yyprintf((stderr, "do yy_1___\n"));
+   line_no++; ;
+}
 YY_ACTION(void) yy_1_integer(char *yytext, int yyleng)
 {
   yyprintf((stderr, "do yy_1_integer\n"));
-   yy = l_create_int_node(yytext, yyleng); ;
+   yy = l_create_num_node(yytos(yytext, yyleng)); ;
 }
 YY_ACTION(void) yy_1_identifier(char *yytext, int yyleng)
 {
@@ -285,12 +290,12 @@ YY_ACTION(void) yy_1_empty_line(char *yytext, int yyleng)
 YY_ACTION(void) yy_2_string(char *yytext, int yyleng)
 {
   yyprintf((stderr, "do yy_2_string\n"));
-   yy = l_create_str_node(yytext, yyleng); ;
+   yy = l_create_str_node(yytos(yytext, yyleng)); ;
 }
 YY_ACTION(void) yy_1_string(char *yytext, int yyleng)
 {
   yyprintf((stderr, "do yy_1_string\n"));
-   yy = l_create_str_node(yytext, yyleng); ;
+   yy = l_create_str_node(yytos(yytext, yyleng)); ;
 }
 YY_ACTION(void) yy_1_var(char *yytext, int yyleng)
 {
@@ -809,7 +814,7 @@ YY_RULE(int) yy___()
   {  int yypos96= yypos, yythunkpos96= yythunkpos;  if (!yymatchClass((unsigned char *)"\000\040\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000")) goto l96;  goto l97;
   l96:;	  yypos= yypos96; yythunkpos= yythunkpos96;
   }
-  l97:;	  if (!yymatchClass((unsigned char *)"\000\004\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000")) goto l95;
+  l97:;	  if (!yymatchClass((unsigned char *)"\000\004\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000")) goto l95;  yyDo(yy_1___, yybegin, yyend);
   yyprintf((stderr, "  ok   %s @ %s\n", "__", yybuf+yypos));
   return 1;
   l95:;	  yypos= yypos0; yythunkpos= yythunkpos0;
@@ -1063,17 +1068,17 @@ char *yytos(char *yytext, int yyleng) {
   return s;
 }
 
-LNode *l_create_int_node(char *yytext, int yyleng) {
+LNode *l_create_num_node(char *num) {
   LNode *n = malloc(sizeof(LNode));
   n->type = L_NUM_TYPE;
-  n->val = yytos(yytext, yyleng);
+  n->val = num;
   return n;
 }
 
-LNode *l_create_str_node(char *yytext, int yyleng) {
+LNode *l_create_str_node(char *str) {
   LNode *n = malloc(sizeof(LNode));
   n->type = L_STR_TYPE;
-  n->val = yytos(yytext, yyleng);
+  n->val = str;
   return n;
 }
 
