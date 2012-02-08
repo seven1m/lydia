@@ -18,6 +18,7 @@ LValue *l_eval_node(LNode *node, LClosure *closure) {
       value = l_eval_num_node(node, closure);
       break;
     case L_STR_TYPE:
+      value = l_eval_string_node(node, closure);
       break;
     case L_VAR_TYPE:
       break;
@@ -39,6 +40,12 @@ LValue *l_eval_node(LNode *node, LClosure *closure) {
 LValue *l_eval_num_node(LNode *node, LClosure *closure) {
   LValue *value = l_value_new(L_NUM_TYPE, closure);
   mpz_init_set_str(value->core.num, node->val, 0);
+  return value;
+}
+
+LValue *l_eval_string_node(LNode *node, LClosure *closure) {
+  LValue *value = l_value_new(L_STR_TYPE, closure);
+  value->core.str = g_string_new(node->val);
   return value;
 }
 
@@ -68,7 +75,7 @@ char *l_inspect(LValue *value, char *buf, int bufLen) {
       free(repr);
       break;
     case L_STR_TYPE:
-      //snprintf(buf, bufLen-1, "<Str: %s>", node->val);
+      snprintf(buf, bufLen-1, "<Str: %s>", value->core.str->str);
       break;
     case L_VAR_TYPE:
       //snprintf(buf, bufLen-1, "<Var: %s>", node->val);

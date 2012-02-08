@@ -12,6 +12,7 @@ typedef struct LValue {
   enum LNodeType type;
   union {
     mpz_t num;
+    GString* str;
   } core;
 } LValue;
 
