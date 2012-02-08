@@ -20,12 +20,11 @@ int l_heap_size(LHeap *heap) {
 
 static void l_inspect_heap_iter(gpointer val, gpointer user_data) {
   char buf[255] = "";
-  printf("%s (refcount: %d)\n", l_inspect(val, buf, 255), ((LValue*)val)->ref_count);
+  printf("  %s (refcount: %d)\n", l_inspect(val, buf, 255), ((LValue*)val)->ref_count);
 }
 
 // prints keys and vals in a closure
 void l_inspect_heap(LHeap* heap) {
   printf("Heap contents:\n");
   g_ptr_array_foreach(heap, l_inspect_heap_iter, NULL);
-  puts("");
 }

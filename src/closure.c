@@ -39,11 +39,10 @@ LValue *l_closure_get(LClosure *closure, char *name) {
 void l_inspect_closure(LClosure* closure) {
   printf("Closure contents:\n");
   g_hash_table_foreach(closure->vars, l_inspect_closure_iter, NULL);
-  puts("");
 }
 
 static void l_inspect_closure_iter(gpointer key, gpointer val, gpointer user_data) {
   char buf[255] = "";
-  printf("%s = %s\n", key, l_inspect(val, buf, 255));
+  printf("  %s = %s\n", key, l_inspect(val, buf, 255));
 }
 
