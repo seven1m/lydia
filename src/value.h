@@ -13,6 +13,7 @@ typedef struct LValue {
   union {
     mpz_t num;
     GString* str;
+    GArray* list;
   } core;
 } LValue;
 

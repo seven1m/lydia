@@ -7,6 +7,7 @@ void l_eval_node_iter(gpointer node, gpointer closure) {
   printf("%d item(s) in the heap\n", l_heap_size(((LClosure*)closure)->heap));
   l_inspect_heap(((LClosure*)closure)->heap);
   l_inspect_closure(closure);
+  puts("");
 }
 
 LValue *l_eval_node(LNode *node, LClosure *closure) {
@@ -25,6 +26,7 @@ LValue *l_eval_node(LNode *node, LClosure *closure) {
       value = l_eval_var_node(node, closure);
       break;
     case L_LIST_TYPE:
+      value = l_eval_list_node(node, closure);
       break;
     case L_FUNC_TYPE:
       break;
@@ -68,6 +70,19 @@ LValue *l_eval_var_node(LNode *node, LClosure *closure) {
   return value;
 }
 
+LValue *l_eval_list_node(LNode *node, LClosure *closure) {
+  LValue *value = l_value_new(L_LIST_TYPE, closure);
+  value->core.list = g_array_sized_new(false, false, sizeof(LValue*), node->exprc);
+  LValue *v;
+  int i;
+  for(i=0; i<node->exprc; i++) {
+    v = l_eval_node((node->exprs)[i], closure);
+    v->ref_count++;
+    g_array_insert_val(value->core.list, i, v);
+  }
+  return value;
+}
+
 void l_eval(const char *source) {
   LAst *ast = l_parse(source);
   LClosure *closure = l_closure_new();
@@ -91,7 +106,7 @@ char *l_inspect(LValue *value, char *buf, int bufLen) {
       snprintf(buf, bufLen-1, "<Str: %s>", value->core.str->str);
       break;
     case L_LIST_TYPE:
-      //snprintf(buf, bufLen-1, "<List: %d>", node->exprc);
+      snprintf(buf, bufLen-1, "<List with %d item(s)>", value->core.list->len);
       break;
     case L_FUNC_TYPE:
       //snprintf(buf, bufLen-1, "<Func with %d expr(s)>", node->exprs[1]->exprc);

@@ -7,6 +7,7 @@ void l_eval_node_iter(gpointer node, gpointer user_data);
 LValue *l_eval_node(LNode *node, LClosure *closure);
 LValue *l_eval_num_node(LNode *node, LClosure *closure);
 LValue *l_eval_string_node(LNode *node, LClosure *closure);
+LValue *l_eval_list_node(LNode *node, LClosure *closure);
 LValue *l_eval_var_node(LNode *node, LClosure *closure);
 LValue *l_eval_error_node(LNode *node, LClosure *closure);
 LValue *l_eval_assign_node(LNode *node, LClosure *closure);
