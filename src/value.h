@@ -14,6 +14,12 @@ typedef struct LValue {
     mpz_t num;
     GString* str;
     GArray* list;
+    struct {
+      int argc;
+      LNode **args;
+      int exprc;
+      LNode **exprs;
+    } func;
   } core;
 } LValue;
 

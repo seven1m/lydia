@@ -29,6 +29,7 @@ LValue *l_eval_node(LNode *node, LClosure *closure) {
       value = l_eval_list_node(node, closure);
       break;
     case L_FUNC_TYPE:
+      value = l_eval_func_node(node, closure);
       break;
     case L_CALL_TYPE:
       break;
@@ -83,6 +84,15 @@ LValue *l_eval_list_node(LNode *node, LClosure *closure) {
   return value;
 }
 
+LValue *l_eval_func_node(LNode *node, LClosure *closure) {
+  LValue *value = l_value_new(L_FUNC_TYPE, closure);
+  value->core.func.argc = node->exprs[0]->exprc;
+  value->core.func.args = node->exprs[0]->exprs;
+  value->core.func.exprc = node->exprs[1]->exprc;
+  value->core.func.exprs = node->exprs[1]->exprs;
+  return value;
+}
+
 void l_eval(const char *source) {
   LAst *ast = l_parse(source);
   LClosure *closure = l_closure_new();
@@ -109,7 +119,7 @@ char *l_inspect(LValue *value, char *buf, int bufLen) {
       snprintf(buf, bufLen-1, "<List with %d item(s)>", value->core.list->len);
       break;
     case L_FUNC_TYPE:
-      //snprintf(buf, bufLen-1, "<Func with %d expr(s)>", node->exprs[1]->exprc);
+      snprintf(buf, bufLen-1, "<Func with %d arg(s) and %d expr(s)>", value->core.func.argc, value->core.func.exprc);
       break;
     case L_CALL_TYPE:
       //snprintf(buf, bufLen-1, "<Call with %d arg(s)>", node->exprc);
