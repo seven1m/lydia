@@ -1,6 +1,5 @@
 #include "lidija.h"
 
-// note: have to use void* because of circular ref
 LValue *l_value_new(enum LNodeType type, LClosure *closure) {
   LValue *value = malloc(sizeof(LValue));
   value->type = type;
