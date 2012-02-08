@@ -1,6 +1,10 @@
 #ifndef VALUE_H
 #define VALUE_H
 
+// forward declare LClosure
+struct LClosure;
+typedef struct LClosure LClosure;
+
 // structure for representing dynamic,
 // evaluated objects
 typedef struct LValue {
@@ -12,6 +16,6 @@ typedef struct LValue {
 } LValue;
 
 // note: have to use void* because of circular ref
-LValue *l_value_new(enum LNodeType type, void *closure);
+LValue *l_value_new(enum LNodeType type, LClosure *closure);
 
 #endif
