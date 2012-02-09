@@ -19,6 +19,8 @@ LValue *l_eval_node(LNode *node, LClosure *closure) {
   switch(node->type) {
     case L_ERR_TYPE:
       value = l_eval_error_node(node, closure);
+      // TODO handle errors here?
+      printf("Error: %s\n", value->core.str->str);
       break;
     case L_NUM_TYPE:
       value = l_eval_num_node(node, closure);
