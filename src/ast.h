@@ -3,6 +3,8 @@
 
 enum LNodeType {
   L_NIL_TYPE,
+  L_TRUE_TYPE,
+  L_FALSE_TYPE,
   L_ERR_TYPE,
   L_NUM_TYPE,
   L_STR_TYPE,
