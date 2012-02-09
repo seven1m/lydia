@@ -45,6 +45,7 @@ LValue *l_closure_get(LClosure *closure, char *name) {
     value = l_value_new(L_ERR_TYPE, closure);
     snprintf(buf, 254, "%s not found", name);
     value->core.str = g_string_new(buf);
+    l_handle_error(value, closure);
   }
   return value;
 }

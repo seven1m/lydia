@@ -12,6 +12,7 @@
 #include "closure.h"
 #include "funcs.h"
 #include "eval.h"
+#include "error.h"
 #include "types/list.h"
 #include "types/str.h"
 #include "types/num.h"
