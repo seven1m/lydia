@@ -59,7 +59,7 @@ LValue *l_call_func(char *name, int argc, LNode **args, LValue *func, LClosure *
     g_array_insert_val(argsList->core.list, i, v);
   }
 
-  value = l_eval_func_body(func, argsList, closure);
+  value = l_eval_func_body(func, argsList, cl);
 
   // TODO: free(cl);
   return value;
