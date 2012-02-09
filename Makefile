@@ -18,3 +18,6 @@ clean:
 
 bin/lidija:
 	${CC} src/lidija.c -Isrc ${CFLAGS} ${ALL} ${DEPS} -o bin/lidija
+
+debug:
+	${CC} src/lidija.c -Isrc ${CFLAGS} -g ${ALL} ${DEPS} -o bin/lidija
