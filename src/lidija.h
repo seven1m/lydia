@@ -20,3 +20,5 @@
 #ifndef max
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 #endif
+
+#define L_DEBUG 0
