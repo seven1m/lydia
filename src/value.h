@@ -26,5 +26,6 @@ typedef struct LValue {
 } LValue;
 
 LValue *l_value_new(enum LNodeType type, LClosure *closure);
+LValue *l_func_new(struct LValue* (*ptr)(struct LValue*, LClosure*), LClosure *closure);
 
 #endif

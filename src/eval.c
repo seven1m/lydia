@@ -166,7 +166,7 @@ char *l_inspect(LValue *value, char *buf, int bufLen) {
       snprintf(buf, bufLen-1, "<Err: %s>", value->core.str->str);
       break;
     case L_NUM_TYPE:
-      repr = mpz_get_str(NULL, 10, value->core.num);
+      repr = l_str(value, NULL);
       snprintf(buf, bufLen-1, "<Num: %s>", repr);
       free(repr);
       break;

@@ -12,6 +12,10 @@
 #include "closure.h"
 #include "funcs.h"
 #include "eval.h"
+#include "types/list.h"
+#include "types/str.h"
+#include "types/num.h"
+#include "types/stream.h"
 
 #ifndef max
 #define max(a, b) (((a) > (b)) ? (a) : (b))

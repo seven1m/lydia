@@ -1,9 +1,7 @@
 #ifndef FUNCS_H
 #define FUNCS_H
 
-LValue *num_mult(LValue *args, LClosure *closure);
-
-extern LValue **L_FUNCS;
-extern int L_FUNCS_LEN;
+void l_insert_func(char *name, struct LValue* (*ptr)(struct LValue*, LClosure*), LClosure *closure);
+void l_create_funcs(LClosure *closure);
 
 #endif

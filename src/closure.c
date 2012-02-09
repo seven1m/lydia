@@ -32,15 +32,9 @@ void l_closure_set(LClosure *closure, char *name, LValue *value) {
 }
 
 // sets all built-in functions
+// should be used after l_closure_new
 void l_closure_set_funcs(LClosure *closure) {
-  LValue *f;
-  // FIXME
-  f = l_value_new(L_FUNC_TYPE, closure);
-  f->core.func.ptr = num_mult;
-  f->core.func.closure = closure;
-  f->core.func.argc = 0;
-  f->core.func.exprc = 0;
-  g_hash_table_insert(closure->vars, "*", f);
+  l_create_funcs(closure);
 }
 
 // gets a key in the closure

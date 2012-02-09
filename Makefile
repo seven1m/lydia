@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-I. -Wall
-ALL = src/closure.c src/eval.c src/heap.c src/parser.c src/value.c src/funcs.c
+ALL = src/closure.c src/eval.c src/heap.c src/parser.c src/value.c src/funcs.c src/types/list.c src/types/str.c src/types/num.c src/types/stream.c
 DEPS = `pkg-config --cflags glib-2.0 --libs glib-2.0` -lgmp
 
 build: bin/lidija
