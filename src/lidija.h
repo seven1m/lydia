@@ -22,4 +22,4 @@
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 #endif
 
-#define L_DEBUG 0
+#define L_DEBUG_HEAP 0

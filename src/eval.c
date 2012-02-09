@@ -1,7 +1,7 @@
 #include "lidija.h"
 
 void l_eval_node_iter(gpointer node, gpointer closure) {
-#if L_DEBUG == 1
+#if L_DEBUG_HEAP == 1
   LValue *value = l_eval_node((LNode*)node, (LClosure*)closure);
   char buf[255] = "";
   printf("%s\n", l_inspect(value, buf, 255));
