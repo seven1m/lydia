@@ -21,3 +21,6 @@ bin/lidija:
 
 debug:
 	${CC} src/lidija.c -Isrc ${CFLAGS} -g ${ALL} ${DEPS} -o bin/lidija
+
+cloc:
+	cloc --not-match-f=parser\.c src
