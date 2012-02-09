@@ -34,7 +34,7 @@ out (join fibs ", ")
 # iterative functions: fibonacci sequence
 fib = [x] { curr = 0
             succ = 1
-            for 1..x,
+            for (1 .. x),
                 [n] { s = curr + succ
                       curr = succ
                       succ = s }
