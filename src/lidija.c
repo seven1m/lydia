@@ -50,23 +50,7 @@ int main (int argc, char **argv) {
   argp_parse (&argp, argc, argv, 0, 0, &arguments);
   char *filename = arguments.args[0];
 
-  // open file
-  FILE *fp = fopen(filename, "r");
-  if(fp == NULL) {
-    printf("An error occurred while opening the file %s.\n", filename);
-    exit(1);
-  }
-
-  // read source
-  GString *source = g_string_new("");
-  char buf[1024];
-  while(fgets(buf, 1024, fp)) {
-    g_string_append(source, buf);
-  }
-  fclose(fp);
-
-  // eval source
-  l_eval(source->str);
+  l_eval_path(filename, NULL);
 
   exit (0);
 }

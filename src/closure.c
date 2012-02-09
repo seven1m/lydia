@@ -35,6 +35,7 @@ void l_closure_set(LClosure *closure, char *name, LValue *value) {
 // should be used after l_closure_new
 void l_closure_set_funcs(LClosure *closure) {
   l_create_funcs(closure);
+  l_load_lib(closure);
 }
 
 // gets a key in the closure

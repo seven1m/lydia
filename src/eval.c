@@ -116,13 +116,37 @@ LValue *l_eval_call_node(LNode *node, LClosure *closure) {
   return value;
 }
 
-void l_eval(const char *source) {
+void l_eval(const char *source, LClosure *closure) {
   LAst *ast = l_parse(source);
-  LClosure *closure = l_closure_new();
-  l_closure_set_funcs(closure);
-  g_slist_foreach(ast, l_eval_node_iter, closure);
-  free(closure);
-  free(ast);
+  if(closure == NULL) {
+    closure = l_closure_new();
+    l_closure_set_funcs(closure);
+    g_slist_foreach(ast, l_eval_node_iter, closure);
+    free(closure);
+    free(ast);
+  } else {
+    g_slist_foreach(ast, l_eval_node_iter, closure);
+  }
+}
+
+void l_eval_path(const char *filename, LClosure *closure) {
+  // open file
+  FILE *fp = fopen(filename, "r");
+  if(fp == NULL) {
+    printf("An error occurred while opening the file %s.\n", filename);
+    exit(1);
+  }
+
+  // read source
+  GString *source = g_string_new("");
+  char buf[1024];
+  while(fgets(buf, 1024, fp)) {
+    g_string_append(source, buf);
+  }
+  fclose(fp);
+
+  // eval source
+  l_eval(source->str, closure);
 }
 
 char *l_inspect(LValue *value, char *buf, int bufLen) {

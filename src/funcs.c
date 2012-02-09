@@ -5,17 +5,30 @@ LValue *l_func_if(LValue *args, LClosure *closure) {
   LValue *cond = l_list_get(args, 0);
   LValue *true_expr = l_list_get(args, 1);
   LValue *false_expr = l_list_get(args, 2);
-  // if false
   if(cond->type == L_NIL_TYPE ||
     (cond->type == L_FALSE_TYPE) ||
     (cond->type == L_NUM_TYPE && mpz_cmp_si(cond->core.num, 0) == 0) ||
     (cond->type == L_STR_TYPE && strcmp(cond->core.str->str, "") == 0) ||
     (cond->type == L_LIST_TYPE && cond->core.list->len == 0)) {
     value = (false_expr->type == L_FUNC_TYPE) ? l_call_func("", 0, NULL, false_expr, closure) : false_expr;
-  } else { // true
+  } else {
     value = (true_expr->type == L_FUNC_TYPE) ? l_call_func("", 0, NULL, true_expr, closure) : true_expr;
   }
   return value;
+}
+
+LValue *l_func_add(LValue *args, LClosure *closure) {
+  LValue *v1 = l_list_get(args, 0);
+  LValue *v2 = l_list_get(args, 1);
+  if(v1->type == L_LIST_TYPE && v2->type == L_LIST_TYPE) {
+    return l_func_list_add(args, closure);
+  } else if(v1->type == L_NUM_TYPE && v2->type == L_NUM_TYPE) {
+    return l_func_num_add(args, closure);
+  } else if(v1->type == L_STR_TYPE && v2->type == L_STR_TYPE) {
+    return l_func_str_add(args, closure);
+  } else {
+    return l_value_new(L_NIL_TYPE, closure);
+  }
 }
 
 LValue *l_call_func(char *name, int argc, LNode **args, LValue *func, LClosure *closure) {
@@ -86,7 +99,7 @@ void l_insert_func(char *name, struct LValue* (*ptr)(struct LValue*, LClosure*),
 
 // creates all built-in functions in the given closure
 void l_create_funcs(LClosure *closure) {
-  l_insert_func("+", l_func_num_add, closure);
+  l_insert_func("+", l_func_add, closure);
   l_insert_func("-", l_func_num_sub, closure);
   l_insert_func("*", l_func_num_mul, closure);
   l_insert_func("/", l_func_num_div, closure);
@@ -94,6 +107,18 @@ void l_create_funcs(LClosure *closure) {
   l_insert_func("str", l_func_str, closure);
   l_insert_func("out", l_func_out, closure);
   l_insert_func("if", l_func_if, closure);
+  l_insert_func("count", l_func_count, closure);
+  l_insert_func("first", l_func_first, closure);
+  l_insert_func("rest", l_func_rest, closure);
   l_insert_func("==", l_func_num_eq, closure);
-  l_insert_func("map", l_func_map, closure);
+  l_insert_func("!=", l_func_num_neq, closure);
+  l_insert_func(">=", l_func_num_gte, closure);
+  l_insert_func("<=", l_func_num_lte, closure);
+  l_insert_func(">", l_func_num_gt, closure);
+  l_insert_func("<", l_func_num_lt, closure);
+}
+
+void l_load_lib(LClosure *closure) {
+  l_eval_path("lib/list.lid", closure);
+  l_eval_path("lib/math.lid", closure);
 }
