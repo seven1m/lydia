@@ -94,8 +94,12 @@ LValue *l_eval_func_node(LNode *node, LClosure *closure) {
   LValue *value = l_value_new(L_FUNC_TYPE, closure);
   value->core.func.ptr = NULL;
   value->core.func.closure = l_closure_clone(closure);
-  value->core.func.argc = node->exprs[0]->exprc;
-  value->core.func.args = node->exprs[0]->exprs;
+  if(node->exprs[0]) {
+    value->core.func.argc = node->exprs[0]->exprc;
+    value->core.func.args = node->exprs[0]->exprs;
+  } else {
+    value->core.func.argc = 0;
+  }
   value->core.func.exprc = node->exprs[1]->exprc;
   value->core.func.exprs = node->exprs[1]->exprs;
   return value;
@@ -105,50 +109,7 @@ LValue *l_eval_call_node(LNode *node, LClosure *closure) {
   LValue *value;
   LValue *func = l_closure_get(closure, node->val);
   if(func->type == L_FUNC_TYPE) {
-    int i, len;
-    LValue *v;
-
-    // create a scope to hold arguments and func self-ref
-    LClosure *cl = l_closure_clone(func->core.func.closure);
-    l_closure_set(cl, node->val, func);
-
-    // setup the arguments
-    LValue *args = l_value_new(L_LIST_TYPE, cl);
-    l_closure_set(cl, "args", args);
-    len = max(func->core.func.argc, node->exprs[0]->exprc);
-    args->core.list = g_array_sized_new(false, false, sizeof(LValue*), len);
-
-    // initialize all args to nil
-    for(i=0; i<func->core.func.argc; i++) {
-      v = l_value_new(L_NIL_TYPE, cl);
-      g_array_insert_val(args->core.list, i, v);
-    }
-
-    // set all passed args
-    for(i=0; i<node->exprc; i++) {
-      v = l_eval_node(node->exprs[i], closure); // use calling closure
-      v->ref_count++;
-      g_array_insert_val(args->core.list, i, v);
-      if(i < func->core.func.argc) {
-        l_closure_set(cl, func->core.func.args[i]->val, v);
-      }
-    }
-
-    // eval func body
-    if(func->core.func.ptr != NULL) {
-      // native C code
-      value = func->core.func.ptr(args, cl);
-    } else {
-      // Lidija code
-      int exprc = func->core.func.exprc;
-      for(i=0; i<exprc; i++) {
-        value = l_eval_node(func->core.func.exprs[i], cl);
-      }
-      if(exprc == 0) {
-        value = l_value_new(L_NIL_TYPE, closure);
-      }
-    }
-    // TODO: free(cl);
+    value = l_call_func(node->val, node->exprc, node->exprs, func, closure);
   } else {
     value = func; // error
   }
@@ -183,7 +144,7 @@ char *l_inspect(LValue *value, char *buf, int bufLen) {
       break;
     case L_FUNC_TYPE:
       if(value->core.func.ptr != NULL) {
-        snprintf(buf, bufLen-1, "<Func Ptr>");
+        snprintf(buf, bufLen-1, "<Func Ptr with %d arg(s) and %d expr(s)>", value->core.func.argc, value->core.func.exprc);
       } else {
         snprintf(buf, bufLen-1, "<Func with %d arg(s) and %d expr(s)>", value->core.func.argc, value->core.func.exprc);
       }
