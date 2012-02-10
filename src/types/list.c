@@ -11,11 +11,14 @@ LValue *l_list_get(LValue *list, long index) {
 LValue *l_func_list_get(LValue *args, LClosure *closure) {
   LValue *list = l_list_get(args, 0);
   LValue *index = l_list_get(args, 1);
+  l_assert_is(list, L_LIST_TYPE, L_ERR_MISSING_LIST, closure);
+  l_assert_is(index, L_NUM_TYPE, L_ERR_MISSING_INDEX, closure);
   return l_list_get(list, mpz_get_si(index->core.num));
 }
 
 LValue *l_func_count(LValue *args, LClosure *closure) {
   LValue *list = l_list_get(args, 0);
+  l_assert_is(list, L_LIST_TYPE, L_ERR_MISSING_LIST, closure);
   LValue *value = l_value_new(L_NUM_TYPE, closure);
   mpz_init_set_ui(value->core.num, list->core.list->len);
   return value;

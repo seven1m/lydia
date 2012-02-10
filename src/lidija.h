@@ -22,6 +22,9 @@
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 #endif
 
+#define L_ERR_MISSING_LIST  "Must supply a list."
+#define L_ERR_MISSING_INDEX "Must supply a list index."
+
 #define L_DEBUG_HEAP 0
 
 #define L_VERSION "0.1"
