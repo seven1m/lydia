@@ -1,7 +1,7 @@
 %{
 #include "lidija.h"
 int l_stackp = 0;
-int line_no = 1;
+int l_line_no;
 %}
 
 body       = (
@@ -9,7 +9,7 @@ body       = (
              )+ eof
            | lexpr* bad eof
 
-bad        = < .+ >                                { l_ast_add_node(l_create_err_node(yytos(yytext, yyleng), line_no)); }
+bad        = < .+ >                                { l_ast_add_node(l_create_err_node(yytos(yytext, yyleng), l_line_no)); }
 
 lexpr      = -* (
              empty-line
@@ -111,7 +111,7 @@ integer    = < digit+ >                            { $$ = l_create_num_node(yyto
 digit      = [0-9]
 
 -          = [ \t]
---         = [\r]? [\n]                            { line_no++; }
+--         = [\r]? [\n]                            { l_line_no++; }
 eof        = !.
 
 %%
@@ -224,6 +224,7 @@ int yy_input(char *buf, int max_size) {
 
 LAst *l_parse(const char *source) {
   L_AST = NULL;
+  l_line_no = 1;
   yy_input_ptr = source;
   yy_input_len = strlen(yy_input_ptr);
   while (yyparse());

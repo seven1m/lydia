@@ -7,7 +7,7 @@
 
 #include "lidija.h"
 int l_stackp = 0;
-int line_no = 1;
+int l_line_no;
 
 #ifndef YY_VARIABLE
 #define YY_VARIABLE(T)	static T
@@ -255,7 +255,7 @@ YY_RULE(int) yy_body(); /* 1 */
 YY_ACTION(void) yy_1___(char *yytext, int yyleng)
 {
   yyprintf((stderr, "do yy_1___\n"));
-   line_no++; ;
+   l_line_no++; ;
 }
 YY_ACTION(void) yy_1_integer(char *yytext, int yyleng)
 {
@@ -465,7 +465,7 @@ YY_ACTION(void) yy_1_assign(char *yytext, int yyleng)
 YY_ACTION(void) yy_1_bad(char *yytext, int yyleng)
 {
   yyprintf((stderr, "do yy_1_bad\n"));
-   l_ast_add_node(l_create_err_node(yytos(yytext, yyleng), line_no)); ;
+   l_ast_add_node(l_create_err_node(yytos(yytext, yyleng), l_line_no)); ;
 }
 YY_ACTION(void) yy_1_body(char *yytext, int yyleng)
 {
@@ -1152,6 +1152,7 @@ int yy_input(char *buf, int max_size) {
 
 LAst *l_parse(const char *source) {
   L_AST = NULL;
+  l_line_no = 1;
   yy_input_ptr = source;
   yy_input_len = strlen(yy_input_ptr);
   while (yyparse());
