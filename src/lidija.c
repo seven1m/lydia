@@ -52,5 +52,5 @@ int main (int argc, char **argv) {
 
   l_eval_path(filename, NULL);
 
-  exit (0);
+  exit(0);
 }
