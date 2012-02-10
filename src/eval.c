@@ -201,8 +201,17 @@ char *l_inspect(LValue *value, char *buf, int bufLen) {
         snprintf(buf, bufLen-1, "<Func with %d arg(s) and %d expr(s)>", value->core.func.argc, value->core.func.exprc);
       }
       break;
+    case L_TRUE_TYPE:
+      snprintf(buf, bufLen-1, "<true>");
+      break;
+    case L_FALSE_TYPE:
+      snprintf(buf, bufLen-1, "<false>");
+      break;
+    case L_NIL_TYPE:
+      snprintf(buf, bufLen-1, "<nil>");
+      break;
     default:
-      sprintf(buf, "unable to inspect element");
+      snprintf(buf, bufLen-1, "unable to inspect element type %d", value->type);
   }
   return buf;
 }
