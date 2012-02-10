@@ -7,6 +7,7 @@ void l_eval_node_iter(gpointer node, gpointer closure) {
   printf("%s\n", l_inspect(value, buf, 255));
   printf("%d item(s) in the heap\n", l_heap_size(((LClosure*)closure)->heap));
   l_inspect_heap(((LClosure*)closure)->heap);
+  printf("%d item(s) in the closure\n", l_closure_size((LClosure*)closure));
   l_inspect_closure(closure);
   puts("");
 #else
@@ -120,10 +121,7 @@ LValue *l_eval_list_node(LNode *node, LClosure *closure) {
 LValue *l_eval_func_node(LNode *node, LClosure *closure) {
   LValue *value = l_value_new(L_FUNC_TYPE, closure);
   value->core.func.ptr = NULL;
-  if(closure->parent == NULL) // at root namespace
-    value->core.func.closure = closure;
-  else
-    value->core.func.closure = l_closure_clone(closure);
+  value->core.func.closure = l_closure_clone(closure);
   if(node->exprs[0]) {
     value->core.func.argc = node->exprs[0]->exprc;
     value->core.func.args = node->exprs[0]->exprs;

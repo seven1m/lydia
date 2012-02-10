@@ -63,7 +63,7 @@ LValue *l_eval_func_body(LValue *func, LValue *args, LClosure *closure) {
 // inserts given function as given name in given closure
 void l_insert_func(char *name, struct LValue* (*ptr)(struct LValue*, LClosure*), LClosure *closure) {
   LValue *f = l_func_new(ptr, closure);
-  g_hash_table_insert(closure->vars, name, f);
+  l_closure_set(closure, name, f);
 }
 
 // creates all built-in functions in the given closure
@@ -93,9 +93,9 @@ void l_create_funcs(LClosure *closure) {
 
 // sets misc global vars
 void l_create_globals(LClosure *closure) {
-  g_hash_table_insert(closure->vars, "nil", l_value_new(L_NIL_TYPE, closure));
-  g_hash_table_insert(closure->vars, "true", l_value_new(L_TRUE_TYPE, closure));
-  g_hash_table_insert(closure->vars, "false", l_value_new(L_FALSE_TYPE, closure));
+  l_closure_set(closure, "nil",   l_value_new(L_NIL_TYPE,   closure));
+  l_closure_set(closure, "false", l_value_new(L_FALSE_TYPE, closure));
+  l_closure_set(closure, "true",  l_value_new(L_TRUE_TYPE,  closure));
 }
 
 // loads the core library

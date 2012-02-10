@@ -24,7 +24,7 @@ LClosure *l_closure_clone(LClosure *parent) {
 
 static void l_clone_closure_ref(gpointer name, gpointer val, gpointer closure) {
   g_hash_table_insert(((LClosure*)closure)->vars, name, val);
-  ((LValue*)val)->ref_count++;
+  (*((LValue**)val))->ref_count++;
 }
 
 // given a closure, returns the root closure
@@ -39,7 +39,15 @@ LClosure *l_closure_root(LClosure *closure) {
 // sets a key in the closure
 void l_closure_set(LClosure *closure, char *name, LValue *value) {
   value->ref_count++;
-  g_hash_table_insert(closure->vars, name, value);
+  LValue **v;
+  if(v = g_hash_table_lookup(closure->vars, name)) {
+    *v = value;
+    // TODO: decrement ref_count on existing var?
+  } else {
+    LValue **ref = malloc(sizeof(LValue*)); // FIXME is this right?
+    *ref = value;
+    g_hash_table_insert(closure->vars, name, ref);
+  }
 }
 
 // sets all built-in functions
@@ -52,13 +60,16 @@ void l_closure_set_funcs(LClosure *closure) {
 
 // gets a key in the closure
 LValue *l_closure_get(LClosure *closure, char *name) {
-  LValue *value = g_hash_table_lookup(closure->vars, name);
-  if(value == NULL) {
+  LValue **ref = g_hash_table_lookup(closure->vars, name);
+  LValue *value;
+  if(ref == NULL) {
     char buf[255];
     value = l_value_new(L_ERR_TYPE, closure);
     snprintf(buf, 254, "%s not found", name);
     value->core.str = g_string_new(buf);
     l_handle_error(value, closure);
+  } else {
+    value = *ref;
   }
   return value;
 }
@@ -71,6 +82,10 @@ void l_inspect_closure(LClosure* closure) {
 
 static void l_inspect_closure_iter(gpointer key, gpointer val, gpointer user_data) {
   char buf[255] = "";
-  printf("  %s = %s\n", (char*)key, l_inspect(val, buf, 255));
+  printf("  %s = %s\n", (char*)key, l_inspect(*(LValue**)val, buf, 255));
+}
+
+int l_closure_size(LClosure *closure) {
+  return g_hash_table_size(closure->vars);
 }
 

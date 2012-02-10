@@ -17,5 +17,6 @@ void l_closure_set_funcs(LClosure *closure);
 LValue *l_closure_get(LClosure *closure, char *name);
 
 void l_inspect_closure(LClosure* closure);
+int l_closure_size(LClosure *closure);
 
 #endif
