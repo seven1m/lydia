@@ -16,3 +16,7 @@ filter = [l f] { if (count l) == 0,
 join = [l s] { if (count l) == 1,
                   { str (first l) },
                   { ((str (first l)) + s) + (join (rest l) s) } }
+
+.. = [f t] { if f == t,
+                [t],
+                { [f] + ((f + 1) .. t) } }

@@ -31,6 +31,19 @@ LValue *l_func_add(LValue *args, LClosure *closure) {
   }
 }
 
+LValue *l_func_require(LValue *args, LClosure *closure) {
+  int i;
+  LValue *path;
+  closure = l_closure_root(closure);
+  for(i=0; i<args->core.list->len; i++) {
+    path = l_list_get(args, i);
+    l_assert_is(path, L_STR_TYPE, "Path for require must be a string.", closure);
+    // TODO search in cwd, then in lib/extra
+    l_eval_path(path->core.str->str, closure);
+  }
+  return args;
+}
+
 LValue *l_call_func(char *name, int argc, LNode **args, LValue *func, LClosure *closure) {
   LValue *value;
   int i, len;
@@ -116,6 +129,7 @@ void l_create_funcs(LClosure *closure) {
   l_insert_func("<=", l_func_num_lte, closure);
   l_insert_func(">", l_func_num_gt, closure);
   l_insert_func("<", l_func_num_lt, closure);
+  l_insert_func("require", l_func_require, closure);
 }
 
 // sets misc global vars
@@ -125,7 +139,9 @@ void l_create_globals(LClosure *closure) {
   g_hash_table_insert(closure->vars, "false", l_value_new(L_FALSE_TYPE, closure));
 }
 
+// loads the core library
 void l_load_lib(LClosure *closure) {
-  l_eval_path("lib/list.lid", closure);
-  l_eval_path("lib/math.lid", closure);
+  // FIXME use absolute paths
+  l_eval_path("lib/core/list.lid", closure);
+  l_eval_path("lib/core/math.lid", closure);
 }
