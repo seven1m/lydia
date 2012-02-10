@@ -8,14 +8,15 @@ ne = [a b] { if a != b,
                 true,
                 { str "  " a " is equal to " b } }
 
-suite = { passed = filter args [t] { n = t -> 0
-                                     f = t -> 1
-                                     r = (f)
-                                     if r == true,
-                                        { out "- " n " (passed)" },
-                                        { out "- " n " (FAILED)\n  " r
-                                          false }}
-          out ""
+suite = { out (first args)
+          tests = (rest args)
+          passed = filter tests [t] { n = t -> 0
+                                      f = t -> 1
+                                      r = (f)
+                                      if r == true,
+                                         { out "- " n " (passed)" },
+                                         { out "- " n " (FAILED)\n  " r
+                                           false }}
           out (count passed) " test(s) passed, ",
-              (count args) - (count passed) " test(s) failed" }
-
+              (count tests) - (count passed) " test(s) failed" }
+          out ""

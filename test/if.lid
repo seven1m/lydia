@@ -1,3 +1,4 @@
 require "lib/extra/test.lid"
 
-suite ["num type" { test (type 1) eq "number" }]
+suite "IF TESTS",
+      ["num type" { test (type 1) eq "number" }]

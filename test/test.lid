@@ -7,7 +7,8 @@ out "testing the test library..."
 real-out = out
 out = str
 
-res = suite ["passed test" { test 0 eq 0 }],
+res = suite nil,
+            ["passed test" { test 0 eq 0 }],
             ["failed test" { test 1 eq 0 }]
 
 # put everything back

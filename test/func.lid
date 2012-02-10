@@ -1,6 +1,7 @@
 require "lib/extra/test.lid"
 
-suite ["one expr, return num"     { f = { 1 }
+suite "FUNCTION TESTS",
+      ["one expr, return num"     { f = { 1 }
                                     test (f) eq 1 }],
       ["multi expr, return num"   { f = { 1
                                           2 }
