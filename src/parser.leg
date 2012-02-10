@@ -104,7 +104,7 @@ symbol     = < [-~`!?@$%^&*_+|/,.<>=]
                [-~`!?@$%^&*_+|/,.<>=]+ >           { $$ = yytos(yytext, yyleng); }
            | < [-~`!?@$%^&*_+|/,.<>]+ >            { $$ = yytos(yytext, yyleng); }
 
-identifier = < [a-z] [a-z0-9-]* >                  { $$ = yytos(yytext, yyleng); }
+identifier = < "-"? [a-z] [a-z0-9-]* >             { $$ = yytos(yytext, yyleng); }
 
 integer    = < digit+ >                            { $$ = l_create_num_node(yytos(yytext, yyleng)); }
 
