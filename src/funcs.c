@@ -5,6 +5,8 @@ LValue *l_func_if(LValue *args, LClosure *closure) {
   LValue *cond = l_list_get(args, 0);
   LValue *true_expr = l_list_get(args, 1);
   LValue *false_expr = l_list_get(args, 2);
+  if(true_expr == NULL) true_expr = l_value_new(L_NIL_TYPE, closure);
+  if(false_expr == NULL) false_expr = l_value_new(L_NIL_TYPE, closure);
   if(cond->type == L_NIL_TYPE ||
     (cond->type == L_FALSE_TYPE) ||
     (cond->type == L_NUM_TYPE && mpz_cmp_si(cond->core.num, 0) == 0) ||
