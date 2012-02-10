@@ -3,6 +3,7 @@
 
 void l_insert_func(char *name, struct LValue* (*ptr)(struct LValue*, LClosure*), LClosure *closure);
 void l_create_funcs(LClosure *closure);
+void l_create_globals(LClosure *closure);
 void l_load_lib(LClosure *closure);
 
 LValue *l_func_if(LValue *args, LClosure *closure);

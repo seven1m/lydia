@@ -118,6 +118,13 @@ void l_create_funcs(LClosure *closure) {
   l_insert_func("<", l_func_num_lt, closure);
 }
 
+// sets misc global vars
+void l_create_globals(LClosure *closure) {
+  g_hash_table_insert(closure->vars, "nil", l_value_new(L_NIL_TYPE, closure));
+  g_hash_table_insert(closure->vars, "true", l_value_new(L_TRUE_TYPE, closure));
+  g_hash_table_insert(closure->vars, "false", l_value_new(L_FALSE_TYPE, closure));
+}
+
 void l_load_lib(LClosure *closure) {
   l_eval_path("lib/list.lid", closure);
   l_eval_path("lib/math.lid", closure);
