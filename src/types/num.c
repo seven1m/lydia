@@ -36,10 +36,6 @@ LValue *l_func_num_eq(LValue *args, LClosure *closure) {
   return l_value_new(l_num_cmp(args) == 0 ? L_TRUE_TYPE : L_FALSE_TYPE, closure);
 }
 
-LValue *l_func_num_neq(LValue *args, LClosure *closure) {
-  return l_value_new(l_num_cmp(args) != 0 ? L_TRUE_TYPE : L_FALSE_TYPE, closure);
-}
-
 LValue *l_func_num_gt(LValue *args, LClosure *closure) {
   return l_value_new(l_num_cmp(args) > 0 ? L_TRUE_TYPE : L_FALSE_TYPE, closure);
 }
