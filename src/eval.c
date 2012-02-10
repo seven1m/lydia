@@ -56,7 +56,34 @@ LValue *l_eval_num_node(LNode *node, LClosure *closure) {
 
 LValue *l_eval_string_node(LNode *node, LClosure *closure) {
   LValue *value = l_value_new(L_STR_TYPE, closure);
-  value->core.str = g_string_new(node->val);
+  if(strchr(node->val, '\\')) {
+    value->core.str = g_string_new("");
+    int i, len = strlen(node->val);
+    char c[] = " ";
+    for(i=0; i<len; i++) {
+      if(node->val[i] == '\\' && i < len-1) {
+        i++;
+        switch(node->val[i]) {
+          case 'a' : c[0] = '\a'; break;
+          case 'b' : c[0] = '\b'; break;
+          case 'f' : c[0] = '\f'; break;
+          case 'n' : c[0] = '\n'; break;
+          case 'r' : c[0] = '\r'; break;
+          case 't' : c[0] = '\t'; break;
+          case 'v' : c[0] = '\v'; break;
+          case '\'': c[0] = '\''; break;
+          case '"' : c[0] = '"' ; break;
+          case '\\': c[0] = '\\'; break;
+          case '?' : c[0] = '?' ; break;
+        }
+      } else {
+        c[0] = node->val[i];
+      }
+      g_string_append(value->core.str, c);
+    }
+  } else {
+    value->core.str = g_string_new(node->val);
+  }
   return value;
 }
 
