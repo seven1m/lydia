@@ -8,6 +8,7 @@ LClosure *l_closure_new() {
   LClosure *closure = malloc(sizeof(LClosure));
   closure->heap = l_heap_new();
   closure->vars = g_hash_table_new(g_str_hash, g_str_equal);
+  closure->parent = NULL;
   return closure;
 }
 
@@ -16,6 +17,7 @@ LClosure *l_closure_clone(LClosure *parent) {
   LClosure *closure = malloc(sizeof(LClosure));
   closure->heap = parent->heap;
   closure->vars = g_hash_table_new(g_str_hash, g_str_equal);
+  closure->parent = parent;
   g_hash_table_foreach(parent->vars, l_clone_closure_ref, closure);
   return closure;
 }
@@ -23,6 +25,15 @@ LClosure *l_closure_clone(LClosure *parent) {
 static void l_clone_closure_ref(gpointer name, gpointer val, gpointer closure) {
   g_hash_table_insert(((LClosure*)closure)->vars, name, val);
   ((LValue*)val)->ref_count++;
+}
+
+// given a closure, returns the root closure
+LClosure *l_closure_root(LClosure *closure) {
+  LClosure *parent = closure;
+  while(parent->parent != NULL) {
+    parent = parent->parent;
+  }
+  return parent;
 }
 
 // sets a key in the closure
