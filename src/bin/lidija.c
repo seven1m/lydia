@@ -1,5 +1,5 @@
 #include <argp.h>
-#include "lidija.h"
+#include "../lidija.h"
 
 const char *argp_program_version = "lidija " L_VERSION;
 const char *argp_program_bug_address = "<tim@timmorgan.org>";

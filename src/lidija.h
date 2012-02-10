@@ -13,10 +13,12 @@
 #include "funcs.h"
 #include "eval.h"
 #include "error.h"
-#include "types/list.h"
-#include "types/str.h"
-#include "types/num.h"
-#include "types/stream.h"
+#include "lib/base.h"
+#include "lib/list.h"
+#include "lib/logic.h"
+#include "lib/num.h"
+#include "lib/str.h"
+#include "lib/stream.h"
 
 #ifndef max
 #define max(a, b) (((a) > (b)) ? (a) : (b))
