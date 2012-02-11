@@ -6,3 +6,7 @@ require "lib/extra/test.lid",
         "test/list.lid",
         "test/num.lid",
         "test/str.lid"
+
+out "\nSUMMARY: ",
+    passed-test-count " test(s) passed, ",
+    failed-test-count " test(s) failed."
