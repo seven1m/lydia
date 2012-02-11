@@ -4,6 +4,8 @@ map = [l f] { if (count l) == 0,
                  l,
                  { [(f (first l))] + (map (rest l) f) } }
 
+for = map
+
 # takes a list and a function
 # the return list is filtered, each item i based on the result of f(i)
 filter = [l f] { if (count l) == 0,
