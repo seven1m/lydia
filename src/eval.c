@@ -96,7 +96,7 @@ LValue *l_eval_error_node(LNode *node, LClosure *closure) {
 
 LValue *l_eval_assign_node(LNode *node, LClosure *closure) {
   LValue *value = l_eval_node(node->exprs[0], closure);
-  l_closure_set(closure, node->val, value);
+  l_closure_set(closure, node->val, value, false);
   return value;
 }
 

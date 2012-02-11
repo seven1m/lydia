@@ -7,11 +7,11 @@ LValue *l_call_func(char *name, int argc, LNode **args, LValue *func, LClosure *
 
   // create a scope to hold arguments and func self-ref
   LClosure *cl = l_closure_clone(func->core.func.closure);
-  l_closure_set(cl, name, func);
+  l_closure_set(cl, name, func, true);
 
   // setup the arguments
   LValue *argsList = l_value_new(L_LIST_TYPE, cl);
-  l_closure_set(cl, "args", argsList);
+  l_closure_set(cl, "args", argsList, true);
   len = max(func->core.func.argc, argc);
   argsList->core.list = g_array_sized_new(false, false, sizeof(LValue*), len);
 
@@ -40,7 +40,7 @@ LValue *l_eval_func_body(LValue *func, LValue *args, LClosure *closure) {
 
   for(i=0; i<args->core.list->len; i++) {
     if(i < func->core.func.argc) {
-      l_closure_set(closure, func->core.func.args[i]->val, g_array_index(args->core.list, LValue*, i));
+      l_closure_set(closure, func->core.func.args[i]->val, g_array_index(args->core.list, LValue*, i), true);
     }
   }
 
@@ -63,7 +63,7 @@ LValue *l_eval_func_body(LValue *func, LValue *args, LClosure *closure) {
 // inserts given function as given name in given closure
 void l_insert_func(char *name, struct LValue* (*ptr)(struct LValue*, LClosure*), LClosure *closure) {
   LValue *f = l_func_new(ptr, closure);
-  l_closure_set(closure, name, f);
+  l_closure_set(closure, name, f, false);
 }
 
 // creates all built-in functions in the given closure
@@ -93,9 +93,9 @@ void l_create_funcs(LClosure *closure) {
 
 // sets misc global vars
 void l_create_globals(LClosure *closure) {
-  l_closure_set(closure, "nil",   l_value_new(L_NIL_TYPE,   closure));
-  l_closure_set(closure, "false", l_value_new(L_FALSE_TYPE, closure));
-  l_closure_set(closure, "true",  l_value_new(L_TRUE_TYPE,  closure));
+  l_closure_set(closure, "nil",   l_value_new(L_NIL_TYPE,   closure), false);
+  l_closure_set(closure, "false", l_value_new(L_FALSE_TYPE, closure), false);
+  l_closure_set(closure, "true",  l_value_new(L_TRUE_TYPE,  closure), false);
 }
 
 // loads the core library
