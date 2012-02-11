@@ -5,6 +5,7 @@ require "lib/extra/test.lid",
         "test/if.lid",
         "test/list.lid",
         "test/num.lid",
+        "test/require.lid",
         "test/str.lid"
 
 out "\nSUMMARY: ",
