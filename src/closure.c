@@ -9,15 +9,18 @@ LClosure *l_closure_new() {
   closure->heap = l_heap_new();
   closure->vars = g_hash_table_new(g_str_hash, g_str_equal);
   closure->parent = NULL;
+  closure->cloneable = true;
   return closure;
 }
 
 // creates a new closure from the given parent closure
 LClosure *l_closure_clone(LClosure *parent) {
+  if(!parent->cloneable) return parent;
   LClosure *closure = malloc(sizeof(LClosure));
   closure->heap = parent->heap;
   closure->vars = g_hash_table_new(g_str_hash, g_str_equal);
   closure->parent = parent;
+  closure->cloneable = true;
   g_hash_table_foreach(parent->vars, l_clone_closure_ref, closure);
   return closure;
 }
@@ -53,9 +56,11 @@ void l_closure_set(LClosure *closure, char *name, LValue *value) {
 // sets all built-in functions
 // should be used after l_closure_new
 void l_closure_set_funcs(LClosure *closure) {
+  closure->cloneable = false;
   l_create_funcs(closure);
   l_create_globals(closure);
   l_load_lib(closure);
+  closure->cloneable = true;
 }
 
 // gets a key in the closure

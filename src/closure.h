@@ -7,6 +7,7 @@ typedef struct LClosure {
   LHeap *heap;
   GHashTable *vars;
   struct LClosure *parent;
+  bool cloneable;
 } LClosure;
 
 LClosure *l_closure_new();
