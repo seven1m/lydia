@@ -16,7 +16,7 @@ LClosure *l_closure_new() {
 }
 
 // creates a new closure from the given parent closure
-LClosure *l_closure_clone(LClosure *parent) {
+LClosure *l_closure_clone(LClosure *parent, LClosure *evaling) {
   if(!parent->cloneable) return parent;
   LClosure *closure = malloc(sizeof(LClosure));
   closure->heap = parent->heap;
@@ -24,8 +24,10 @@ LClosure *l_closure_clone(LClosure *parent) {
   closure->locals = g_hash_table_new(g_str_hash, g_str_equal);
   closure->parent = parent;
   closure->cloneable = true;
+  // copy vars from function closure
   g_hash_table_foreach(parent->vars, l_clone_closure_ref, closure);
-  g_hash_table_foreach(parent->locals, l_clone_closure_local_ref, closure);
+  if(evaling != NULL) // copy locals from evaling scope
+    g_hash_table_foreach(evaling->locals, l_clone_closure_local_ref, closure);
   return closure;
 }
 
@@ -36,7 +38,7 @@ static void l_clone_closure_ref(gpointer name, gpointer val, gpointer closure) {
 
 static void l_clone_closure_local_ref(gpointer name, gpointer val, gpointer closure) {
   g_hash_table_insert(((LClosure*)closure)->locals, name, val);
-  ((LValue*)val)->ref_count++;
+  (*((LValue**)val))->ref_count++;
 }
 
 // given a closure, returns the root closure
@@ -51,17 +53,21 @@ LClosure *l_closure_root(LClosure *closure) {
 // sets a key in the closure
 void l_closure_set(LClosure *closure, char *name, LValue *value, bool local) {
   value->ref_count++;
-  LValue **r, *v;
-  if(local || (v = g_hash_table_lookup(closure->locals, name))) {
-    // TODO decrement ref_count on old local
-    // v->ref_count--;
-    g_hash_table_insert(closure->locals, name, value);
-  } else if((r = g_hash_table_lookup(closure->vars, name))) {
-    *r = value;
+  LValue **ref = NULL;
+  if(local || (ref = g_hash_table_lookup(closure->locals, name))) {
+    if(ref == NULL) {
+      ref = malloc(sizeof(LValue*));
+      *ref = value;
+      g_hash_table_insert(closure->locals, name, ref);
+    } else {
+      // TODO decrement ref_count on old local
+      *ref = value;
+    }
+  } else if((ref = g_hash_table_lookup(closure->vars, name))) {
     // TODO: decrement ref_count on existing var
+    *ref = value;
   } else {
-    // FIXME is this right?
-    LValue **ref = malloc(sizeof(LValue*));
+    ref = malloc(sizeof(LValue*));
     *ref = value;
     g_hash_table_insert(closure->vars, name, ref);
   }
@@ -80,9 +86,7 @@ void l_closure_set_funcs(LClosure *closure) {
 // gets a key in the closure
 LValue *l_closure_get(LClosure *closure, char *name) {
   LValue **ref, *value;
-  if((value = g_hash_table_lookup(closure->locals, name))) {
-    return value;
-  } else if((ref = g_hash_table_lookup(closure->vars, name))) {
+  if((ref = l_closure_get_ref(closure, name))) {
     return *ref;
   } else {
     char buf[255];
@@ -94,15 +98,27 @@ LValue *l_closure_get(LClosure *closure, char *name) {
   }
 }
 
-// prints keys and vals in a closure
-void l_inspect_closure(LClosure* closure) {
-  printf("Closure contents:\n");
-  g_hash_table_foreach(closure->vars, l_inspect_closure_iter, NULL);
+LValue **l_closure_get_ref(LClosure *closure, char *name) {
+  LValue **ref;
+  if((ref = g_hash_table_lookup(closure->locals, name)) ||
+     (ref = g_hash_table_lookup(closure->vars, name))) {
+    return ref;
+  } else {
+    return NULL;
+  }
 }
 
-static void l_inspect_closure_iter(gpointer key, gpointer val, gpointer user_data) {
+// prints keys and vals in a closure
+void l_inspect_closure(LClosure* closure) {
+  printf("Closure var contents:\n");
+  g_hash_table_foreach(closure->vars, l_inspect_closure_iter, NULL);
+  printf("Closure local contents:\n");
+  g_hash_table_foreach(closure->locals, l_inspect_closure_iter, NULL);
+}
+
+static void l_inspect_closure_iter(gpointer key, gpointer ref, gpointer user_data) {
   char buf[255] = "";
-  printf("  %s = %s\n", (char*)key, l_inspect(*(LValue**)val, buf, 255));
+  printf("  %s = %s\n", (char*)key, l_inspect(*(LValue**)ref, buf, 255));
 }
 
 int l_closure_size(LClosure *closure) {

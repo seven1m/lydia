@@ -2,59 +2,65 @@
 
 LValue *l_call_func(char *name, int argc, LNode **args, LValue *func, LClosure *closure) {
   LValue *value;
-  int i, len;
-  LValue *v;
+  int i;
+  LValue *v, **ref, **argsRef;
 
-  // create a scope to hold arguments and func self-ref
-  LClosure *cl = l_closure_clone(func->core.func.closure);
-  l_closure_set(cl, name, func, true);
-
-  // setup the arguments
-  LValue *argsList = l_value_new(L_LIST_TYPE, cl);
-  l_closure_set(cl, "args", argsList, true);
-  len = max(func->core.func.argc, argc);
-  argsList->core.list = g_array_sized_new(false, false, sizeof(LValue*), len);
+  // create a running scope to hold arguments
+  // and a reference to self (for recursion)
+  LClosure *cl = l_closure_clone(func->core.func.closure, closure);
+  if(strcmp(name, "") != 0)
+    l_closure_set(cl, name, func, true);
 
   // initialize all args to nil
   for(i=0; i<func->core.func.argc; i++) {
     v = l_value_new(L_NIL_TYPE, cl);
-    g_array_insert_val(argsList->core.list, i, v);
+    l_closure_set(cl, func->core.func.args[i]->val, v, true);
   }
+
+  // setup the arguments
+  argsRef = malloc(sizeof(LValue*));
+  *argsRef = l_value_new(L_LIST_TYPE, cl);
+  (*argsRef)->core.list = g_array_sized_new(false, false, sizeof(LValue*), argc);
+  (*argsRef)->ref_count++;
+  g_hash_table_insert(cl->locals, "args", argsRef);
 
   // set all passed args
   for(i=0; i<argc; i++) {
-    v = l_eval_node(args[i], closure); // use calling closure
-    v->ref_count++;
-    g_array_insert_val(argsList->core.list, i, v);
-  }
-
-  value = l_eval_func_body(func, argsList, cl);
-
-  // TODO: free(cl);
-  return value;
-}
-
-LValue *l_eval_func_body(LValue *func, LValue *args, LClosure *closure) {
-  LValue *value;
-  int i;
-
-  for(i=0; i<args->core.list->len; i++) {
-    if(i < func->core.func.argc) {
-      l_closure_set(closure, func->core.func.args[i]->val, g_array_index(args->core.list, LValue*, i), true);
+    // FIXME this seems too kludgy
+    if(args[i]->type == L_VAR_TYPE) {
+      if((ref = l_closure_get_ref(closure, args[i]->val))) {
+        v = *ref;
+      } else {
+        char buf[255];
+        v = l_value_new(L_ERR_TYPE, closure);
+        snprintf(buf, 254, "%s not found", args[i]->val);
+        v->core.str = g_string_new(buf);
+        l_handle_error(v, closure);
+      }
+      if(i < func->core.func.argc) {
+        g_hash_table_insert(cl->locals, func->core.func.args[i]->val, ref);
+      }
+    } else {
+      v = l_eval_node(args[i], closure); // use calling closure
+      if(i < func->core.func.argc) {
+        l_closure_set(cl, func->core.func.args[i]->val, v, true);
+      }
     }
+    v->ref_count++;
+    g_array_insert_val((*argsRef)->core.list, i, v);
   }
 
   if(func->core.func.ptr != NULL) {
     // native C code
-    value = func->core.func.ptr(args, closure);
+    value = func->core.func.ptr(*argsRef, cl);
   } else {
     // Lidija code
     int i, exprc = func->core.func.exprc;
     for(i=0; i<exprc; i++) {
-      value = l_eval_node(func->core.func.exprs[i], closure);
+      value = l_eval_node(func->core.func.exprs[i], cl);
     }
     if(exprc == 0) {
-      value = l_value_new(L_NIL_TYPE, closure);
+      value = l_value_new(L_NIL_TYPE, cl);
     }
   }
   return value;

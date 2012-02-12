@@ -2,17 +2,17 @@
 #define AST_H
 
 enum LNodeType {
-  L_NIL_TYPE,
-  L_TRUE_TYPE,
-  L_FALSE_TYPE,
-  L_ERR_TYPE,
-  L_NUM_TYPE,
-  L_STR_TYPE,
-  L_VAR_TYPE,
-  L_LIST_TYPE,
-  L_FUNC_TYPE,
-  L_CALL_TYPE,
-  L_ASSIGN_TYPE
+  L_NIL_TYPE,   // 0
+  L_TRUE_TYPE,  // 1
+  L_FALSE_TYPE, // 2
+  L_ERR_TYPE,   // 3
+  L_NUM_TYPE,   // 4
+  L_STR_TYPE,   // 5
+  L_VAR_TYPE,   // 6
+  L_LIST_TYPE,  // 7
+  L_FUNC_TYPE,  // 8
+  L_CALL_TYPE,  // 9
+  L_ASSIGN_TYPE // 10
 };
 
 /* structure for representing static,

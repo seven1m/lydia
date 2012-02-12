@@ -121,7 +121,7 @@ LValue *l_eval_list_node(LNode *node, LClosure *closure) {
 LValue *l_eval_func_node(LNode *node, LClosure *closure) {
   LValue *value = l_value_new(L_FUNC_TYPE, closure);
   value->core.func.ptr = NULL;
-  value->core.func.closure = l_closure_clone(closure);
+  value->core.func.closure = l_closure_clone(closure, NULL);
   if(node->exprs[0]) {
     value->core.func.argc = node->exprs[0]->exprc;
     value->core.func.args = node->exprs[0]->exprs;
