@@ -25,7 +25,11 @@ LValue *l_func_count(LValue *args, LClosure *closure) {
 }
 
 LValue *l_func_first(LValue *args, LClosure *closure) {
-  return l_list_get(l_list_get(args, 0), 0);
+  LValue *list = l_list_get(args, 0);
+  l_assert_is(list, L_LIST_TYPE, L_ERR_MISSING_LIST, closure);
+  LValue *value = l_list_get(list, 0);
+  if(value == NULL) value = l_value_new(L_NIL_TYPE, closure);
+  return value;
 }
 
 LValue *l_func_rest(LValue *args, LClosure *closure) {
