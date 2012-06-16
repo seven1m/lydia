@@ -184,7 +184,7 @@ char *l_inspect(LValue *value, char *buf, int bufLen) {
       snprintf(buf, bufLen-1, "<Err: %s>", value->core.str->str);
       break;
     case L_NUM_TYPE:
-      repr = l_str(value, NULL);
+      repr = l_str(value);
       snprintf(buf, bufLen-1, "<Num: %s>", repr);
       free(repr);
       break;
