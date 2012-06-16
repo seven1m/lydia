@@ -192,7 +192,14 @@ char *l_inspect(LValue *value, char *buf, int bufLen) {
       snprintf(buf, bufLen-1, "<Str: %s>", value->core.str->str);
       break;
     case L_LIST_TYPE:
-      snprintf(buf, bufLen-1, "<List with %d item(s)>", value->core.list->len);
+      if(value->core.list->len > 0) {
+        printf("type=%d\n", value->type);
+        repr = l_str(l_list_get(value, 0));
+        snprintf(buf, bufLen-1, "<List with %d item(s), first=%s>", value->core.list->len, repr);
+        free(repr);
+      } else {
+        snprintf(buf, bufLen-1, "<List with 0 item(s)>");
+      }
       break;
     case L_FUNC_TYPE:
       if(value->core.func.ptr != NULL) {

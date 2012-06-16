@@ -118,7 +118,7 @@ void l_inspect_closure(LClosure* closure) {
 
 static void l_inspect_closure_iter(gpointer key, gpointer ref, gpointer user_data) {
   char buf[255] = "";
-  printf("  %s = %s\n", (char*)key, l_inspect(*(LValue**)ref, buf, 255));
+  printf("  %s = %s (refcount: %d)\n", (char*)key, l_inspect(*(LValue**)ref, buf, 255), (*(LValue**)ref)->ref_count);
 }
 
 int l_closure_size(LClosure *closure) {
