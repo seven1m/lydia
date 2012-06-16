@@ -56,7 +56,7 @@ char *l_str(LValue *value) {
         if(i<len-1) g_string_append(str2, " ");
       }
       g_string_append(str2, "]");
-      str = malloc(sizeof(char) * str2->len);
+      str = malloc(sizeof(char) * (str2->len + 1));
       strcpy(str, str2->str);
       g_string_free(str2, true);
       break;
