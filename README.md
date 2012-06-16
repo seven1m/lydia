@@ -2,9 +2,9 @@
 
 Pronounced same as "Lydia."
 
-This is a toy scripting language that's taking shape as I learn, and **not meant for real work**.
+Lidija is an interpreted functional language that's taking shape as I learn, and **not meant for real work**.
 
-For now, it's starting to resemble a functional language with very terse syntax.
+The syntax is very terse, as you can see below:
 
 ## Syntax
 
