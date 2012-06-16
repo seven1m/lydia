@@ -1,8 +1,8 @@
-# Airball
+# Lidija
 
-This is a toy language I am creating using Ruby and the C library [peg/leg](http://piumarta.com/software/peg/).
+This is a toy scripting language that's taking shape as I learn, and **not meant for real work**.
 
-The language is taking shape as I learn, and **not meant for real work**. For now, it's starting to resemble a functional language.
+For now, it's starting to resemble a functional language with very terse syntax.
 
 ## Syntax
 
@@ -12,9 +12,8 @@ The language is taking shape as I learn, and **not meant for real work**. For no
     l = ["list" { out "func" } 3 * 5]
 
     # functions
-    # anything wrapped in { and }
+    # anything wrapped in { and }, optionally having arguments in [ and ]
     f1 = { 2 * 3 }
-    # function parameters go in [ and ]
     f2 = [x y] { x * y }
 
     # if/else is just a higher-order function
@@ -22,7 +21,7 @@ The language is taking shape as I learn, and **not meant for real work**. For no
        { out "x is two" },
        { out "x is something else" }
 
-    # recursion
+    # recursion & infix calling
     ^ = [a b] { if b == 1,
                    a,
                    { a * (a ^ (b - 1)) } }
@@ -36,9 +35,9 @@ The language is taking shape as I learn, and **not meant for real work**. For no
 
 There's a few things to note:
 
-* Functions are anonymous -- you have to explicitly save them to a variable.
+* A Function is anything between `{` and `}` and is only named if you save it to a variable, e.g. `foo = { bar }`
 * Identifier (variable) names can contain just about any symbol, except equals and some others.
-* When a function is defined that starts with a symbol, it is treated as an "infix" function, meaning it is called by placing it in the middle of two arguments.
+* Giving a function a name that starts with a symbol makes it work as an "infix" function, meaning it is called by placing it in the middle of two arguments.
 * `if` is not a special language structure -- it's a function that takes three arguments:
   * a condition
   * a function to execute or a value to return if the condition is true
@@ -55,7 +54,7 @@ There's a few things to note:
   * `foo 1, 2` -- you can use a comma if you want to
   * `(foo)` -- an identifier wrapped in parentheses (the only way to call a function with no args)
   * `1 * 2` -- actually a function call to `*` with arguments `1` and `2`.
-* You must use a comma to line wrap a function call:
+* Use a comma to line wrap arguments to a function call:
 
         foo "arg one",
             "arg two"
@@ -64,32 +63,32 @@ There's a few things to note:
 
 * Variables have lexical (static) scope.
 * Functions are first-class citizens, and can be passed to and returned from other functions.
-* Functions are also closures.
-* Airball has a decent test suite.
+* Functions are closures.
 
 ## The Bad
 
-* Slow, since it runs interpreted on top of Ruby
-* No tail-call optimization
-* Lots of missing stuff
+* No tail-call optimization.
+* Lots of missing stuff.
 
 ## Installation
 
-Download the source and build:
+First, install the prerequisites: `glib2` and `gmp`
 
-    rake build
+Then, download the source and build:
+
+    make build
 
 ## Usage
 
-    bin/airball scriptname [args]
+    bin/lidija scriptname [args]
 
 ## Tests
 
-    rake test
+    make test
 
 ## License
 
-MIT license. Copyright 2011, me.
+MIT license. Copyright 2012, me.
 
 ## Author
 

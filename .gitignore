@@ -2,3 +2,4 @@
 *.so
 Makefile
 test/runner
+bin/lidija
