@@ -8,18 +8,23 @@ bool l_to_bool(LValue *cond) {
           (cond->type == L_LIST_TYPE && cond->core.list->len == 0));
 }
 
+// TODO put more asserts around this
 LValue *l_func_if(LValue *args, LClosure *closure) {
-  LValue *value;
   LValue *cond = l_list_get(args, 0);
   if(args->core.list->len == 1) {
     // multi condition (else if)
-    int i, len = args->core.list->len;
-    LValue *expr;
-    for(i=0; i<len; i+=2) {
-      expr = g_array_index(args->core.list, LValue*, i);
-      // TODO if i == len-1
-      /*if(l_to_bool(v)) */
-      return l_eval_if_expr(g_array_index(args->core.list, LValue*, i+1));
+    l_assert_is(cond, L_LIST_TYPE, L_ERR_MISSING_LIST, closure);
+    int i, len = cond->core.list->len;
+    LValue *inner_cond;
+    for(i=0; i<len-1; i+=2) {
+      inner_cond = g_array_index(cond->core.list, LValue*, i);
+      if(l_to_bool(inner_cond)) {
+        return l_eval_if_expr(g_array_index(cond->core.list, LValue*, i+1));
+      }
+    }
+    // else
+    if(len % 2 == 1) {
+      return l_eval_if_expr(g_array_index(cond->core.list, LValue*, len-1));
     }
   } else {
     // single condition
@@ -33,7 +38,7 @@ LValue *l_func_if(LValue *args, LClosure *closure) {
       return l_eval_if_expr(false_expr);
     }
   }
-  return value;
+  return l_value_new(L_NIL_TYPE, closure);
 }
 
 LValue *l_func_while(LValue *args, LClosure *closure) {
