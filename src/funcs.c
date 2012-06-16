@@ -85,6 +85,7 @@ void l_create_funcs(LClosure *closure) {
   l_insert_func("str", l_func_str, closure);
   l_insert_func("out", l_func_out, closure);
   l_insert_func("if", l_func_if, closure);
+  l_insert_func("while", l_func_while, closure);
   l_insert_func("count", l_func_count, closure);
   l_insert_func("first", l_func_first, closure);
   l_insert_func("rest", l_func_rest, closure);

@@ -26,6 +26,7 @@
 
 #define L_ERR_MISSING_LIST  "Must supply a list."
 #define L_ERR_MISSING_INDEX "Must supply a list index."
+#define L_ERR_MISSING_FUNC  "Must supply a function."
 
 #define L_DEBUG_HEAP 0
 #define L_DEBUG_CALL 0
