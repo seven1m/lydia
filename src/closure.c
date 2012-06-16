@@ -110,10 +110,12 @@ LValue **l_closure_get_ref(LClosure *closure, char *name) {
 
 // prints keys and vals in a closure
 void l_inspect_closure(LClosure* closure) {
+  printf("--------------------\n");
   printf("Closure var contents:\n");
   g_hash_table_foreach(closure->vars, l_inspect_closure_iter, NULL);
   printf("Closure local contents:\n");
   g_hash_table_foreach(closure->locals, l_inspect_closure_iter, NULL);
+  printf("====================\n");
 }
 
 static void l_inspect_closure_iter(gpointer key, gpointer ref, gpointer user_data) {

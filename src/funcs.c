@@ -1,6 +1,9 @@
 #include "lidija.h"
 
 LValue *l_call_func(char *name, int argc, LNode **args, LValue *func, LClosure *closure) {
+#if L_DEBUG_CALL == 1
+  printf("calling %s\n~~~~~~~~~~~~~~~~~~~~~~~\n", name);
+#endif
   LValue *value;
   int i;
   LValue *v, **ref, **argsRef;
