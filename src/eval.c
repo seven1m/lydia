@@ -108,6 +108,7 @@ LValue *l_eval_var_node(LNode *node, LClosure *closure) {
 LValue *l_eval_list_node(LNode *node, LClosure *closure) {
   LValue *value = l_value_new(L_LIST_TYPE, closure);
   value->core.list = g_array_sized_new(false, false, sizeof(LValue*), node->exprc);
+  value->ref_count++;
   LValue *v;
   int i;
   for(i=0; i<node->exprc; i++) {
@@ -115,6 +116,7 @@ LValue *l_eval_list_node(LNode *node, LClosure *closure) {
     v->ref_count++;
     g_array_insert_val(value->core.list, i, v);
   }
+  value->ref_count--;
   return value;
 }
 
@@ -193,7 +195,6 @@ char *l_inspect(LValue *value, char *buf, int bufLen) {
       break;
     case L_LIST_TYPE:
       if(value->core.list->len > 0) {
-        printf("type=%d\n", value->type);
         repr = l_str(l_list_get(value, 0));
         snprintf(buf, bufLen-1, "<List with %d item(s), first=%s>", value->core.list->len, repr);
         free(repr);

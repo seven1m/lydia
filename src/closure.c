@@ -3,6 +3,7 @@
 static void l_inspect_closure_iter(gpointer key, gpointer val, gpointer user_data);
 static void l_clone_closure_ref(gpointer name, gpointer val, gpointer closure);
 static void l_clone_closure_local_ref(gpointer name, gpointer val, gpointer closure);
+static void l_decr_closure_ref(gpointer name, gpointer val, gpointer closure);
 
 // creates and initializes an empty closure
 LClosure *l_closure_new() {
@@ -39,6 +40,16 @@ static void l_clone_closure_ref(gpointer name, gpointer val, gpointer closure) {
 static void l_clone_closure_local_ref(gpointer name, gpointer val, gpointer closure) {
   g_hash_table_insert(((LClosure*)closure)->locals, name, val);
   (*((LValue**)val))->ref_count++;
+}
+
+void l_closure_free(LClosure *closure) {
+  if(closure->parent == NULL) return;
+  g_hash_table_foreach(closure->vars, l_decr_closure_ref, closure);
+  free(closure);
+}
+
+static void l_decr_closure_ref(gpointer name, gpointer val, gpointer closure) {
+  (*((LValue**)val))->ref_count--;
 }
 
 // given a closure, returns the root closure

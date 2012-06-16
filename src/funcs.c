@@ -66,6 +66,11 @@ LValue *l_call_func(char *name, int argc, LNode **args, LValue *func, LClosure *
       value = l_value_new(L_NIL_TYPE, cl);
     }
   }
+  LHeap *heap = cl->heap;
+  l_closure_free(cl);
+  value->ref_count++;
+  l_heap_gc(heap);
+  value->ref_count--;
   return value;
 }
 
