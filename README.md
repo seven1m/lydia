@@ -94,4 +94,4 @@ MIT license. Copyright 2012, me.
 
 ## Author
 
-Tim Morgan - tim@timmorgan.org
+Tim Morgan: [timmorgan.org](http://timmorgan.org) | tim@timmorgan.org | [@seven1m](http://twitter.com/seven1m)
