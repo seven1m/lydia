@@ -50,6 +50,10 @@ LValue *l_call_func(char *name, int argc, LNode **args, LValue *func, LClosure *
       }
     }
     v->ref_count++;
+#if L_DEBUG_GC == 1
+    printf("  GC: incrementing ref_count for arg %d\n", i);
+    l_inspect(v);
+#endif
     g_array_insert_val((*argsRef)->core.list, i, v);
   }
 
@@ -69,10 +73,20 @@ LValue *l_call_func(char *name, int argc, LNode **args, LValue *func, LClosure *
 
   for(i=0; i<(*argsRef)->core.list->len; i++) {
     g_array_index((*argsRef)->core.list, LValue*, i)->ref_count--;
+#if L_DEBUG_GC == 1
+    printf("  GC: decrementing ref_count for arg %d\n", i);
+    l_inspect(g_array_index((*argsRef)->core.list, LValue*, i));
+#endif
   }
 
   LHeap *heap = cl->heap;
+#if L_DEBUG_GC == 1
+  printf("freeing closure from function %s\n", name);
+#endif
   l_closure_free(cl);
+#if L_DEBUG_GC == 1
+  printf("done freeing closure from function %s\n", name);
+#endif
   value->ref_count++;
   l_heap_gc(heap);
   value->ref_count--;

@@ -35,16 +35,34 @@ LClosure *l_closure_clone(LClosure *parent, LClosure *evaling) {
 static void l_clone_closure_ref(gpointer name, gpointer val, gpointer closure) {
   g_hash_table_insert(((LClosure*)closure)->vars, name, val);
   (*((LValue**)val))->ref_count++;
+#if L_DEBUG_GC == 1
+    if(strcmp(name, "x") == 0 || strcmp(name, "f2") == 0) {
+      printf("  GC: incrementing ref_count for %s (var)\n", (char*)name);
+      l_inspect(*((LValue**)val));
+    }
+#endif
 }
 
 static void l_clone_closure_local_ref(gpointer name, gpointer val, gpointer closure) {
   g_hash_table_insert(((LClosure*)closure)->locals, name, val);
   (*((LValue**)val))->ref_count++;
+#if L_DEBUG_GC == 1
+    if(strcmp(name, "x") == 0 || strcmp(name, "f2") == 0) {
+      printf("  GC: incrementing ref_count for %s (local)\n", (char*)name);
+      l_inspect(*((LValue**)val));
+    }
+#endif
 }
 
 void l_closure_free(LClosure *closure) {
   if(closure->parent == NULL) return;
+#if L_DEBUG_GC == 1
+  printf("  GC: decrementing closure vars\n");
+#endif
   g_hash_table_foreach(closure->vars, l_decr_closure_ref, closure);
+#if L_DEBUG_GC == 1
+  printf("  GC: decrementing closure locals\n");
+#endif
   g_hash_table_foreach(closure->locals, l_decr_closure_ref, closure);
   free(closure);
 }
@@ -52,6 +70,12 @@ void l_closure_free(LClosure *closure) {
 static void l_decr_closure_ref(gpointer name, gpointer val, gpointer closure) {
   if(!l_value_builtin(*((LValue**)val))) {
     (*((LValue**)val))->ref_count--;
+#if L_DEBUG_GC == 1
+    if(strcmp(name, "x") == 0 || strcmp(name, "f2") == 0) {
+      printf("  GC: decrementing ref_count for %s (var/local)\n", (char*)name);
+      l_inspect(*((LValue**)val));
+    }
+#endif
   }
 }
 
@@ -68,6 +92,12 @@ LClosure *l_closure_root(LClosure *closure) {
 void l_closure_set(LClosure *closure, char *name, LValue *value, bool local) {
   if(!l_value_builtin(value)) {
     value->ref_count++;
+#if L_DEBUG_GC == 1
+    if(strcmp(name, "x") == 0 || strcmp(name, "f2") == 0) {
+      printf("  GC: incrementing ref_count for %s (set)\n", (char*)name);
+      l_inspect(value);
+    }
+#endif
   }
   LValue **ref = NULL;
   if(local || (ref = g_hash_table_lookup(closure->locals, name))) {
@@ -83,6 +113,12 @@ void l_closure_set(LClosure *closure, char *name, LValue *value, bool local) {
     value->ref_count = (*ref)->ref_count; // transfer ref_count
     (*ref)->ref_count = 0;
     *ref = value;
+#if L_DEBUG_GC == 1
+    if(strcmp(name, "x") == 0 || strcmp(name, "f2") == 0) {
+      printf("  GC: copying ref_count for %s\n", (char*)name);
+      l_inspect(value);
+    }
+#endif
   } else {
     ref = malloc(sizeof(LValue*));
     *ref = value;
