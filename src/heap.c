@@ -27,7 +27,7 @@ void l_heap_gc(LHeap *heap) {
   LValue *val;
   for(i=heap->len-1; i>=0; i--) {
     val = g_ptr_array_index(heap, i);
-    if(!l_value_builtin(val) && val->ref_count == 0) {
+    if(!l_value_builtin(val) && val->ref_count <= 0) {
 #if L_DEBUG_GC == 1
       printf("  GC: freeing slot\n");
       l_inspect(val);
