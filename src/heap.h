@@ -10,5 +10,6 @@ LHeap *l_heap_new();
 int l_heap_size(LHeap *heap);
 void l_heap_gc(LHeap *heap);
 void l_inspect_heap(LHeap* heap);
+void l_inspect_heap_iter(gpointer, gpointer);
 
 #endif

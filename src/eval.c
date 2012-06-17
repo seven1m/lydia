@@ -3,8 +3,7 @@
 void l_eval_node_iter(gpointer node, gpointer closure) {
 #if L_DEBUG_HEAP == 1
   LValue *value = l_eval_node((LNode*)node, (LClosure*)closure);
-  char buf[255] = "";
-  printf("%s\n", l_inspect(value, buf, 255));
+  l_inspect(value);
   printf("%d item(s) in the heap\n", l_heap_size(((LClosure*)closure)->heap));
   l_inspect_heap(((LClosure*)closure)->heap);
   printf("%d item(s) in the closure\n", l_closure_size((LClosure*)closure));
@@ -179,7 +178,12 @@ void l_eval_path(const char *filename, LClosure *closure) {
   l_eval(source->str, closure);
 }
 
-char *l_inspect(LValue *value, char *buf, int bufLen) {
+void l_inspect(LValue *value) {
+  char buf[255] = "";
+  printf("    %s (refcount: %d)\n", l_inspect_to_str((LValue*)value, buf, 255), ((LValue*)value)->ref_count);
+}
+
+char *l_inspect_to_str(LValue *value, char *buf, int bufLen) {
   char *repr;
   switch(value->type) {
     case L_ERR_TYPE:

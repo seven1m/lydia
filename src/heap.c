@@ -18,9 +18,8 @@ int l_heap_size(LHeap *heap) {
   return counter;
 }
 
-static void l_inspect_heap_iter(gpointer val, gpointer user_data) {
-  char buf[255] = "";
-  printf("  %s (refcount: %d)\n", l_inspect((LValue*)val, buf, 255), ((LValue*)val)->ref_count);
+void l_inspect_heap_iter(gpointer val, gpointer user_data) {
+  l_inspect((LValue*)val);
 }
 
 void l_heap_gc(LHeap *heap) {
