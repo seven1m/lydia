@@ -5,10 +5,13 @@
 struct LClosure;
 typedef struct LClosure LClosure;
 
+#define L_VALUE_BUILTIN_FLAG (1 << 0)
+
 // structure for representing dynamic,
 // evaluated objects
 typedef struct LValue {
   int ref_count;
+  int flags;
   enum LNodeType type;
   union {
     mpz_t num;
@@ -26,6 +29,9 @@ typedef struct LValue {
 } LValue;
 
 LValue *l_value_new(enum LNodeType type, LClosure *closure);
+LValue *l_value_new_builtin(enum LNodeType type, LClosure *closure);
 LValue *l_func_new(struct LValue* (*ptr)(struct LValue*, LClosure*), LClosure *closure);
+void l_value_free(LValue *value);
+bool l_value_builtin(LValue *value);
 
 #endif

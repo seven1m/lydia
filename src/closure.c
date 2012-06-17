@@ -45,11 +45,14 @@ static void l_clone_closure_local_ref(gpointer name, gpointer val, gpointer clos
 void l_closure_free(LClosure *closure) {
   if(closure->parent == NULL) return;
   g_hash_table_foreach(closure->vars, l_decr_closure_ref, closure);
+  g_hash_table_foreach(closure->locals, l_decr_closure_ref, closure);
   free(closure);
 }
 
 static void l_decr_closure_ref(gpointer name, gpointer val, gpointer closure) {
-  (*((LValue**)val))->ref_count--;
+  if(!l_value_builtin(*((LValue**)val))) {
+    (*((LValue**)val))->ref_count--;
+  }
 }
 
 // given a closure, returns the root closure
@@ -63,7 +66,9 @@ LClosure *l_closure_root(LClosure *closure) {
 
 // sets a key in the closure
 void l_closure_set(LClosure *closure, char *name, LValue *value, bool local) {
-  value->ref_count++;
+  if(!l_value_builtin(value)) {
+    value->ref_count++;
+  }
   LValue **ref = NULL;
   if(local || (ref = g_hash_table_lookup(closure->locals, name))) {
     if(ref == NULL) {
@@ -75,7 +80,8 @@ void l_closure_set(LClosure *closure, char *name, LValue *value, bool local) {
       *ref = value;
     }
   } else if((ref = g_hash_table_lookup(closure->vars, name))) {
-    // TODO: decrement ref_count on existing var
+    value->ref_count = (*ref)->ref_count; // transfer ref_count
+    (*ref)->ref_count = 0;
     *ref = value;
   } else {
     ref = malloc(sizeof(LValue*));

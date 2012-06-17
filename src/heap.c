@@ -28,13 +28,13 @@ void l_heap_gc(LHeap *heap) {
   LValue *val;
   for(i=heap->len-1; i>=0; i--) {
     val = g_ptr_array_index(heap, i);
-    if(val->ref_count == 0) {
+    if(!l_value_builtin(val) && val->ref_count == 0) {
 #if L_DEBUG_GC == 1
-      printf("GC: freeing slot\n");
-      l_inspect_heap_iter(val, NULL);
+      printf("  GC: freeing slot\n");
+      l_inspect(val);
 #endif
       g_ptr_array_remove_index(heap, i);
-      free(val);
+      l_value_free(val);
     }
   }
 }
