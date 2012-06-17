@@ -6,7 +6,7 @@ out "testing the test library..."
 # FIXME this should change later once we have real streams
 captured = ''
 real-out = out
-out = { captured = captured + (str args) }
+out = { captured = captured + (join args "") }
 
 suite 'TEST TESTS',
       ["passed test" { test 0 eq 0 }],
