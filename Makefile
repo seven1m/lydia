@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-I. -Wall
 ALL = src/*.c src/lib/*.c
-DEPS = `pkg-config --cflags glib-2.0 --libs glib-2.0` -lgmp
+DEPS = `pkg-config --cflags glib-2.0 --libs glib-2.0` -lgmp -Iext/include ext/lib/libgc.so
 
 build: bin/lidija
 
@@ -14,12 +14,12 @@ src/parser.c:
 	leg src/parser.leg -o src/parser.c
 
 clean:
-	rm -f bin/* src/*.o src/*.so ext/*.so
+	rm -f bin/* src/*.o src/*.so
 
 bin/lidija:
 	${CC} src/bin/lidija.c -Isrc ${CFLAGS} ${ALL} ${DEPS} -o bin/lidija
 
-ext/libgc.so:
+ext/lib/libgc.so:
 	mkdir -p ext
 	if [ ! -f ext/gc.tar.gz ]; then curl -o ext/gc.tar.gz http://www.hpl.hp.com/personal/Hans_Boehm/gc/gc_source/gc-7.2b.tar.gz; fi
 	cd ext && tar xzf gc.tar.gz

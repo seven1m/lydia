@@ -147,8 +147,6 @@ void l_eval(const char *source, LClosure *closure) {
     closure = l_closure_new();
     l_closure_set_funcs(closure);
     g_slist_foreach(ast, l_eval_node_iter, closure);
-    free(closure);
-    free(ast);
   } else {
     g_slist_foreach(ast, l_eval_node_iter, closure);
   }
@@ -183,7 +181,6 @@ char *l_inspect(LValue *value, char *buf, int bufLen) {
     case L_NUM_TYPE:
       repr = l_str(value);
       snprintf(buf, bufLen-1, "<Num: %s>", repr);
-      free(repr);
       break;
     case L_STR_TYPE:
       snprintf(buf, bufLen-1, "<Str: %s>", value->core.str->str);
@@ -192,7 +189,6 @@ char *l_inspect(LValue *value, char *buf, int bufLen) {
       if(value->core.list->len > 0) {
         repr = l_str(l_list_get(value, 0));
         snprintf(buf, bufLen-1, "<List with %d item(s), first=%s>", value->core.list->len, repr);
-        free(repr);
       } else {
         snprintf(buf, bufLen-1, "<List with 0 item(s)>");
       }

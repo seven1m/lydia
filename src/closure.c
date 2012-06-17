@@ -6,7 +6,7 @@ static void l_clone_closure_local_ref(gpointer name, gpointer val, gpointer clos
 
 // creates and initializes an empty closure
 LClosure *l_closure_new() {
-  LClosure *closure = malloc(sizeof(LClosure));
+  LClosure *closure = GC_MALLOC(sizeof(LClosure));
   closure->vars = g_hash_table_new(g_str_hash, g_str_equal);
   closure->locals = g_hash_table_new(g_str_hash, g_str_equal);
   closure->parent = NULL;
@@ -17,7 +17,7 @@ LClosure *l_closure_new() {
 // creates a new closure from the given parent closure
 LClosure *l_closure_clone(LClosure *parent, LClosure *evaling) {
   if(!parent->cloneable) return parent;
-  LClosure *closure = malloc(sizeof(LClosure));
+  LClosure *closure = GC_MALLOC(sizeof(LClosure));
   closure->vars = g_hash_table_new(g_str_hash, g_str_equal);
   closure->locals = g_hash_table_new(g_str_hash, g_str_equal);
   closure->parent = parent;
@@ -39,7 +39,6 @@ static void l_clone_closure_local_ref(gpointer name, gpointer val, gpointer clos
 
 void l_closure_free(LClosure *closure) {
   if(closure->parent == NULL) return;
-  free(closure);
 }
 
 // given a closure, returns the root closure
@@ -56,7 +55,7 @@ void l_closure_set(LClosure *closure, char *name, LValue *value, bool local) {
   LValue **ref = NULL;
   if(local || (ref = g_hash_table_lookup(closure->locals, name))) {
     if(ref == NULL) {
-      ref = malloc(sizeof(LValue*));
+      ref = GC_MALLOC(sizeof(LValue*));
       *ref = value;
       g_hash_table_insert(closure->locals, name, ref);
     } else {
@@ -65,7 +64,7 @@ void l_closure_set(LClosure *closure, char *name, LValue *value, bool local) {
   } else if((ref = g_hash_table_lookup(closure->vars, name))) {
     *ref = value;
   } else {
-    ref = malloc(sizeof(LValue*));
+    ref = GC_MALLOC(sizeof(LValue*));
     *ref = value;
     g_hash_table_insert(closure->vars, name, ref);
   }

@@ -5,6 +5,8 @@
 #include <string.h>
 #include <glib.h>
 #include <gmp.h>
+#include <gc.h>
+
 #include "ast.h"
 #include "parser.h"
 #include "value.h"

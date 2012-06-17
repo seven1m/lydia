@@ -1,7 +1,7 @@
 #include "lidija.h"
 
 LValue *l_value_new(enum LNodeType type, LClosure *closure) {
-  LValue *value = malloc(sizeof(LValue));
+  LValue *value = GC_MALLOC(sizeof(LValue));
   value->type = type;
   return value;
 }

@@ -21,7 +21,7 @@ LValue *l_call_func(char *name, int argc, LNode **args, LValue *func, LClosure *
   }
 
   // setup the arguments
-  argsRef = malloc(sizeof(LValue*));
+  argsRef = GC_MALLOC(sizeof(LValue*));
   *argsRef = l_value_new(L_LIST_TYPE, cl);
   (*argsRef)->core.list = g_array_sized_new(false, false, sizeof(LValue*), argc);
   g_hash_table_insert(cl->locals, "args", argsRef);

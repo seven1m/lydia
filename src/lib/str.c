@@ -8,7 +8,6 @@ LValue *l_func_str(LValue *args, LClosure *closure) {
   for(i=0; i<args->core.list->len; i++) {
     s = l_str(l_list_get(args, i));
     g_string_append(value->core.str, s);
-    free(s);
   }
   return value;
 }
@@ -42,7 +41,7 @@ char *l_str(LValue *value) {
       str = mpz_get_str(NULL, 10, value->core.num);
       break;
     case L_STR_TYPE:
-      str = malloc(sizeof(char) * (value->core.str->len + 1));
+      str = GC_MALLOC(sizeof(char) * (value->core.str->len + 1));
       strcpy(str, value->core.str->str);
       break;
     case L_LIST_TYPE:
@@ -52,28 +51,27 @@ char *l_str(LValue *value) {
       for(i=0; i<len; i++) {
         s = l_str(l_list_get(value, i));
         g_string_append(str2, s);
-        free(s);
         if(i<len-1) g_string_append(str2, " ");
       }
       g_string_append(str2, "]");
-      str = malloc(sizeof(char) * (str2->len + 1));
+      str = GC_MALLOC(sizeof(char) * (str2->len + 1));
       strcpy(str, str2->str);
       g_string_free(str2, true);
       break;
     case L_TRUE_TYPE:
-      str = malloc(sizeof(char) * 5);
+      str = GC_MALLOC(sizeof(char) * 5);
       strcpy(str, "true");
       break;
     case L_FALSE_TYPE:
-      str = malloc(sizeof(char) * 6);
+      str = GC_MALLOC(sizeof(char) * 6);
       strcpy(str, "false");
       break;
     case L_NIL_TYPE:
-      str = malloc(sizeof(char) * 4);
+      str = GC_MALLOC(sizeof(char) * 4);
       strcpy(str, "nil");
       break;
     default:
-      str = malloc(sizeof(char) * 1);
+      str = GC_MALLOC(sizeof(char) * 1);
       strcpy(str, "");
   }
   return str;
