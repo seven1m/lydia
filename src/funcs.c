@@ -113,9 +113,9 @@ void l_create_funcs(LClosure *closure) {
 
 // sets misc global vars
 void l_create_globals(LClosure *closure) {
-  l_closure_set(closure, "nil",   l_value_new(L_NIL_TYPE,   closure), false);
-  l_closure_set(closure, "false", l_value_new(L_FALSE_TYPE, closure), false);
-  l_closure_set(closure, "true",  l_value_new(L_TRUE_TYPE,  closure), false);
+  l_closure_set(closure, "nil",   l_value_new_builtin(L_NIL_TYPE,   closure), false);
+  l_closure_set(closure, "false", l_value_new_builtin(L_FALSE_TYPE, closure), false);
+  l_closure_set(closure, "true",  l_value_new_builtin(L_TRUE_TYPE,  closure), false);
 }
 
 // loads the core library
