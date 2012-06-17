@@ -146,10 +146,8 @@ void l_eval(const char *source, LClosure *closure) {
   if(closure == NULL) {
     closure = l_closure_new();
     l_closure_set_funcs(closure);
-    g_slist_foreach(ast, l_eval_node_iter, closure);
-  } else {
-    g_slist_foreach(ast, l_eval_node_iter, closure);
   }
+  g_slist_foreach(ast, l_eval_node_iter, closure);
 }
 
 void l_eval_path(const char *filename, LClosure *closure) {

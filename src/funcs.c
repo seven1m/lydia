@@ -56,7 +56,7 @@ LValue *l_call_func(char *name, int argc, LNode **args, LValue *func, LClosure *
     value = func->core.func.ptr(*argsRef, cl);
   } else {
     // Lidija code
-    int i, exprc = func->core.func.exprc;
+    int exprc = func->core.func.exprc;
     for(i=0; i<exprc; i++) {
       value = l_eval_node(func->core.func.exprs[i], cl);
     }
