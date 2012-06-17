@@ -32,4 +32,6 @@
 #define L_DEBUG_CALL 0
 #define L_DEBUG_GC 0
 
+#define L_SKIP_LIB 0
+
 #define L_VERSION "0.1"

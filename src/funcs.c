@@ -124,6 +124,8 @@ void l_create_globals(LClosure *closure) {
 // loads the core library
 void l_load_lib(LClosure *closure) {
   // FIXME use absolute paths
+#if L_SKIP_LIB == 0
   l_eval_path("lib/core/list.lid", closure);
   l_eval_path("lib/core/math.lid", closure);
+#endif
 }
