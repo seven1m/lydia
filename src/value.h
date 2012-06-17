@@ -8,7 +8,6 @@ typedef struct LClosure LClosure;
 // structure for representing dynamic,
 // evaluated objects
 typedef struct LValue {
-  int ref_count;
   enum LNodeType type;
   union {
     mpz_t num;

@@ -4,7 +4,6 @@
 #include <glib.h>
 
 typedef struct LClosure {
-  LHeap *heap;
   GHashTable *vars;
   GHashTable *locals;
   struct LClosure *parent;

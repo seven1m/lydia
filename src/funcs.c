@@ -24,7 +24,6 @@ LValue *l_call_func(char *name, int argc, LNode **args, LValue *func, LClosure *
   argsRef = malloc(sizeof(LValue*));
   *argsRef = l_value_new(L_LIST_TYPE, cl);
   (*argsRef)->core.list = g_array_sized_new(false, false, sizeof(LValue*), argc);
-  (*argsRef)->ref_count++;
   g_hash_table_insert(cl->locals, "args", argsRef);
 
   // set all passed args
@@ -49,7 +48,6 @@ LValue *l_call_func(char *name, int argc, LNode **args, LValue *func, LClosure *
         l_closure_set(cl, func->core.func.args[i]->val, v, true);
       }
     }
-    v->ref_count++;
     g_array_insert_val((*argsRef)->core.list, i, v);
   }
 
@@ -66,11 +64,7 @@ LValue *l_call_func(char *name, int argc, LNode **args, LValue *func, LClosure *
       value = l_value_new(L_NIL_TYPE, cl);
     }
   }
-  LHeap *heap = cl->heap;
   l_closure_free(cl);
-  value->ref_count++;
-  l_heap_gc(heap);
-  value->ref_count--;
   return value;
 }
 

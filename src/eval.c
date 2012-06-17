@@ -5,8 +5,6 @@ void l_eval_node_iter(gpointer node, gpointer closure) {
   LValue *value = l_eval_node((LNode*)node, (LClosure*)closure);
   char buf[255] = "";
   printf("%s\n", l_inspect(value, buf, 255));
-  printf("%d item(s) in the heap\n", l_heap_size(((LClosure*)closure)->heap));
-  l_inspect_heap(((LClosure*)closure)->heap);
   printf("%d item(s) in the closure\n", l_closure_size((LClosure*)closure));
   l_inspect_closure(closure);
   puts("");
@@ -108,15 +106,12 @@ LValue *l_eval_var_node(LNode *node, LClosure *closure) {
 LValue *l_eval_list_node(LNode *node, LClosure *closure) {
   LValue *value = l_value_new(L_LIST_TYPE, closure);
   value->core.list = g_array_sized_new(false, false, sizeof(LValue*), node->exprc);
-  value->ref_count++;
   LValue *v;
   int i;
   for(i=0; i<node->exprc; i++) {
     v = l_eval_node(node->exprs[i], closure);
-    v->ref_count++;
     g_array_insert_val(value->core.list, i, v);
   }
-  value->ref_count--;
   return value;
 }
 

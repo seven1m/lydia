@@ -8,7 +8,6 @@
 #include "ast.h"
 #include "parser.h"
 #include "value.h"
-#include "heap.h"
 #include "closure.h"
 #include "funcs.h"
 #include "eval.h"
@@ -30,6 +29,5 @@
 
 #define L_DEBUG_HEAP 0
 #define L_DEBUG_CALL 0
-#define L_DEBUG_GC 0
 
 #define L_VERSION "0.1"
