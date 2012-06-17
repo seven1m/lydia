@@ -56,7 +56,7 @@ char *l_str(LValue *value) {
       g_string_append(str2, "]");
       str = GC_MALLOC(sizeof(char) * (str2->len + 1));
       strcpy(str, str2->str);
-      g_string_free(str2, true);
+      //g_string_free(str2, true);
       break;
     case L_TRUE_TYPE:
       str = GC_MALLOC(sizeof(char) * 5);

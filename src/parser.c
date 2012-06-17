@@ -332,7 +332,7 @@ YY_ACTION(void) yy_1_op(char *yytext, int yyleng)
 #define symbol yyval[-2]
 #define left yyval[-3]
   yyprintf((stderr, "do yy_1_op\n"));
-   LNode **args = malloc(sizeof(LNode*) * 2);
+   LNode **args = GC_MALLOC(sizeof(LNode*) * 2);
                                                      args[0] = left;
                                                      args[1] = right;
                                                      yy = l_create_call_node(symbol, 2, args); ;
@@ -1059,52 +1059,52 @@ void l_stack_add(LNode *n) {
 
 LNode **l_stack_pop() {
   int i;
-  LNode **args = malloc(sizeof(LNode*) * l_stack_count[l_stackp]);
+  LNode **args = GC_MALLOC(sizeof(LNode*) * l_stack_count[l_stackp]);
   for(i=0; i<l_stack_count[l_stackp]; i++) args[i] = l_stack[l_stackp][i];
   l_stackp--;
   return args;
 }
 
 char *yytos(char *yytext, int yyleng) {
-  char *s = malloc(sizeof(char) * (yyleng + 1));
+  char *s = GC_MALLOC(sizeof(char) * (yyleng + 1));
   strcpy(s, "");
   strncat(s, yytext, yyleng);
   return s;
 }
 
 LNode *l_create_num_node(char *num) {
-  LNode *n = malloc(sizeof(LNode));
+  LNode *n = GC_MALLOC(sizeof(LNode));
   n->type = L_NUM_TYPE;
   n->val = num;
   return n;
 }
 
 LNode *l_create_str_node(char *str) {
-  LNode *n = malloc(sizeof(LNode));
+  LNode *n = GC_MALLOC(sizeof(LNode));
   n->type = L_STR_TYPE;
   n->val = str;
   return n;
 }
 
 LNode *l_create_var_node(char *name) {
-  LNode *n = malloc(sizeof(LNode));
+  LNode *n = GC_MALLOC(sizeof(LNode));
   n->type = L_VAR_TYPE;
   n->val = name;
   return n;
 }
 
 LNode *l_create_assign_node(char *name, LNode *expr) {
-  LNode *n = malloc(sizeof(LNode));
+  LNode *n = GC_MALLOC(sizeof(LNode));
   n->type = L_ASSIGN_TYPE;
   n->val = name;
   n->exprc = 1;
-  n->exprs = malloc(sizeof(LNode*));
+  n->exprs = GC_MALLOC(sizeof(LNode*));
   n->exprs[0] = expr;
   return n;
 }
 
 LNode *l_create_call_node(char *name, int argc, LNode **args) {
-  LNode *n = malloc(sizeof(LNode));
+  LNode *n = GC_MALLOC(sizeof(LNode));
   n->type = L_CALL_TYPE;
   n->val = name;
   n->exprc = argc;
@@ -1113,7 +1113,7 @@ LNode *l_create_call_node(char *name, int argc, LNode **args) {
 }
 
 LNode *l_create_list_node(int itemc, LNode **items) {
-  LNode *n = malloc(sizeof(LNode));
+  LNode *n = GC_MALLOC(sizeof(LNode));
   n->type = L_LIST_TYPE;
   n->exprc = itemc;
   n->exprs = items;
@@ -1121,23 +1121,23 @@ LNode *l_create_list_node(int itemc, LNode **items) {
 }
 
 LNode *l_create_func_node(LNode *args, int exprc, LNode **exprs) {
-  LNode *n = malloc(sizeof(LNode));
+  LNode *n = GC_MALLOC(sizeof(LNode));
   n->type = L_FUNC_TYPE;
-  LNode *exprsNode = malloc(sizeof(LNode));
+  LNode *exprsNode = GC_MALLOC(sizeof(LNode));
   exprsNode->type = L_LIST_TYPE;
   exprsNode->exprc = exprc;
   exprsNode->exprs = exprs;
   n->exprc = 2;
-  n->exprs = malloc(sizeof(LNode*) * 2);
+  n->exprs = GC_MALLOC(sizeof(LNode*) * 2);
   n->exprs[0] = args;
   n->exprs[1] = exprsNode;
   return n;
 }
 
 LNode *l_create_err_node(char *error, int line) {
-  LNode *n = malloc(sizeof(LNode));
+  LNode *n = GC_MALLOC(sizeof(LNode));
   n->type = L_ERR_TYPE;
-  char *buf = malloc(sizeof(char) * 255);
+  char *buf = GC_MALLOC(sizeof(char) * 255);
   snprintf(buf, 254, "line %d: %s", line, error);
   n->val = buf;
   return n;
