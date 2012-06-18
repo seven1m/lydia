@@ -52,3 +52,18 @@ LValue *l_func_list_add(LValue *args, LClosure *closure) {
   g_array_append_vals(value->core.list, l2->core.list->data, l2->core.list->len);
   return value;
 }
+
+bool l_list_eq(LValue *l1, LValue *l2) {
+  if(l1->core.list->len == 0 && l2->core.list->len == 0) {
+    return true;
+  } else if(l1->core.list->len == l2->core.list->len) {
+    int i;
+    for(i=0; i<l1->core.list->len; i++) {
+      if(!l_eq(l_list_get(l1, i), l_list_get(l2, i))) {
+        return false;
+      }
+    }
+    return true;
+  }
+  return false;
+}
