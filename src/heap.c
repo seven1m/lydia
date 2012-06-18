@@ -23,6 +23,9 @@ void l_inspect_heap_iter(gpointer val, gpointer user_data) {
 }
 
 void l_heap_gc(LHeap *heap) {
+#if L_ENABLE_GC == 0
+  return;
+#endif
   int i;
   LValue *val;
   for(i=heap->len-1; i>=0; i--) {
