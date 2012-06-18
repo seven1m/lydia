@@ -1,9 +1,9 @@
 #include "lidija.h"
 
 LValue *l_call_func(char *name, int argc, LNode **args, LValue *func, LClosure *closure) {
-#if L_DEBUG_CALL == 1
-  printf(">>> entering %s\n", name);
-#endif
+  l_debug(L_DEBUG_CALL) {
+    printf(">>> entering %s\n", name);
+  }
   LValue *value;
   int i;
   LValue *v, **ref, **argsRef;
@@ -50,10 +50,10 @@ LValue *l_call_func(char *name, int argc, LNode **args, LValue *func, LClosure *
       }
     }
     v->ref_count++;
-#if L_DEBUG_GC == 1
-    printf("  GC: incrementing ref_count for arg %d\n", i);
-    l_inspect(v);
-#endif
+    l_debug(L_DEBUG_GC) {
+      printf("  GC: incrementing ref_count for arg %d\n", i);
+      l_inspect(v);
+    }
     g_array_insert_val((*argsRef)->core.list, i, v);
   }
 
@@ -73,26 +73,26 @@ LValue *l_call_func(char *name, int argc, LNode **args, LValue *func, LClosure *
 
   for(i=0; i<(*argsRef)->core.list->len; i++) {
     g_array_index((*argsRef)->core.list, LValue*, i)->ref_count--;
-#if L_DEBUG_GC == 1
-    printf("  GC: decrementing ref_count for arg %d\n", i);
-    l_inspect(g_array_index((*argsRef)->core.list, LValue*, i));
-#endif
+    l_debug(L_DEBUG_GC) {
+      printf("  GC: decrementing ref_count for arg %d\n", i);
+      l_inspect(g_array_index((*argsRef)->core.list, LValue*, i));
+    }
   }
 
   LHeap *heap = cl->heap;
-#if L_DEBUG_GC == 1
-  printf("freeing closure from function %s\n", name);
-#endif
+  l_debug(L_DEBUG_GC) {
+    printf("freeing closure from function %s\n", name);
+  }
   l_closure_free(cl);
-#if L_DEBUG_GC == 1
-  printf("done freeing closure from function %s\n", name);
-#endif
+  l_debug(L_DEBUG_GC) {
+    printf("done freeing closure from function %s\n", name);
+  }
   value->ref_count++;
   l_heap_gc(heap);
   value->ref_count--;
-#if L_DEBUG_CALL == 1
-  printf("<<< returning from %s\n", name);
-#endif
+  l_debug(L_DEBUG_CALL) {
+    printf("<<< returning from %s\n", name);
+  }
   return value;
 }
 

@@ -31,10 +31,10 @@ void l_heap_gc(LHeap *heap) {
   for(i=heap->len-1; i>=0; i--) {
     val = g_ptr_array_index(heap, i);
     if(!l_value_builtin(val) && val->ref_count <= 0) {
-#if L_DEBUG_GC == 1
-      printf("  GC: freeing slot\n");
-      l_inspect(val);
-#endif
+      l_debug(L_DEBUG_GC) {
+        printf("  GC: freeing slot\n");
+        l_inspect(val);
+      }
       g_ptr_array_remove_index(heap, i);
       l_value_free(val);
     }

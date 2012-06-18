@@ -13,6 +13,7 @@
 #include "funcs.h"
 #include "eval.h"
 #include "error.h"
+#include "debug.h"
 #include "lib/base.h"
 #include "lib/list.h"
 #include "lib/logic.h"
