@@ -20,6 +20,7 @@
 #include "lib/num.h"
 #include "lib/str.h"
 #include "lib/stream.h"
+#include "lib/meta.h"
 
 #ifndef max
 #define max(a, b) (((a) > (b)) ? (a) : (b))

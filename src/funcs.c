@@ -126,6 +126,7 @@ void l_create_funcs(LClosure *closure) {
   l_insert_func("||", l_func_or, closure);
   l_insert_func("require", l_func_require, closure);
   l_insert_func("type", l_func_type, closure);
+  l_insert_func("heap-", l_func_heap_to_list, closure);
 }
 
 // sets misc global vars
