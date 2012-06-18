@@ -27,8 +27,10 @@ LClosure *l_closure_clone(LClosure *parent, LClosure *evaling) {
   closure->cloneable = true;
   // copy vars from function closure
   g_hash_table_foreach(parent->vars, l_clone_closure_ref, closure);
-  if(evaling != NULL) // copy locals from evaling scope
-    g_hash_table_foreach(evaling->locals, l_clone_closure_local_ref, closure);
+  g_hash_table_foreach(parent->locals, l_clone_closure_local_ref, closure);
+  // TODO remove this??? not sure why I ever thought I needed this...
+  //if(evaling != NULL) // copy locals from evaling scope
+  //  g_hash_table_foreach(evaling->locals, l_clone_closure_local_ref, closure);
   return closure;
 }
 
