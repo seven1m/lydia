@@ -11,6 +11,9 @@ ne = [a b] { if a != b,
                 true,
                 { str a " == " b } }
 
+suite-summary = [p f] { str p " test(s) passed, ",
+                            f " test(s) failed" }
+
 suite = { out "\n" (first args)
           tests = (rest args)
           passed = filter tests [t] { n = t -> 0
@@ -22,5 +25,4 @@ suite = { out "\n" (first args)
                                            false }}
           passed-test-count = passed-test-count + (count passed)
           failed-test-count = failed-test-count + ((count tests) - (count passed))
-          out (count passed) " test(s) passed, ",
-              (count tests) - (count passed) " test(s) failed" }
+          out (suite-summary (count passed) ((count tests) - (count passed))) }

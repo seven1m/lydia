@@ -18,6 +18,9 @@ out = real-out
 should-be = "\nTEST TESTS- passed test (passed)- failed test (FAILED)\n  1 != 01 test(s) passed, 1 test(s) failed"
 
 if captured == should-be,
-   { out "  seems OK"
-     failed-test-count = failed-test-count - 1 },
+   { out "- pass (passed)"
+     out "- fail (passed)"
+     failed-test-count = failed-test-count - 1
+     passed-test-count = passed-test-count + 1
+     out (suite-summary 2 0) },
    { out "  broken!\n[" captured "]\n != \n[" should-be "]" }
