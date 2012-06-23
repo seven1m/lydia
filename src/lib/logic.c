@@ -57,9 +57,9 @@ LValue *l_func_eq(LValue *args, LClosure *closure) {
   LValue *v1 = l_list_get(args, 0);
   LValue *v2 = l_list_get(args, 1);
   if(l_eq(v1, v2))
-    l_value_new(L_TRUE_TYPE, closure);
+    return l_value_new(L_TRUE_TYPE, closure);
   else
-    l_value_new(L_FALSE_TYPE, closure);
+    return l_value_new(L_FALSE_TYPE, closure);
 }
 
 bool l_eq(LValue *v1, LValue *v2) {

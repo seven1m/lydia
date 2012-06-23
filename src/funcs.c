@@ -104,14 +104,13 @@ void l_create_funcs(LClosure *closure) {
   l_insert_func("||", l_func_or, closure);
   l_insert_func("require", l_func_require, closure);
   l_insert_func("type", l_func_type, closure);
-  l_insert_func("heap-", l_func_heap_to_list, closure);
 }
 
 // sets misc global vars
 void l_create_globals(LClosure *closure) {
-  l_closure_set(closure, "nil",   l_value_new_builtin(L_NIL_TYPE,   closure), false);
-  l_closure_set(closure, "false", l_value_new_builtin(L_FALSE_TYPE, closure), false);
-  l_closure_set(closure, "true",  l_value_new_builtin(L_TRUE_TYPE,  closure), false);
+  l_closure_set(closure, "nil",   l_value_new(L_NIL_TYPE,   closure), false);
+  l_closure_set(closure, "false", l_value_new(L_FALSE_TYPE, closure), false);
+  l_closure_set(closure, "true",  l_value_new(L_TRUE_TYPE,  closure), false);
 }
 
 // loads the core library

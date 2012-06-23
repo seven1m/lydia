@@ -6,11 +6,9 @@
 #include <glib.h>
 #include <gmp.h>
 
-#include <gc.h>
-#define malloc(x) GC_malloc(x)
-#define calloc(n,x) GC_malloc((n)*(x))
-#define realloc(p,x) GC_realloc((p),(x))
-#define free(x) (x) = NULL
+#define GC_MALLOC malloc
+#define GC_REALLOC realloc
+#define GC_FREE free
 
 #include "ast.h"
 #include "parser.h"
@@ -26,7 +24,6 @@
 #include "lib/num.h"
 #include "lib/str.h"
 #include "lib/stream.h"
-#include "lib/meta.h"
 
 #ifndef max
 #define max(a, b) (((a) > (b)) ? (a) : (b))
