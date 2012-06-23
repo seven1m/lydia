@@ -8,7 +8,7 @@ build: bin/lidija
 leg: clean-leg src/parser.c
 
 clean-leg:
-	rm src/parser.c
+	rm -f src/parser.c
 
 src/parser.c:
 	leg src/parser.leg -o src/parser.c
