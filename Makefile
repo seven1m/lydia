@@ -36,3 +36,8 @@ debug: ext/lib/libgc.so ext/lib/libds.a
 
 cloc:
 	cloc --not-match-f=parser\.c src
+
+test: run-tests
+
+run-tests:
+	bin/lidija test/all.lid
