@@ -35,7 +35,7 @@ void l_heap_gc(LHeap *heap) {
         printf("  GC: freeing slot\n");
         l_inspect(val);
       }
-      g_ptr_array_remove_index(heap, i);
+      g_ptr_array_remove_index_fast(heap, i);
       l_value_free(val);
     }
   }
