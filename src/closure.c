@@ -1,14 +1,12 @@
 #include "lidija.h"
 
-static void l_inspect_closure_iter(gpointer key, gpointer val, gpointer user_data);
-static void l_clone_closure_ref(gpointer name, gpointer val, gpointer closure);
-static void l_clone_closure_local_ref(gpointer name, gpointer val, gpointer closure);
+/*static void l_inspect_closure_iter(gpointer key, gpointer val, gpointer user_data);*/
 
 // creates and initializes an empty closure
 LClosure *l_closure_new() {
   LClosure *closure = GC_MALLOC(sizeof(LClosure));
-  closure->vars = g_hash_table_new(g_str_hash, g_str_equal);
-  closure->locals = g_hash_table_new(g_str_hash, g_str_equal);
+  closure->vars = create_hashmap();
+  closure->locals = create_hashmap();
   closure->parent = NULL;
   closure->cloneable = true;
   return closure;
@@ -18,25 +16,28 @@ LClosure *l_closure_new() {
 LClosure *l_closure_clone(LClosure *parent, LClosure *evaling) {
   if(!parent->cloneable) return parent;
   LClosure *closure = GC_MALLOC(sizeof(LClosure));
-  closure->vars = g_hash_table_new(g_str_hash, g_str_equal);
-  closure->locals = g_hash_table_new(g_str_hash, g_str_equal);
+  closure->vars = create_hashmap();
+  closure->locals = create_hashmap();
   closure->parent = parent;
   closure->cloneable = true;
   // copy vars from function closure
-  g_hash_table_foreach(parent->vars, l_clone_closure_ref, closure);
-  g_hash_table_foreach(parent->locals, l_clone_closure_local_ref, closure);
+  l_clone_vars(parent->vars, closure->vars);
+  l_clone_vars(parent->locals, closure->locals);
   // TODO remove this??? not sure why I ever thought I needed this...
   //if(evaling != NULL) // copy locals from evaling scope
   //  g_hash_table_foreach(evaling->locals, l_clone_closure_local_ref, closure);
   return closure;
 }
 
-static void l_clone_closure_ref(gpointer name, gpointer val, gpointer closure) {
-  g_hash_table_insert(((LClosure*)closure)->vars, name, val);
-}
-
-static void l_clone_closure_local_ref(gpointer name, gpointer val, gpointer closure) {
-  g_hash_table_insert(((LClosure*)closure)->locals, name, val);
+void l_clone_vars(hashmap_p from, hashmap_p to) {
+  int i;
+  char *key;
+  LValue **ref;
+  for(i=0; i<from->keys->length; i++) {
+    key = vector_get(from->keys, i);
+    ref = *((LValue***)hashmap_get(from, key));
+    hashmap_put(to, key, &ref, sizeof(&ref));
+  }
 }
 
 void l_closure_free(LClosure *closure) {
@@ -52,23 +53,35 @@ LClosure *l_closure_root(LClosure *closure) {
   return parent;
 }
 
+LValue **l_ref_get(hashmap_p hash, char *name) {
+  LValue ***refref;
+  if((refref = hashmap_get(hash, name))) {
+    if(*refref != NULL) return *refref;
+  }
+  return NULL;
+}
+
+void l_ref_put(hashmap_p hash, char *name, LValue **ref) {
+  hashmap_put(hash, name, &ref, sizeof(&ref));
+}
+
 // sets a key in the closure
 void l_closure_set(LClosure *closure, char *name, LValue *value, bool local) {
   LValue **ref = NULL;
-  if(local || (ref = g_hash_table_lookup(closure->locals, name))) {
+  if(local || (ref = l_ref_get(closure->locals, name))) {
     if(ref == NULL) {
       ref = GC_MALLOC(sizeof(LValue*));
       *ref = value;
-      g_hash_table_insert(closure->locals, name, ref);
+      l_ref_put(closure->locals, name, ref);
     } else {
       *ref = value;
     }
-  } else if((ref = g_hash_table_lookup(closure->vars, name))) {
+  } else if((ref = l_ref_get(closure->vars, name))) {
     *ref = value;
   } else {
     ref = GC_MALLOC(sizeof(LValue*));
     *ref = value;
-    g_hash_table_insert(closure->vars, name, ref);
+    l_ref_put(closure->vars, name, ref);
   }
 }
 
@@ -99,8 +112,8 @@ LValue *l_closure_get(LClosure *closure, char *name) {
 
 LValue **l_closure_get_ref(LClosure *closure, char *name) {
   LValue **ref;
-  if((ref = g_hash_table_lookup(closure->locals, name)) ||
-     (ref = g_hash_table_lookup(closure->vars, name))) {
+  if((ref = l_ref_get(closure->locals, name)) ||
+     (ref = l_ref_get(closure->vars, name))) {
     return ref;
   } else {
     return NULL;
@@ -111,18 +124,18 @@ LValue **l_closure_get_ref(LClosure *closure, char *name) {
 void l_inspect_closure(LClosure* closure) {
   printf("--------------------\n");
   printf("Closure var contents:\n");
-  g_hash_table_foreach(closure->vars, l_inspect_closure_iter, NULL);
+  //g_hash_table_foreach(closure->vars, l_inspect_closure_iter, NULL);
   printf("Closure local contents:\n");
-  g_hash_table_foreach(closure->locals, l_inspect_closure_iter, NULL);
+  //g_hash_table_foreach(closure->locals, l_inspect_closure_iter, NULL);
   printf("====================\n");
 }
 
-static void l_inspect_closure_iter(gpointer key, gpointer ref, gpointer user_data) {
-  char buf[255] = "";
-  printf("  %s = %s\n", (char*)key, l_inspect_to_str(*(LValue**)ref, buf, 255));
-}
+/*static void l_inspect_closure_iter(gpointer key, gpointer ref, gpointer user_data) {*/
+  /*char buf[255] = "";*/
+  /*printf("  %s = %s\n", (char*)key, l_inspect_to_str(*(LValue**)ref, buf, 255));*/
+/*}*/
 
 int l_closure_size(LClosure *closure) {
-  return g_hash_table_size(closure->vars);
+  return closure->vars->size;
 }
 

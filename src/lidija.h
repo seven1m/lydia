@@ -2,13 +2,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <string.h>
-#include <glib.h>
 #include <gmp.h>
 
-#define GC_MALLOC malloc
-#define GC_REALLOC realloc
-#define GC_FREE free
+#include <glib.h>
+
+#include <gc.h>
+#define malloc GC_MALLOC
+#define realloc GC_REALLOC
+#define free GC_free
+
+#include <hashmap.h>
 
 #include "ast.h"
 #include "parser.h"

@@ -1,19 +1,20 @@
 #ifndef CLOSURE_H
 #define CLOSURE_H
 
-#include <glib.h>
-
 typedef struct LClosure {
-  GHashTable *vars;
-  GHashTable *locals;
+  hashmap_p vars;
+  hashmap_p locals;
   struct LClosure *parent;
   bool cloneable;
 } LClosure;
 
 LClosure *l_closure_new();
 LClosure *l_closure_clone(LClosure *parent, LClosure *evaling);
+void l_clone_vars(hashmap_p from, hashmap_p to);
 void l_closure_free(LClosure *closure);
 LClosure *l_closure_root(LClosure *closure);
+LValue **l_ref_get(hashmap_p hash, char *name);
+void l_ref_put(hashmap_p hash, char *name, LValue **ref);
 void l_closure_set(LClosure *closure, char *name, LValue *value, bool local);
 void l_closure_set_funcs(LClosure *closure);
 LValue *l_closure_get(LClosure *closure, char *name);

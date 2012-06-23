@@ -21,10 +21,11 @@ LValue *l_call_func(char *name, int argc, LNode **args, LValue *func, LClosure *
   }
 
   // setup the arguments
+  // FIXME: why do this ourselves -- why not pass a LValue* to l_closure_set ???
   argsRef = GC_MALLOC(sizeof(LValue*));
   *argsRef = l_value_new(L_LIST_TYPE, cl);
   (*argsRef)->core.list = g_array_sized_new(false, false, sizeof(LValue*), argc);
-  g_hash_table_insert(cl->locals, "args", argsRef);
+  l_ref_put(cl->locals, "args", argsRef);
 
   // set all passed args
   for(i=0; i<argc; i++) {
@@ -40,7 +41,7 @@ LValue *l_call_func(char *name, int argc, LNode **args, LValue *func, LClosure *
         l_handle_error(v, closure);
       }
       if(i < func->core.func.argc) {
-        g_hash_table_insert(cl->locals, func->core.func.args[i]->val, ref);
+        l_ref_put(cl->locals, func->core.func.args[i]->val, ref);
       }
     } else {
       v = l_eval_node(args[i], closure); // use calling closure

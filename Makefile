@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-I. -Wall
 ALL = src/*.c src/lib/*.c
-DEPS = `pkg-config --cflags glib-2.0 --libs glib-2.0` -lgmp -Iext/include ext/lib/libgc.so
+DEPS = `pkg-config --cflags glib-2.0 --libs glib-2.0` -lgmp -Iext/include -Iext/include/ds ext/lib/libgc.so ext/lib/libds.a
 
 build: bin/lidija
 
@@ -16,7 +16,7 @@ src/parser.c:
 clean:
 	rm -f bin/* src/*.o src/*.so
 
-bin/lidija:
+bin/lidija: ext/lib/libgc.so ext/lib/libds.a
 	${CC} src/bin/lidija.c -Isrc ${CFLAGS} ${ALL} ${DEPS} -o bin/lidija
 
 ext/lib/libgc.so:
@@ -25,7 +25,13 @@ ext/lib/libgc.so:
 	cd ext && tar xzf gc.tar.gz
 	cd ext/gc-7.2 && ./configure --prefix=`pwd`/../ && make && make install
 
-debug:
+ext/lib/libds.a:
+	if [ ! -f ext/libds.tar.gz ]; then curl -o ext/libds.tar.gz -L https://github.com/zhemao/libds/tarball/master; fi
+	cd ext && tar xzf libds.tar.gz && mv zhemao-libds* libds
+	cd ext/libds && make && mv libds.a ../lib
+	mkdir -p ext/include/ds && cd ext/libds && cp *.h ../include/ds
+
+debug: ext/lib/libgc.so ext/lib/libds.a
 	${CC} src/bin/lidija.c -Isrc ${CFLAGS} -g ${ALL} ${DEPS} -o bin/lidija
 
 cloc:
