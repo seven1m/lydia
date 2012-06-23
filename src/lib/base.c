@@ -32,11 +32,11 @@ LValue *l_func_type(LValue *args, LClosure *closure) {
   return repr;
 }
 
-GHashTable *l_loaded_libs;
+hashmap_p l_loaded_libs;
 
 LValue *l_func_require(LValue *args, LClosure *closure) {
   if(l_loaded_libs == NULL)
-    l_loaded_libs = g_hash_table_new(g_str_hash, g_str_equal);
+    l_loaded_libs = create_hashmap();
   int i;
   char *p;
   LValue *path;
@@ -46,9 +46,9 @@ LValue *l_func_require(LValue *args, LClosure *closure) {
     l_assert_is(path, L_STR_TYPE, "Path for require must be a string.", closure);
     p = path->core.str->str;
     // TODO search in cwd, then in lib/extra
-    if(!g_hash_table_lookup_extended(l_loaded_libs, p, NULL, NULL)) {
+    if(!hashmap_get(l_loaded_libs, p)) {
       l_eval_path(p, closure);
-      g_hash_table_insert(l_loaded_libs, p, p);
+      hashmap_put(l_loaded_libs, p, p, sizeof(p));
     }
   }
   return args;
