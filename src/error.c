@@ -8,7 +8,7 @@ void l_handle_error(LValue *error, LClosure *closure) {
 
 void l_die(char *message, LClosure *closure) {
   LValue *value = l_value_new(L_ERR_TYPE, closure);
-  value->core.str = g_string_new(message);
+  value->core.str = make_stringbuf(message);
   // TODO not sure if this is what I want
   l_handle_error(value, closure);
 }

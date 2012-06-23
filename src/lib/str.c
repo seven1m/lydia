@@ -2,12 +2,12 @@
 
 LValue *l_func_str(LValue *args, LClosure *closure) {
   LValue *value = l_value_new(L_STR_TYPE, closure);
-  value->core.str = g_string_new("");
+  value->core.str = make_stringbuf("");
   char *s;
   int i;
   for(i=0; i<args->core.list->length; i++) {
     s = l_str(l_list_get(args, i));
-    g_string_append(value->core.str, s);
+    concat_stringbuf(value->core.str, s);
   }
   return value;
 }
@@ -16,9 +16,9 @@ LValue *l_func_str_add(LValue *args, LClosure *closure) {
   LValue *v1 = l_list_get(args, 0);
   LValue *v2 = l_list_get(args, 1);
   LValue *value = l_value_new(L_STR_TYPE, closure);
-  value->core.str = g_string_new("");
-  g_string_append(value->core.str, v1->core.str->str);
-  g_string_append(value->core.str, v2->core.str->str);
+  value->core.str = make_stringbuf("");
+  concat_stringbuf(value->core.str, v1->core.str->str);
+  concat_stringbuf(value->core.str, v2->core.str->str);
   return value;
 }
 
@@ -30,28 +30,28 @@ bool l_str_eq(LValue *s1, LValue *s2) {
 // (be sure to free the string when you're done)
 char *l_str(LValue *value) {
   char *str;
-  GString *str2;
+  stringbuf *str2;
   switch(value->type) {
     case L_NUM_TYPE:
       str = mpz_get_str(NULL, 10, value->core.num);
       break;
     case L_STR_TYPE:
-      str = GC_MALLOC(sizeof(char) * (value->core.str->len + 1));
+      str = GC_MALLOC(sizeof(char) * (value->core.str->length + 1));
       strcpy(str, value->core.str->str);
       break;
     case L_LIST_TYPE:
-      str2 = g_string_new("[");
+      str2 = make_stringbuf("[");
       char *s;
       int i, len = value->core.list->length;
       for(i=0; i<len; i++) {
         s = l_str(l_list_get(value, i));
-        g_string_append(str2, s);
-        if(i<len-1) g_string_append(str2, " ");
+        concat_stringbuf(str2, s);
+        if(i<len-1) buffer_concat(str2, " ");
       }
-      g_string_append(str2, "]");
-      str = GC_MALLOC(sizeof(char) * (str2->len + 1));
+      buffer_concat(str2, "]");
+      str = GC_MALLOC(sizeof(char) * (str2->length + 1));
       strcpy(str, str2->str);
-      //g_string_free(str2, true);
+      destroy_buffer(str2);
       break;
     case L_TRUE_TYPE:
       str = GC_MALLOC(sizeof(char) * 5);
@@ -70,4 +70,22 @@ char *l_str(LValue *value) {
       strcpy(str, "");
   }
   return str;
+}
+
+// FIXME move somewhere else
+stringbuf *make_stringbuf(char *str) {
+  stringbuf *buf = make_buffer(0);
+  if(strlen(str) > 0) {
+    buffer_write(buf, str);
+  } else {
+    strcpy(buf->str, "");
+  }
+  return buf;
+}
+
+// FIXME move somewhere else
+void concat_stringbuf(stringbuf *buf, char *str) {
+  if(strlen(str) > 0) {
+    buffer_concat(buf, str);
+  }
 }

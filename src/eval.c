@@ -55,7 +55,7 @@ LValue *l_eval_num_node(LNode *node, LClosure *closure) {
 LValue *l_eval_string_node(LNode *node, LClosure *closure) {
   LValue *value = l_value_new(L_STR_TYPE, closure);
   if(strchr(node->val, '\\')) {
-    value->core.str = g_string_new("");
+    value->core.str = make_stringbuf("");
     int i, len = strlen(node->val);
     char c[] = " ";
     for(i=0; i<len; i++) {
@@ -77,17 +77,17 @@ LValue *l_eval_string_node(LNode *node, LClosure *closure) {
       } else {
         c[0] = node->val[i];
       }
-      g_string_append(value->core.str, c);
+      concat_stringbuf(value->core.str, c);
     }
   } else {
-    value->core.str = g_string_new(node->val);
+    value->core.str = make_stringbuf(node->val);
   }
   return value;
 }
 
 LValue *l_eval_error_node(LNode *node, LClosure *closure) {
   LValue *value = l_value_new(L_ERR_TYPE, closure);
-  value->core.str = g_string_new(node->val);
+  value->core.str = make_stringbuf(node->val);
   return value;
 }
 
@@ -159,10 +159,11 @@ void l_eval_path(const char *filename, LClosure *closure) {
   }
 
   // read source
-  GString *source = g_string_new("");
+  // FIXME use saferead() from libds
+  stringbuf *source = make_stringbuf("");
   char buf[1024];
   while(fgets(buf, 1024, fp)) {
-    g_string_append(source, buf);
+    concat_stringbuf(source, buf);
   }
   fclose(fp);
 

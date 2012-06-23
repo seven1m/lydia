@@ -13,6 +13,7 @@
 
 #include <hashmap.h>
 #include <vector.h>
+#include <strutils.h>
 
 #include "ast.h"
 #include "parser.h"

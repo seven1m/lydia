@@ -11,7 +11,7 @@ typedef struct LValue {
   enum LNodeType type;
   union {
     mpz_t num;
-    GString* str;
+    stringbuf* str;
     vector_p list;
     struct {
       struct LValue* (*ptr)(struct LValue*, LClosure*);

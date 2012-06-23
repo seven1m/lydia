@@ -28,7 +28,7 @@ LValue *l_func_type(LValue *args, LClosure *closure) {
     "function"
   };
   LValue *repr = l_value_new(L_STR_TYPE, closure);
-  repr->core.str = g_string_new(types[value->type]);
+  repr->core.str = make_stringbuf(types[value->type]);
   return repr;
 }
 

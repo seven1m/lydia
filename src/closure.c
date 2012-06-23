@@ -104,7 +104,7 @@ LValue *l_closure_get(LClosure *closure, char *name) {
     char buf[255];
     value = l_value_new(L_ERR_TYPE, closure);
     snprintf(buf, 254, "%s not found", name);
-    value->core.str = g_string_new(buf);
+    value->core.str = make_stringbuf(buf);
     l_handle_error(value, closure);
     return value;
   }

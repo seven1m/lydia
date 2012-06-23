@@ -37,7 +37,7 @@ LValue *l_call_func(char *name, int argc, LNode **args, LValue *func, LClosure *
         char buf[255];
         v = l_value_new(L_ERR_TYPE, closure);
         snprintf(buf, 254, "%s not found", args[i]->val);
-        v->core.str = g_string_new(buf);
+        v->core.str = make_stringbuf(buf);
         l_handle_error(v, closure);
       }
       if(i < func->core.func.argc) {
