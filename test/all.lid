@@ -6,6 +6,7 @@ require "lib/extra/test.lid",
         "test/list.lid",
         "test/math.lid",
         "test/num.lid",
+        "test/recur.lid",
         "test/require.lid",
         "test/str.lid"
 
