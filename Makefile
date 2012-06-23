@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-I. -Wall
 ALL = src/*.c src/lib/*.c
-DEPS = `pkg-config --cflags glib-2.0 --libs glib-2.0` -lgmp -Iext/include -Iext/include/ds ext/lib/libgc.so ext/lib/libds.a
+DEPS = -lgmp -Iext/include -Iext/include/ds ext/lib/libgc.so ext/lib/libds.a
 
 build: bin/lidija
 

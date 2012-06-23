@@ -4,8 +4,6 @@
 #include <stdio.h>
 #include <gmp.h>
 
-#include <glib.h>
-
 #include <gc.h>
 #define malloc GC_MALLOC
 #define realloc GC_REALLOC
