@@ -3,7 +3,6 @@
 
 void l_eval(const char *source, LClosure *closure);
 void l_eval_path(const char *filename, LClosure *closure);
-void l_eval_node_iter(gpointer node, gpointer user_data);
 
 LValue *l_eval_node(LNode *node, LClosure *closure);
 LValue *l_eval_num_node(LNode *node, LClosure *closure);
