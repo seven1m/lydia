@@ -19,12 +19,14 @@
 #include "funcs.h"
 #include "eval.h"
 #include "error.h"
+#include "debug.h"
 #include "lib/base.h"
 #include "lib/list.h"
 #include "lib/logic.h"
 #include "lib/num.h"
 #include "lib/str.h"
 #include "lib/stream.h"
+#include "lib/meta.h"
 
 #ifndef max
 #define max(a, b) (((a) > (b)) ? (a) : (b))
@@ -36,5 +38,9 @@
 
 #define L_DEBUG_HEAP 0
 #define L_DEBUG_CALL 0
+
+#define L_ENABLE_GC 1
+
+#define L_SKIP_LIB 0
 
 #define L_VERSION "0.1"

@@ -1,9 +1,9 @@
 #include "lidija.h"
 
 LValue *l_call_func(char *name, int argc, LNode **args, LValue *func, LClosure *closure) {
-#if L_DEBUG_CALL == 1
-  printf("calling %s\n~~~~~~~~~~~~~~~~~~~~~~~\n", name);
-#endif
+  l_debug(L_DEBUG_CALL) {
+    printf(">>> entering %s\n", name);
+  }
   LValue *value;
   int i;
   LValue *v, **ref, **argsRef;
@@ -64,7 +64,13 @@ LValue *l_call_func(char *name, int argc, LNode **args, LValue *func, LClosure *
       value = l_value_new(L_NIL_TYPE, cl);
     }
   }
+
   l_closure_free(cl);
+
+  l_debug(L_DEBUG_CALL) {
+    printf("<<< returning from %s\n", name);
+  }
+
   return value;
 }
 
@@ -98,18 +104,21 @@ void l_create_funcs(LClosure *closure) {
   l_insert_func("||", l_func_or, closure);
   l_insert_func("require", l_func_require, closure);
   l_insert_func("type", l_func_type, closure);
+  l_insert_func("heap-", l_func_heap_to_list, closure);
 }
 
 // sets misc global vars
 void l_create_globals(LClosure *closure) {
-  l_closure_set(closure, "nil",   l_value_new(L_NIL_TYPE,   closure), false);
-  l_closure_set(closure, "false", l_value_new(L_FALSE_TYPE, closure), false);
-  l_closure_set(closure, "true",  l_value_new(L_TRUE_TYPE,  closure), false);
+  l_closure_set(closure, "nil",   l_value_new_builtin(L_NIL_TYPE,   closure), false);
+  l_closure_set(closure, "false", l_value_new_builtin(L_FALSE_TYPE, closure), false);
+  l_closure_set(closure, "true",  l_value_new_builtin(L_TRUE_TYPE,  closure), false);
 }
 
 // loads the core library
 void l_load_lib(LClosure *closure) {
   // FIXME use absolute paths
+#if L_SKIP_LIB == 0
   l_eval_path("lib/core/list.lid", closure);
   l_eval_path("lib/core/math.lid", closure);
+#endif
 }

@@ -15,6 +15,7 @@ LValue *l_eval_call_node(LNode *node, LClosure *closure);
 LValue *l_eval_error_node(LNode *node, LClosure *closure);
 LValue *l_eval_assign_node(LNode *node, LClosure *closure);
 
-char *l_inspect(LValue *value, char *buf, int bufLen);
+void l_inspect(LValue *value);
+char *l_inspect_to_str(LValue *value, char *buf, int bufLen);
 
 #endif

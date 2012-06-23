@@ -24,8 +24,10 @@ LClosure *l_closure_clone(LClosure *parent, LClosure *evaling) {
   closure->cloneable = true;
   // copy vars from function closure
   g_hash_table_foreach(parent->vars, l_clone_closure_ref, closure);
-  if(evaling != NULL) // copy locals from evaling scope
-    g_hash_table_foreach(evaling->locals, l_clone_closure_local_ref, closure);
+  g_hash_table_foreach(parent->locals, l_clone_closure_local_ref, closure);
+  // TODO remove this??? not sure why I ever thought I needed this...
+  //if(evaling != NULL) // copy locals from evaling scope
+  //  g_hash_table_foreach(evaling->locals, l_clone_closure_local_ref, closure);
   return closure;
 }
 
@@ -117,7 +119,7 @@ void l_inspect_closure(LClosure* closure) {
 
 static void l_inspect_closure_iter(gpointer key, gpointer ref, gpointer user_data) {
   char buf[255] = "";
-  printf("  %s = %s\n", (char*)key, l_inspect(*(LValue**)ref, buf, 255));
+  printf("  %s = %s\n", (char*)key, l_inspect_to_str(*(LValue**)ref, buf, 255));
 }
 
 int l_closure_size(LClosure *closure) {

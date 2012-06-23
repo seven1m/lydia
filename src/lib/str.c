@@ -22,13 +22,8 @@ LValue *l_func_str_add(LValue *args, LClosure *closure) {
   return value;
 }
 
-LValue *l_func_str_eq(LValue *args, LClosure *closure) {
-  LValue *v1 = l_list_get(args, 0);
-  LValue *v2 = l_list_get(args, 1);
-  if(strcmp(v1->core.str->str, v2->core.str->str) == 0)
-    return l_value_new(L_TRUE_TYPE, closure);
-  else
-    return l_value_new(L_FALSE_TYPE, closure);
+bool l_str_eq(LValue *s1, LValue *s2) {
+  return strcmp(s1->core.str->str, s2->core.str->str) == 0;
 }
 
 // returns a c string representation for the given LValue

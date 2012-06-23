@@ -28,26 +28,26 @@ LValue *l_func_num_div(LValue *args, LClosure *closure) {
   return value;
 }
 
-int l_num_cmp(LValue *args) {
-  return mpz_cmp(l_list_get(args, 0)->core.num, l_list_get(args, 1)->core.num);
+int l_num_cmp(LValue *n1, LValue *n2) {
+  return mpz_cmp(n1->core.num, n2->core.num);
 }
 
-LValue *l_func_num_eq(LValue *args, LClosure *closure) {
-  return l_value_new(l_num_cmp(args) == 0 ? L_TRUE_TYPE : L_FALSE_TYPE, closure);
+bool l_num_eq(LValue *n1, LValue *n2) {
+  return l_num_cmp(n1, n2) == 0;
 }
 
 LValue *l_func_num_gt(LValue *args, LClosure *closure) {
-  return l_value_new(l_num_cmp(args) > 0 ? L_TRUE_TYPE : L_FALSE_TYPE, closure);
+  return l_value_new(l_num_cmp(l_list_get(args, 0), l_list_get(args, 1)) > 0 ? L_TRUE_TYPE : L_FALSE_TYPE, closure);
 }
 
 LValue *l_func_num_gte(LValue *args, LClosure *closure) {
-  return l_value_new(l_num_cmp(args) >= 0 ? L_TRUE_TYPE : L_FALSE_TYPE, closure);
+  return l_value_new(l_num_cmp(l_list_get(args, 0), l_list_get(args, 1)) >= 0 ? L_TRUE_TYPE : L_FALSE_TYPE, closure);
 }
 
 LValue *l_func_num_lt(LValue *args, LClosure *closure) {
-  return l_value_new(l_num_cmp(args) < 0 ? L_TRUE_TYPE : L_FALSE_TYPE, closure);
+  return l_value_new(l_num_cmp(l_list_get(args, 0), l_list_get(args, 1)) < 0 ? L_TRUE_TYPE : L_FALSE_TYPE, closure);
 }
 
 LValue *l_func_num_lte(LValue *args, LClosure *closure) {
-  return l_value_new(l_num_cmp(args) <= 0 ? L_TRUE_TYPE : L_FALSE_TYPE, closure);
+  return l_value_new(l_num_cmp(l_list_get(args, 0), l_list_get(args, 1)) <= 0 ? L_TRUE_TYPE : L_FALSE_TYPE, closure);
 }
