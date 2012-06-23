@@ -151,23 +151,15 @@ void l_eval(const char *source, LClosure *closure) {
 }
 
 void l_eval_path(const char *filename, LClosure *closure) {
-  // open file
   FILE *fp = fopen(filename, "r");
   if(fp == NULL) {
     printf("An error occurred while opening the file %s.\n", filename);
     exit(1);
   }
 
-  // read source
-  // FIXME use saferead() from libds
   stringbuf *source = make_stringbuf("");
-  char buf[1024];
-  while(fgets(buf, 1024, fp)) {
-    concat_stringbuf(source, buf);
-  }
-  fclose(fp);
+  source->str = saferead(fp);
 
-  // eval source
   l_eval(source->str, closure);
 }
 
