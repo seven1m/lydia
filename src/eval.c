@@ -1,17 +1,5 @@
 #include "lidija.h"
 
-void l_eval_node_iter(gpointer node, gpointer closure) {
-#if L_DEBUG_HEAP == 1
-  LValue *value = l_eval_node((LNode*)node, (LClosure*)closure);
-  l_inspect(value);
-  printf("%d item(s) in the closure\n", l_closure_size((LClosure*)closure));
-  l_inspect_closure(closure);
-  puts("");
-#else
-  l_eval_node((LNode*)node, (LClosure*)closure);
-#endif
-}
-
 LValue *l_eval_node(LNode *node, LClosure *closure) {
   LValue *value;
   switch(node->type) {
@@ -142,12 +130,15 @@ LValue *l_eval_call_node(LNode *node, LClosure *closure) {
 
 void l_eval(const char *source, LClosure *closure) {
   //GC_enable_incremental();
-  LAst *ast = l_parse(source);
+  LAst ast = l_parse(source);
   if(closure == NULL) {
     closure = l_closure_new();
     l_closure_set_funcs(closure);
   }
-  g_slist_foreach(ast, l_eval_node_iter, closure);
+  int i;
+  for(i=0; i<ast->length; i++) {
+    l_eval_node((LNode*)vector_get(ast, i), closure);
+  }
 }
 
 void l_eval_path(const char *filename, LClosure *closure) {

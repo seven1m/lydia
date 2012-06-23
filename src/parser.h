@@ -4,7 +4,7 @@
 #define YY_INPUT(b, r, ms) (r = yy_input(b, ms))
 #define YYSTYPE void*
 
-typedef GSList LAst;
+typedef vector_p LAst;
 
 const char *yy_input_ptr;
 int yy_input_len;
@@ -34,10 +34,10 @@ LNode *l_create_func_node(LNode *args, int exprc, LNode **exprs);
 LNode *l_create_err_node(char *error, int line);
 
 int yy_input(char *buf, int max_size);
-LAst *l_parse(const char *source);
+LAst l_parse(const char *source);
 
-LAst *L_AST;
+LAst L_AST;
 
-#define l_ast_add_node(n) L_AST = g_slist_append(L_AST, n)
+#define l_ast_add_node(n) vector_add(L_AST, (n), sizeof(LNode))
 
 #endif

@@ -5,7 +5,7 @@ int l_line_no;
 %}
 
 body       = (
-             e:lexpr                               { if(e) l_ast_add_node(e); }
+             e:lexpr                               { if(e) { l_ast_add_node(e); } }
              )+ eof
            | lexpr* bad eof
 
@@ -222,8 +222,8 @@ int yy_input(char *buf, int max_size) {
   return n;
 }
 
-LAst *l_parse(const char *source) {
-  L_AST = NULL;
+LAst l_parse(const char *source) {
+  L_AST = create_vector();
   l_line_no = 1;
   yy_input_ptr = source;
   yy_input_len = strlen(yy_input_ptr);

@@ -471,7 +471,7 @@ YY_ACTION(void) yy_1_body(char *yytext, int yyleng)
 {
 #define e yyval[-1]
   yyprintf((stderr, "do yy_1_body\n"));
-   if(e) l_ast_add_node(e); ;
+   if(e) { l_ast_add_node(e); } ;
 #undef e
 }
 
@@ -1154,8 +1154,8 @@ int yy_input(char *buf, int max_size) {
   return n;
 }
 
-LAst *l_parse(const char *source) {
-  L_AST = NULL;
+LAst l_parse(const char *source) {
+  L_AST = create_vector();
   l_line_no = 1;
   yy_input_ptr = source;
   yy_input_len = strlen(yy_input_ptr);
