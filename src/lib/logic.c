@@ -5,26 +5,26 @@ bool l_to_bool(LValue *cond) {
           (cond->type == L_FALSE_TYPE) ||
           (cond->type == L_NUM_TYPE && mpz_cmp_si(cond->core.num, 0) == 0) ||
           (cond->type == L_STR_TYPE && strcmp(cond->core.str->str, "") == 0) ||
-          (cond->type == L_LIST_TYPE && cond->core.list->len == 0));
+          (cond->type == L_LIST_TYPE && cond->core.list->length == 0));
 }
 
 // TODO put more asserts around this
 LValue *l_func_if(LValue *args, LClosure *closure) {
   LValue *cond = l_list_get(args, 0);
-  if(args->core.list->len == 1) {
+  if(args->core.list->length == 1) {
     // multi condition (else if)
     l_assert_is(cond, L_LIST_TYPE, L_ERR_MISSING_LIST, closure);
-    int i, len = cond->core.list->len;
+    int i, len = cond->core.list->length;
     LValue *inner_cond;
     for(i=0; i<len-1; i+=2) {
-      inner_cond = g_array_index(cond->core.list, LValue*, i);
+      inner_cond = *((LValue**)vector_get(cond->core.list, i));
       if(l_to_bool(inner_cond)) {
-        return l_eval_if_expr(g_array_index(cond->core.list, LValue*, i+1));
+        return l_eval_if_expr(*((LValue**)vector_get(cond->core.list, i+1)));
       }
     }
     // else
     if(len % 2 == 1) {
-      return l_eval_if_expr(g_array_index(cond->core.list, LValue*, len-1));
+      return l_eval_if_expr(*((LValue**)vector_get(cond->core.list, len-1)));
     }
   } else {
     // single condition

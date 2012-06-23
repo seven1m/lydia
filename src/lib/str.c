@@ -5,7 +5,7 @@ LValue *l_func_str(LValue *args, LClosure *closure) {
   value->core.str = g_string_new("");
   char *s;
   int i;
-  for(i=0; i<args->core.list->len; i++) {
+  for(i=0; i<args->core.list->length; i++) {
     s = l_str(l_list_get(args, i));
     g_string_append(value->core.str, s);
   }
@@ -42,7 +42,7 @@ char *l_str(LValue *value) {
     case L_LIST_TYPE:
       str2 = g_string_new("[");
       char *s;
-      int i, len = value->core.list->len;
+      int i, len = value->core.list->length;
       for(i=0; i<len; i++) {
         s = l_str(l_list_get(value, i));
         g_string_append(str2, s);

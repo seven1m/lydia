@@ -24,7 +24,7 @@ LValue *l_call_func(char *name, int argc, LNode **args, LValue *func, LClosure *
   // FIXME: why do this ourselves -- why not pass a LValue* to l_closure_set ???
   argsRef = GC_MALLOC(sizeof(LValue*));
   *argsRef = l_value_new(L_LIST_TYPE, cl);
-  (*argsRef)->core.list = g_array_sized_new(false, false, sizeof(LValue*), argc);
+  (*argsRef)->core.list = create_vector();
   l_ref_put(cl->locals, "args", argsRef);
 
   // set all passed args
@@ -49,7 +49,7 @@ LValue *l_call_func(char *name, int argc, LNode **args, LValue *func, LClosure *
         l_closure_set(cl, func->core.func.args[i]->val, v, true);
       }
     }
-    g_array_insert_val((*argsRef)->core.list, i, v);
+    vector_add((*argsRef)->core.list, &v, sizeof(&v));
   }
 
   if(func->core.func.ptr != NULL) {

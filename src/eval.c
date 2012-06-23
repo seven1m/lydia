@@ -104,12 +104,12 @@ LValue *l_eval_var_node(LNode *node, LClosure *closure) {
 
 LValue *l_eval_list_node(LNode *node, LClosure *closure) {
   LValue *value = l_value_new(L_LIST_TYPE, closure);
-  value->core.list = g_array_sized_new(false, false, sizeof(LValue*), node->exprc);
+  value->core.list = create_vector();
   LValue *v;
   int i;
   for(i=0; i<node->exprc; i++) {
     v = l_eval_node(node->exprs[i], closure);
-    g_array_insert_val(value->core.list, i, v);
+    vector_add(value->core.list, &v, sizeof(&v));
   }
   return value;
 }
@@ -189,9 +189,9 @@ char *l_inspect_to_str(LValue *value, char *buf, int bufLen) {
       snprintf(buf, bufLen-1, "<Str: %s>", value->core.str->str);
       break;
     case L_LIST_TYPE:
-      if(value->core.list->len > 0) {
+      if(value->core.list->length > 0) {
         repr = l_str(l_list_get(value, 0));
-        snprintf(buf, bufLen-1, "<List with %d item(s), first=%s>", value->core.list->len, repr);
+        snprintf(buf, bufLen-1, "<List with %d item(s), first=%s>", (int)value->core.list->length, repr);
       } else {
         snprintf(buf, bufLen-1, "<List with 0 item(s)>");
       }

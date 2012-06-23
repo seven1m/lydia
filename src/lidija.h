@@ -12,6 +12,7 @@
 #define free GC_free
 
 #include <hashmap.h>
+#include <vector.h>
 
 #include "ast.h"
 #include "parser.h"

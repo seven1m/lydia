@@ -41,7 +41,7 @@ LValue *l_func_require(LValue *args, LClosure *closure) {
   char *p;
   LValue *path;
   closure = l_closure_root(closure);
-  for(i=0; i<args->core.list->len; i++) {
+  for(i=0; i<args->core.list->length; i++) {
     path = l_list_get(args, i);
     l_assert_is(path, L_STR_TYPE, "Path for require must be a string.", closure);
     p = path->core.str->str;

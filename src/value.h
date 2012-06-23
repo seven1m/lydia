@@ -12,7 +12,7 @@ typedef struct LValue {
   union {
     mpz_t num;
     GString* str;
-    GArray* list;
+    vector_p list;
     struct {
       struct LValue* (*ptr)(struct LValue*, LClosure*);
       LClosure *closure;
