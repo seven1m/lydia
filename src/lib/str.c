@@ -22,6 +22,24 @@ LValue *l_func_str_add(LValue *args, LClosure *closure) {
   return value;
 }
 
+LValue *l_func_str_split(LValue *args, LClosure *closure) {
+  LValue *string = l_list_get(args, 0);
+  LValue *delim = l_list_get(args, 1);
+  l_assert_is(string, L_STR_TYPE, L_ERR_MISSING_STR, closure);
+  l_assert_is(delim, L_STR_TYPE, L_ERR_MISSING_STR, closure);
+  int i, size;
+  char **strings = str_split(string->core.str->str, delim->core.str->str, &size);
+  LValue *value = l_value_new(L_LIST_TYPE, closure);
+  value->core.list = create_vector();
+  LValue *s;
+  for(i=0; i<size; i++) {
+    s = l_value_new(L_STR_TYPE, closure);
+    s->core.str = make_stringbuf(strings[i]);
+    vector_add(value->core.list, &s, sizeof(&s));
+  }
+  return value;
+}
+
 bool l_str_eq(LValue *s1, LValue *s2) {
   return strcmp(s1->core.str->str, s2->core.str->str) == 0;
 }

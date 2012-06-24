@@ -9,4 +9,6 @@ s2b = "1\t2"
 
 suite "STRING TESTS",
       ["newline" { test s1a eq s1b }],
-      ["tab"     { test s2a eq s2b }]
+      ["tab"     { test s2a eq s2b }],
+      ["split"   { ary = "a,b" | ','
+                   test ary eq ['a' 'b'] }]

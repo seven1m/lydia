@@ -77,28 +77,29 @@ void l_insert_func(char *name, struct LValue* (*ptr)(struct LValue*, LClosure*),
 
 // creates all built-in functions in the given closure
 void l_create_funcs(LClosure *closure) {
-  l_insert_func("+", l_func_add, closure);
-  l_insert_func("-", l_func_num_sub, closure);
-  l_insert_func("*", l_func_num_mul, closure);
-  l_insert_func("/", l_func_num_div, closure);
-  l_insert_func("->", l_func_list_get, closure);
-  l_insert_func("str", l_func_str, closure);
-  l_insert_func("out", l_func_out, closure);
-  l_insert_func("if", l_func_if, closure);
-  l_insert_func("while", l_func_while, closure);
-  l_insert_func("count", l_func_count, closure);
-  l_insert_func("first", l_func_first, closure);
-  l_insert_func("rest", l_func_rest, closure);
-  l_insert_func("==", l_func_eq, closure);
-  l_insert_func("!=", l_func_neq, closure);
-  l_insert_func(">=", l_func_num_gte, closure);
-  l_insert_func("<=", l_func_num_lte, closure);
-  l_insert_func(">", l_func_num_gt, closure);
-  l_insert_func("<", l_func_num_lt, closure);
-  l_insert_func("&&", l_func_and, closure);
-  l_insert_func("||", l_func_or, closure);
-  l_insert_func("require", l_func_require, closure);
-  l_insert_func("type", l_func_type, closure);
+  l_insert_func("+",       l_func_add,       closure);
+  l_insert_func("-",       l_func_num_sub,   closure);
+  l_insert_func("*",       l_func_num_mul,   closure);
+  l_insert_func("/",       l_func_num_div,   closure);
+  l_insert_func("->",      l_func_list_get,  closure);
+  l_insert_func("str",     l_func_str,       closure);
+  l_insert_func("|",       l_func_str_split, closure);
+  l_insert_func("out",     l_func_out,       closure);
+  l_insert_func("if",      l_func_if,        closure);
+  l_insert_func("while",   l_func_while,     closure);
+  l_insert_func("count",   l_func_count,     closure);
+  l_insert_func("first",   l_func_first,     closure);
+  l_insert_func("rest",    l_func_rest,      closure);
+  l_insert_func("==",      l_func_eq,        closure);
+  l_insert_func("!=",      l_func_neq,       closure);
+  l_insert_func(">=",      l_func_num_gte,   closure);
+  l_insert_func("<=",      l_func_num_lte,   closure);
+  l_insert_func(">",       l_func_num_gt,    closure);
+  l_insert_func("<",       l_func_num_lt,    closure);
+  l_insert_func("&&",      l_func_and,       closure);
+  l_insert_func("||",      l_func_or,        closure);
+  l_insert_func("require", l_func_require,   closure);
+  l_insert_func("type",    l_func_type,      closure);
 }
 
 // sets misc global vars
