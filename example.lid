@@ -69,6 +69,3 @@ if [x == 1 { out "one" }
 out "this script: " -script
 out "this file: " -filename
 out (join ["args:"] + -args, " ")
-
-# stdout
-write stdout "written to stdout"
