@@ -1155,7 +1155,7 @@ int yy_input(char *buf, int max_size) {
 }
 
 LAst l_parse(const char *source) {
-  L_AST = create_vector();
+  L_AST = create_list();
   l_line_no = 1;
   yy_input_ptr = source;
   yy_input_len = strlen(yy_input_ptr);

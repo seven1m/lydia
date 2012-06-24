@@ -135,8 +135,9 @@ void l_eval(const char *source, LClosure *closure) {
     l_closure_set_funcs(closure);
   }
   int i;
-  for(i=0; i<ast->length; i++) {
-    l_eval_node((LNode*)vector_get(ast, i), closure);
+  list_iter_p iter = list_iterator(ast, FRONT);
+  while(list_next(iter) != NULL) {
+    l_eval_node((LNode*)list_current(iter), closure);
   }
 }
 

@@ -9,6 +9,7 @@
 #include "ds/hashmap.h"
 #include "ds/vector.h"
 #include "ds/strutils.h"
+#include "ds/list.h"
 
 #include "ast.h"
 #include "parser.h"

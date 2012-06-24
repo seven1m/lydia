@@ -4,7 +4,7 @@
 #define YY_INPUT(b, r, ms) (r = yy_input(b, ms))
 #define YYSTYPE void*
 
-typedef vector_p LAst;
+typedef list_p LAst;
 
 const char *yy_input_ptr;
 int yy_input_len;
@@ -38,6 +38,6 @@ LAst l_parse(const char *source);
 
 LAst L_AST;
 
-#define l_ast_add_node(n) vector_add(L_AST, (n), sizeof(LNode))
+#define l_ast_add_node(n) list_add(L_AST, (n), sizeof(LNode))
 
 #endif
