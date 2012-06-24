@@ -39,7 +39,7 @@ There's a few things to note:
 
 * A Function is anything between `{` and `}` and is only named if you save it to a variable, e.g. `foo = { bar }`
 * Identifier (variable) names can contain just about any symbol, except equals and some others.
-* Giving a function a name that starts with a symbol makes it work as an "infix" function, meaning it is called by placing it in the middle of two arguments.
+* Giving a function a name that contains only symbols makes it work as an "infix" function, meaning it is called by placing it in the middle of two arguments.
 * `if` is not a special language structure -- it's a function that takes three arguments:
   * a condition
   * a function to execute or a value to return if the condition is true

@@ -100,15 +100,20 @@ string     = dq < (esc | ndq)* > dq                { $$ = l_create_str_node(yyto
 empty-line = -* --                                 { $$ = 0; }
 comment    = -* '#' [^\r\n]* --?                   { $$ = 0; }
 
-symbol     = < [-~`!?@$%^&*_+|/,.<>=]
-               [-~`!?@$%^&*_+|/,.<>=]+ >           { $$ = yytos(yytext, yyleng); }
-           | < [-~`!?@$%^&*_+|/,.<>]+ >            { $$ = yytos(yytext, yyleng); }
+symbol     = < sym-eq sym-eq+ >                    { $$ = yytos(yytext, yyleng); }
+           | < sym+ >                              { $$ = yytos(yytext, yyleng); }
 
-identifier = < "-"? [a-z] [a-z0-9-]* >             { $$ = yytos(yytext, yyleng); }
+identifier = < (sym-eq | digit)*
+               alpha
+               (sym-eq | digit | alpha)* >         { $$ = yytos(yytext, yyleng); }
 
 integer    = < digit+ >                            { $$ = l_create_num_node(yytos(yytext, yyleng)); }
 
 digit      = [0-9]
+alpha      = [a-z]
+
+sym        = [-~:!?@$%^&*_+|/.<>]
+sym-eq     = [-~:!?@$%^&*_+|/.<>=]
 
 -          = [ \t]
 --         = [\r]? [\n]                            { l_line_no++; }

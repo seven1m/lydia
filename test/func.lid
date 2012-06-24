@@ -15,4 +15,10 @@ suite "FUNCTION TESTS",
                                     test (f) eq true }],
       ["multi expr, return false" { f = { 1
                                           false }
-                                    test (f) eq false }]
+                                    test (f) eq false }],
+      ["infix"                    { $ = [a b] { [a b] }
+                                    test (1 $ 2) eq [1 2] }],
+      ["built-in"                 { -special = [a b] { [a b] }
+                                    test (-special 3 4) eq [3 4] }],
+      ["symbols in name"          { foo@bar = [a b] { [a b] }
+                                    test (foo@bar 5 6) eq [5 6]}]
