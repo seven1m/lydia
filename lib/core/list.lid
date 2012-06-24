@@ -24,3 +24,6 @@ join = [l s] { if (count l) == 1,
 .. = [f t] { if f == t,
                 [t],
                 { [f] + ((f + 1) .. t) } }
+
+# takes a list and two indices, returns sub-list of values in the range
+slice = [l s e] { map (s .. e) [i] { l -> i } }
