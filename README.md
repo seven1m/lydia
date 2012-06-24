@@ -33,7 +33,7 @@ The syntax is very terse, as you can see below:
     (f2 2 3) + (f1) # 12
     2 ^ 3           # 8
 
-    # see example.ball for other available functions
+    # see example.lid for other available functions
 
 There's a few things to note:
 
