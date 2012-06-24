@@ -71,21 +71,3 @@ char *l_str(LValue *value) {
   }
   return str;
 }
-
-// FIXME move somewhere else
-stringbuf *make_stringbuf(char *str) {
-  stringbuf *buf = make_buffer(0);
-  if(strlen(str) > 0) {
-    buffer_write(buf, str);
-  } else {
-    strcpy(buf->str, "");
-  }
-  return buf;
-}
-
-// FIXME move somewhere else
-void concat_stringbuf(stringbuf *buf, char *str) {
-  if(strlen(str) > 0) {
-    buffer_concat(buf, str);
-  }
-}

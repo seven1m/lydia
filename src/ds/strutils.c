@@ -165,3 +165,19 @@ int str_endswith(char * stra, char * strb){
 	
 	return strcmp(stra+(lena-lenb), strb)==0;
 }
+
+stringbuf *make_stringbuf(char *str) {
+  stringbuf *buf = make_buffer(0);
+  if(strlen(str) > 0) {
+    buffer_write(buf, str);
+  } else {
+    strcpy(buf->str, "");
+  }
+  return buf;
+}
+
+void concat_stringbuf(stringbuf *buf, char *str) {
+  if(strlen(str) > 0) {
+    buffer_concat(buf, str);
+  }
+}

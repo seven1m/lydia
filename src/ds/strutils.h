@@ -46,6 +46,10 @@ void str_upper(char * str);
 int str_startswith(char * stra, char * strb);
 /* tests whether stra ends with the string strb */
 int str_endswith(char * stra, char * strb);
+/* create a stringbuf without segfault on empty string */
+stringbuf *make_stringbuf(char *str);
+/* concat if passed str is not zero-length */
+void concat_stringbuf(stringbuf *buf, char *str);
 #endif /* __STRUTILS_H__ */
 
 
