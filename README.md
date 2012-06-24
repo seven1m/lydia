@@ -73,7 +73,7 @@ Things that are missing (for now):
 
 * No tail-call optimization.
 * No stack traces on errors.
-* Lots of missing stuff.
+* Lots of missing functions.
 
 ## Installation
 
@@ -81,7 +81,7 @@ Download the source and build:
 
     make build
 
-The make task you download and build libgc and libds -- if that fails, you may need to run the builds for those libraries yourself (see the Makefile) and move the shared libs into `ext/lib` and the headers into `ext/include`.
+The make task you download and build libgc -- if that fails, you may need to build libgc manually (see the Makefile) and move the shared libs into `ext/lib` and the headers into `ext/include`.
 
 ## Usage
 
