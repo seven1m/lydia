@@ -22,6 +22,8 @@ LValue *l_func_str_add(LValue *args, LClosure *closure) {
   return value;
 }
 
+// FIXME this does not work as expected/desired for a multi-character delimiter
+// since it uses strtok under the hood
 LValue *l_func_str_split(LValue *args, LClosure *closure) {
   LValue *string = l_list_get(args, 0);
   LValue *delim = l_list_get(args, 1);
