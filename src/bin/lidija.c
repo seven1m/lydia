@@ -2,8 +2,8 @@
 #include "../lidija.h"
 
 const char *argp_program_version = "lidija " L_VERSION;
-const char *argp_program_bug_address = "<tim@timmorgan.org>";
-static char doc[] = "Lidija -- a toy functional scripting language";
+const char *argp_program_bug_address = "https://github.com/seven1m/lidija/issues";
+static char doc[] = "Lidija -- a toy functional language";
 static char args_doc[] = "script";
 
 static struct argp_option options[] = {
