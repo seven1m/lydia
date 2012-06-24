@@ -5,13 +5,10 @@
 #include <gmp.h>
 
 #include <gc.h>
-#define malloc GC_MALLOC
-#define realloc GC_REALLOC
-#define free GC_free
 
-#include <hashmap.h>
-#include <vector.h>
-#include <strutils.h>
+#include "ds/hashmap.h"
+#include "ds/vector.h"
+#include "ds/strutils.h"
 
 #include "ast.h"
 #include "parser.h"

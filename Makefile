@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-I. -Wall
-ALL = src/*.c src/lib/*.c
-DEPS = -lgmp -Iext/include -Iext/include/ds ext/lib/libgc.so ext/lib/libds.a
+ALL = src/*.c src/lib/*.c src/ds/*.c
+DEPS = -lgmp -Iext/include -Iext/include/ds ext/lib/libgc.so
 
 build: bin/lidija
 
@@ -16,22 +16,16 @@ src/parser.c:
 clean:
 	rm -f bin/* src/*.o src/*.so
 
-bin/lidija: ext/lib/libgc.so ext/lib/libds.a
+bin/lidija: ext/lib/libgc.so
 	${CC} src/bin/lidija.c -Isrc ${CFLAGS} ${ALL} ${DEPS} -o bin/lidija
 
 ext/lib/libgc.so:
 	mkdir -p ext
 	if [ ! -f ext/gc.tar.gz ]; then curl -o ext/gc.tar.gz http://www.hpl.hp.com/personal/Hans_Boehm/gc/gc_source/gc-7.2b.tar.gz; fi
 	cd ext && tar xzf gc.tar.gz
-	cd ext/gc-7.2 && ./configure --prefix=`pwd`/../ && make && make install
+	cd ext/gc-7.2 && ./configure --prefix=`pwd`/../ --enable-redirect-malloc && make && make install
 
-ext/lib/libds.a:
-	if [ ! -f ext/libds.tar.gz ]; then curl -o ext/libds.tar.gz -L https://github.com/zhemao/libds/tarball/master; fi
-	cd ext && tar xzf libds.tar.gz && mv zhemao-libds* libds
-	cd ext/libds && make && mv libds.a ../lib
-	mkdir -p ext/include/ds && cd ext/libds && cp *.h ../include/ds
-
-debug: ext/lib/libgc.so ext/lib/libds.a
+debug: ext/lib/libgc.so
 	${CC} src/bin/lidija.c -Isrc ${CFLAGS} -g ${ALL} ${DEPS} -o bin/lidija
 
 cloc:

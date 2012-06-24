@@ -22,5 +22,5 @@ void l_value_free(LValue *value) {
   }
   // TODO free more stuff
   value = NULL;
-  free(value);
+  GC_free(value);
 }
