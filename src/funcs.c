@@ -6,7 +6,7 @@ LValue *l_call_func(char *name, int argc, LNode **args, LValue *func, LClosure *
   }
   LValue *value;
   int i;
-  LValue *v, **ref, **argsRef;
+  LValue *v, *argsVal, **ref;
 
   // create a running scope to hold arguments
   // and a reference to self (for recursion)
@@ -21,11 +21,9 @@ LValue *l_call_func(char *name, int argc, LNode **args, LValue *func, LClosure *
   }
 
   // setup the arguments
-  // FIXME: why do this ourselves -- why not pass a LValue* to l_closure_set ???
-  argsRef = GC_MALLOC(sizeof(LValue*));
-  *argsRef = l_value_new(L_LIST_TYPE, cl);
-  (*argsRef)->core.list = create_vector();
-  l_ref_put(cl->locals, "args", argsRef);
+  argsVal = l_value_new(L_LIST_TYPE, cl);
+  argsVal->core.list = create_vector();
+  l_closure_set(cl, "args", argsVal, true);
 
   // set all passed args
   for(i=0; i<argc; i++) {
@@ -49,12 +47,12 @@ LValue *l_call_func(char *name, int argc, LNode **args, LValue *func, LClosure *
         l_closure_set(cl, func->core.func.args[i]->val, v, true);
       }
     }
-    vector_add((*argsRef)->core.list, &v, sizeof(&v));
+    vector_add(argsVal->core.list, &v, sizeof(&v));
   }
 
   if(func->core.func.ptr != NULL) {
     // native C code
-    value = func->core.func.ptr(*argsRef, cl);
+    value = func->core.func.ptr(argsVal, cl);
   } else {
     // Lidija code
     int exprc = func->core.func.exprc;
