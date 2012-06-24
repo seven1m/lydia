@@ -129,7 +129,6 @@ LValue *l_eval_call_node(LNode *node, LClosure *closure) {
 }
 
 void l_eval(const char *source, LClosure *closure) {
-  //GC_enable_incremental();
   LAst ast = l_parse(source);
   if(closure == NULL) {
     closure = l_closure_new();
