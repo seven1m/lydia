@@ -27,26 +27,22 @@ LValue *l_call_func(char *name, int argc, LNode **args, LValue *func, LClosure *
 
   // set all passed args
   for(i=0; i<argc; i++) {
-    // FIXME this seems too kludgy
     if(args[i]->type == L_VAR_TYPE) {
-      if((ref = l_closure_get_ref(closure, args[i]->val))) {
-        v = *ref;
-      } else {
-        char buf[255];
-        v = l_value_new(L_ERR_TYPE, closure);
-        snprintf(buf, 254, "%s not found", args[i]->val);
-        v->core.str = make_stringbuf(buf);
-        l_handle_error(v, closure);
-      }
+      // L_VAR_TYPE is special case, since we must link the local to the parent closure var
+      ref = l_closure_get_ref(closure, args[i]->val);
+      v = l_closure_get(closure, args[i]->val);
       if(i < func->core.func.argc) {
+        // store as named arg (uses ref so that it points to the same var)
         l_ref_put(cl->locals, func->core.func.args[i]->val, ref);
       }
     } else {
+      // eval as normal and set the value
       v = l_eval_node(args[i], closure); // use calling closure
       if(i < func->core.func.argc) {
         l_closure_set(cl, func->core.func.args[i]->val, v, true);
       }
     }
+    // append to 'args' variable
     vector_add(argsVal->core.list, &v, sizeof(&v));
   }
 
