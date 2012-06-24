@@ -130,11 +130,6 @@ LValue *l_eval_call_node(LNode *node, LClosure *closure) {
 
 void l_eval(const char *source, LClosure *closure) {
   LAst ast = l_parse(source);
-  if(closure == NULL) {
-    closure = l_closure_new();
-    l_closure_set_funcs(closure);
-  }
-  int i;
   list_iter_p iter = list_iterator(ast, FRONT);
   while(list_next(iter) != NULL) {
     l_eval_node((LNode*)list_current(iter), closure);
@@ -147,6 +142,10 @@ void l_eval_path(const char *filename, LClosure *closure) {
     printf("An error occurred while opening the file %s.\n", filename);
     exit(1);
   }
+
+  LValue* f = l_value_new(L_STR_TYPE, closure);
+  f->core.str = make_stringbuf((char*)filename);
+  l_closure_set(closure, "-filename", f, true);
 
   stringbuf *source = make_stringbuf("");
   source->str = saferead(fp);
