@@ -31,8 +31,6 @@ fibs = map [1 2 3 4 5 6 7 8 9 10 11 12],
            [n] { fib n }
 out (join fibs ", ")
 
-xxx 1
-
 # iterative functions: fibonacci sequence
 fib = [x] { curr = 0
             succ = 1
