@@ -1,6 +1,20 @@
 #include "lidija.h"
 
-LValue *l_call_func(char *name, int argc, LNode **args, LValue *func, LClosure *closure) {
+LValue *l_call_func(LNode *node, LValue *func, LClosure *closure) {
+  char *name;
+  int argc;
+  LNode **args;
+
+  if(node != NULL) {
+    name = node->val;
+    argc = node->exprc;
+    args = node->exprs;
+  } else {
+    name = "";
+    argc = 0;
+    args = NULL;
+  }
+
   l_debug(L_DEBUG_CALL) {
     printf(">>> entering %s\n", name);
   }
@@ -10,7 +24,7 @@ LValue *l_call_func(char *name, int argc, LNode **args, LValue *func, LClosure *
 
   // create a running scope to hold arguments
   // and a reference to self (for recursion)
-  LClosure *cl = l_closure_clone(func->core.func.closure);
+  LClosure *cl = l_closure_clone(func->core.func.closure, node);
   if(strcmp(name, "") != 0)
     l_closure_set(cl, name, func, true);
 

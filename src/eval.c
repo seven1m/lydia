@@ -113,7 +113,8 @@ LValue *l_eval_list_node(LNode *node, LClosure *closure) {
 LValue *l_eval_func_node(LNode *node, LClosure *closure) {
   LValue *value = l_value_new(L_FUNC_TYPE, closure);
   value->core.func.ptr = NULL;
-  value->core.func.closure = l_closure_clone(closure);
+  // pass node=NULL to l_closure_clone, so this lexical frame is not printed in a stack trace
+  value->core.func.closure = l_closure_clone(closure, NULL);
   if(node->exprs[0]) {
     value->core.func.argc = node->exprs[0]->exprc;
     value->core.func.args = node->exprs[0]->exprs;
@@ -129,7 +130,7 @@ LValue *l_eval_call_node(LNode *node, LClosure *closure) {
   LValue *value;
   LValue *func = l_closure_get(closure, node->val);
   if(func != NULL && func->type == L_FUNC_TYPE) {
-    value = l_call_func(node->val, node->exprc, node->exprs, func, closure);
+    value = l_call_func(node, func, closure);
   } else {
     value = l_value_new(L_ERR_TYPE, closure);
     value->core.str = make_stringbuf("function with name '");

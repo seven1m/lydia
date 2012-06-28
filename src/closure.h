@@ -6,10 +6,11 @@ typedef struct LClosure {
   hashmap_p locals;
   struct LClosure *parent;
   bool cloneable;
+  LNode *node;
 } LClosure;
 
-LClosure *l_closure_new();
-LClosure *l_closure_clone(LClosure *parent);
+LClosure *l_closure_new(LNode *node);
+LClosure *l_closure_clone(LClosure *parent, LNode *node);
 void l_clone_vars(hashmap_p from, hashmap_p to);
 void l_closure_free(LClosure *closure);
 LClosure *l_closure_root(LClosure *closure);

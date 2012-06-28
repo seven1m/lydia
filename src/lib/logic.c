@@ -47,8 +47,8 @@ LValue *l_func_while(LValue *args, LClosure *closure) {
   l_assert_is(ef, L_FUNC_TYPE, L_ERR_MISSING_FUNC, closure);
   l_assert_is(wf, L_FUNC_TYPE, L_ERR_MISSING_FUNC, closure);
   LValue *value;
-  while(l_to_bool(l_call_func("", 0, NULL, ef, closure))) {
-    value = l_call_func("", 0, NULL, wf, closure);
+  while(l_to_bool(l_call_func(NULL, ef, closure))) {
+    value = l_call_func(NULL, wf, closure);
   }
   return value;
 }

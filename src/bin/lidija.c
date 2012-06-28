@@ -53,7 +53,13 @@ int main (int argc, char **argv) {
   argp_parse (&argp, argc, argv, 0, 0, &arguments);
   char *filename = arguments.args[0];
 
-  LClosure *closure = l_closure_new();
+  LNode *node = GC_MALLOC(sizeof(LNode));
+  node->type = L_STR_TYPE;
+  node->line_no = -1;
+  node->source_file = GC_MALLOC(strlen(filename) + 1);
+  strcpy(node->source_file, filename);
+
+  LClosure *closure = l_closure_new(node);
   l_closure_set_funcs(closure);
 
   LValue* f = l_value_new(L_STR_TYPE, closure);

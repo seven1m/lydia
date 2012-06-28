@@ -3,23 +3,25 @@
 /*static void l_inspect_closure_iter(gpointer key, gpointer val, gpointer user_data);*/
 
 // creates and initializes an empty closure
-LClosure *l_closure_new() {
+LClosure *l_closure_new(LNode *node) {
   LClosure *closure = GC_MALLOC(sizeof(LClosure));
   closure->vars = create_hashmap();
   closure->locals = create_hashmap();
   closure->parent = NULL;
   closure->cloneable = true;
+  closure->node = node;
   return closure;
 }
 
 // creates a new closure from the given parent closure
-LClosure *l_closure_clone(LClosure *parent) {
+LClosure *l_closure_clone(LClosure *parent, LNode *node) {
   if(!parent->cloneable) return parent;
   LClosure *closure = GC_MALLOC(sizeof(LClosure));
   closure->vars = create_hashmap();
   closure->locals = create_hashmap();
   closure->parent = parent;
   closure->cloneable = true;
+  closure->node = node;
   // copy vars from function closure
   l_clone_vars(parent->vars, closure->vars);
   l_clone_vars(parent->locals, closure->locals);

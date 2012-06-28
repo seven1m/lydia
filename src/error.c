@@ -5,9 +5,38 @@ void l_handle_error(LValue *error, LNode *node, LClosure *closure) {
   // else...
   printf("Error: %s\n", error->core.str->str);
   if(node != NULL) {
-    printf("  line %d in %s\n", node->line_no, node->source_file);
+    puts(l_describe_stack_frame(node));
   }
+  l_print_stack(closure);
   exit(1);
+}
+
+void l_print_stack(LClosure *closure) {
+  while(closure != NULL) {
+    if(closure->node != NULL) {
+      if(closure->node->line_no == -1)
+        printf("  file load %s\n", closure->node->source_file);
+      else
+        puts(l_describe_stack_frame(closure->node));
+    }
+    closure = closure->parent;
+  }
+}
+
+char *l_describe_stack_frame(LNode *node) {
+  char buf[255] = "";
+  snprintf(buf, 254, "  line %d in %s", node->line_no, node->source_file);
+  stringbuf *desc = make_stringbuf(buf);
+  switch(node->type) {
+    case L_CALL_TYPE:
+      buffer_concat(desc, ", in call to '");
+      buffer_concat(desc, node->val);
+      buffer_concat(desc, "'");
+      break;
+    default:
+      break;
+  }
+  return desc->str;
 }
 
 void l_die(char *message, LClosure *closure) {
