@@ -72,7 +72,6 @@ There's a few things to note:
 Things that are missing (for now):
 
 * No tail-call optimization.
-* No stack traces on errors.
 * Lots of missing functions.
 * Virtually *no* standard library.
 
