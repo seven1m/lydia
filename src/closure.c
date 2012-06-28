@@ -13,7 +13,7 @@ LClosure *l_closure_new() {
 }
 
 // creates a new closure from the given parent closure
-LClosure *l_closure_clone(LClosure *parent, LClosure *evaling) {
+LClosure *l_closure_clone(LClosure *parent) {
   if(!parent->cloneable) return parent;
   LClosure *closure = GC_MALLOC(sizeof(LClosure));
   closure->vars = create_hashmap();
@@ -23,9 +23,6 @@ LClosure *l_closure_clone(LClosure *parent, LClosure *evaling) {
   // copy vars from function closure
   l_clone_vars(parent->vars, closure->vars);
   l_clone_vars(parent->locals, closure->locals);
-  // TODO remove this??? not sure why I ever thought I needed this...
-  //if(evaling != NULL) // copy locals from evaling scope
-  //  g_hash_table_foreach(evaling->locals, l_clone_closure_local_ref, closure);
   return closure;
 }
 

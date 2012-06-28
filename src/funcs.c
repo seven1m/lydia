@@ -10,7 +10,7 @@ LValue *l_call_func(char *name, int argc, LNode **args, LValue *func, LClosure *
 
   // create a running scope to hold arguments
   // and a reference to self (for recursion)
-  LClosure *cl = l_closure_clone(func->core.func.closure, closure);
+  LClosure *cl = l_closure_clone(func->core.func.closure);
   if(strcmp(name, "") != 0)
     l_closure_set(cl, name, func, true);
 

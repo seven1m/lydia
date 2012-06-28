@@ -9,7 +9,7 @@ typedef struct LClosure {
 } LClosure;
 
 LClosure *l_closure_new();
-LClosure *l_closure_clone(LClosure *parent, LClosure *evaling);
+LClosure *l_closure_clone(LClosure *parent);
 void l_clone_vars(hashmap_p from, hashmap_p to);
 void l_closure_free(LClosure *closure);
 LClosure *l_closure_root(LClosure *closure);
