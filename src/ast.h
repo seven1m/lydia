@@ -21,6 +21,8 @@ typedef struct LNode {
   enum LNodeType type;
   char *val;
   int exprc;
+  char *source_file;
+  int line_no;
   struct LNode **exprs;
 } LNode;
 

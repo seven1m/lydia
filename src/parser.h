@@ -23,6 +23,7 @@ LNode **l_stack_pop();
 
 char *yytos(char *yytext, int yyleng);
 
+LNode *l_create_ast_node(enum LNodeType);
 LNode *l_create_num_node(char *num);
 LNode *l_create_str_node(char *str);
 LNode *l_create_rng_node(LNode *first, LNode *last);
@@ -34,7 +35,7 @@ LNode *l_create_func_node(LNode *args, int exprc, LNode **exprs);
 LNode *l_create_err_node(char *error, int line);
 
 int yy_input(char *buf, int max_size);
-LAst l_parse(const char *source);
+LAst l_parse(const char *source, const char *source_file);
 
 LAst L_AST;
 

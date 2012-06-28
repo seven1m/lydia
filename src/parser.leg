@@ -2,6 +2,7 @@
 #include "lidija.h"
 int l_stackp = 0;
 int l_line_no;
+char *l_source_file;
 %}
 
 body       = (
@@ -145,30 +146,35 @@ char *yytos(char *yytext, int yyleng) {
   return s;
 }
 
-LNode *l_create_num_node(char *num) {
+LNode *l_create_ast_node(enum LNodeType type) {
   LNode *n = GC_MALLOC(sizeof(LNode));
-  n->type = L_NUM_TYPE;
+  n->type = type;
+  n->line_no = l_line_no;
+  n->source_file = GC_MALLOC(strlen(l_source_file) + 1);
+  strcpy(n->source_file, l_source_file);
+  return n;
+}
+
+LNode *l_create_num_node(char *num) {
+  LNode *n = l_create_ast_node(L_NUM_TYPE);
   n->val = num;
   return n;
 }
 
 LNode *l_create_str_node(char *str) {
-  LNode *n = GC_MALLOC(sizeof(LNode));
-  n->type = L_STR_TYPE;
+  LNode *n = l_create_ast_node(L_STR_TYPE);
   n->val = str;
   return n;
 }
 
 LNode *l_create_var_node(char *name) {
-  LNode *n = GC_MALLOC(sizeof(LNode));
-  n->type = L_VAR_TYPE;
+  LNode *n = l_create_ast_node(L_VAR_TYPE);
   n->val = name;
   return n;
 }
 
 LNode *l_create_assign_node(char *name, LNode *expr) {
-  LNode *n = GC_MALLOC(sizeof(LNode));
-  n->type = L_ASSIGN_TYPE;
+  LNode *n = l_create_ast_node(L_ASSIGN_TYPE);
   n->val = name;
   n->exprc = 1;
   n->exprs = GC_MALLOC(sizeof(LNode*));
@@ -177,8 +183,7 @@ LNode *l_create_assign_node(char *name, LNode *expr) {
 }
 
 LNode *l_create_call_node(char *name, int argc, LNode **args) {
-  LNode *n = GC_MALLOC(sizeof(LNode));
-  n->type = L_CALL_TYPE;
+  LNode *n = l_create_ast_node(L_CALL_TYPE);
   n->val = name;
   n->exprc = argc;
   n->exprs = args;
@@ -186,16 +191,14 @@ LNode *l_create_call_node(char *name, int argc, LNode **args) {
 }
 
 LNode *l_create_list_node(int itemc, LNode **items) {
-  LNode *n = GC_MALLOC(sizeof(LNode));
-  n->type = L_LIST_TYPE;
+  LNode *n = l_create_ast_node(L_LIST_TYPE);
   n->exprc = itemc;
   n->exprs = items;
   return n;
 }
 
 LNode *l_create_func_node(LNode *args, int exprc, LNode **exprs) {
-  LNode *n = GC_MALLOC(sizeof(LNode));
-  n->type = L_FUNC_TYPE;
+  LNode *n = l_create_ast_node(L_FUNC_TYPE);
   LNode *exprsNode = GC_MALLOC(sizeof(LNode));
   exprsNode->type = L_LIST_TYPE;
   exprsNode->exprc = exprc;
@@ -208,8 +211,7 @@ LNode *l_create_func_node(LNode *args, int exprc, LNode **exprs) {
 }
 
 LNode *l_create_err_node(char *error, int line) {
-  LNode *n = GC_MALLOC(sizeof(LNode));
-  n->type = L_ERR_TYPE;
+  LNode *n = l_create_ast_node(L_ERR_TYPE);
   char *buf = GC_MALLOC(sizeof(char) * 255);
   snprintf(buf, 254, "line %d: %s", line, error);
   n->val = buf;
@@ -227,8 +229,9 @@ int yy_input(char *buf, int max_size) {
   return n;
 }
 
-LAst l_parse(const char *source) {
+LAst l_parse(const char *source, const char *source_file) {
   L_AST = create_list();
+  l_source_file = source_file;
   l_line_no = 1;
   yy_input_ptr = source;
   yy_input_len = strlen(yy_input_ptr);

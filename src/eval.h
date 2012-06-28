@@ -1,7 +1,7 @@
 #ifndef EVAL_H
 #define EVAL_H
 
-void l_eval(const char *source, LClosure *closure);
+void l_eval(const char *source, const char *source_file, LClosure *closure);
 void l_eval_path(const char *filename, LClosure *closure);
 
 LValue *l_eval_node(LNode *node, LClosure *closure);

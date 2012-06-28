@@ -5,7 +5,7 @@ LValue *l_eval_node(LNode *node, LClosure *closure) {
   switch(node->type) {
     case L_ERR_TYPE:
       value = l_eval_error_node(node, closure);
-      l_handle_error(value, closure);
+      l_handle_error(value, node, closure);
       break;
     case L_NUM_TYPE:
       value = l_eval_num_node(node, closure);
@@ -87,7 +87,15 @@ LValue *l_eval_assign_node(LNode *node, LClosure *closure) {
 
 LValue *l_eval_var_node(LNode *node, LClosure *closure) {
   LValue *value = l_closure_get(closure, node->val);
-  return value;
+  if(value != NULL) {
+    return value;
+  } else {
+    value = l_value_new(L_ERR_TYPE, closure);
+    value->core.str = make_stringbuf(node->val);
+    buffer_concat(value->core.str, " not found");
+    l_handle_error(value, node, closure);
+    return value;
+  }
 }
 
 LValue *l_eval_list_node(LNode *node, LClosure *closure) {
@@ -120,16 +128,20 @@ LValue *l_eval_func_node(LNode *node, LClosure *closure) {
 LValue *l_eval_call_node(LNode *node, LClosure *closure) {
   LValue *value;
   LValue *func = l_closure_get(closure, node->val);
-  if(func->type == L_FUNC_TYPE) {
+  if(func != NULL && func->type == L_FUNC_TYPE) {
     value = l_call_func(node->val, node->exprc, node->exprs, func, closure);
   } else {
-    value = func; // error
+    value = l_value_new(L_ERR_TYPE, closure);
+    value->core.str = make_stringbuf("function with name '");
+    buffer_concat(value->core.str, node->val);
+    buffer_concat(value->core.str, "' not found");
+    l_handle_error(value, node, closure);
   }
   return value;
 }
 
-void l_eval(const char *source, LClosure *closure) {
-  LAst ast = l_parse(source);
+void l_eval(const char *source, const char *source_file, LClosure *closure) {
+  LAst ast = l_parse(source, source_file);
   list_iter_p iter = list_iterator(ast, FRONT);
   while(list_next(iter) != NULL) {
     l_eval_node((LNode*)list_current(iter), closure);
@@ -150,7 +162,7 @@ void l_eval_path(const char *filename, LClosure *closure) {
   stringbuf *source = make_stringbuf("");
   source->str = saferead(fp);
 
-  l_eval(source->str, closure);
+  l_eval(source->str, filename, closure);
 }
 
 void l_inspect(LValue *value) {
