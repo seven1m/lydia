@@ -29,7 +29,7 @@ debug: ext/lib/libgc.so
 	${CC} src/bin/lidija.c -Isrc ${CFLAGS} -g ${ALL} ${DEPS} -o bin/lidija
 
 cloc:
-	cloc --not-match-f=parser\.c src
+	cloc --not-match-f=parser\.c --force-lang=C,leg src
 
 test: run-tests
 
