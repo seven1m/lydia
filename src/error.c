@@ -14,10 +14,7 @@ void l_handle_error(LValue *error, LNode *node, LClosure *closure) {
 void l_print_stack(LClosure *closure) {
   while(closure != NULL) {
     if(closure->node != NULL) {
-      if(closure->node->line_no == -1)
-        printf("  file load %s\n", closure->node->source_file);
-      else
-        puts(l_describe_stack_frame(closure->node));
+      puts(l_describe_stack_frame(closure->node));
     }
     closure = closure->parent;
   }
