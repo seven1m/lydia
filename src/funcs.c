@@ -44,10 +44,17 @@ LValue *l_call_func(LNode *node, LValue *func, LClosure *closure) {
     if(args[i]->type == L_VAR_TYPE) {
       // L_VAR_TYPE is special case, since we must link the local to the parent closure var
       ref = l_closure_get_ref(closure, args[i]->val);
-      v = l_closure_get(closure, args[i]->val);
-      if(i < func->core.func.argc) {
-        // store as named arg (uses ref so that it points to the same var)
-        l_ref_put(cl->locals, func->core.func.args[i]->val, ref);
+      if(ref != NULL) {
+        v = l_closure_get(closure, args[i]->val);
+        if(i < func->core.func.argc) {
+          // store as named arg (uses ref so that it points to the same var)
+          l_ref_put(cl->locals, func->core.func.args[i]->val, ref);
+        }
+      } else {
+        v = l_value_new(L_ERR_TYPE, closure);
+        v->core.str = make_stringbuf(args[i]->val);
+        buffer_concat(v->core.str, " not found");
+        l_handle_error(v, node, closure);
       }
     } else {
       // eval as normal and set the value
