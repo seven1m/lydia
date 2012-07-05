@@ -68,4 +68,4 @@ if [x == 1 { out "one" }
 # script arguments
 out "this script: " -script
 out "this file: " -filename
-out (join ["args:"] + -args, " ")
+out "args: " (join -args, " ")
