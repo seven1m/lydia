@@ -35,7 +35,7 @@ void l_clone_vars(hashmap_p from, hashmap_p to) {
   for(i=0; i<from->keys->length; i++) {
     key = vector_get(from->keys, i);
     ref = (LValue**)hashmap_get(from, key);
-    hashmap_put(to, key, ref, sizeof(ref));
+    l_ref_put(to, key, ref);
   }
 }
 
