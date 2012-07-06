@@ -17,14 +17,14 @@ LValue *l_func_if(LValue *args, LClosure *closure) {
     int i, len = cond->core.list->length;
     LValue *inner_cond;
     for(i=0; i<len-1; i+=2) {
-      inner_cond = *((LValue**)vector_get(cond->core.list, i));
+      inner_cond = (LValue*)vector_get(cond->core.list, i);
       if(l_to_bool(inner_cond)) {
-        return l_eval_if_expr(*((LValue**)vector_get(cond->core.list, i+1)));
+        return l_eval_if_expr((LValue*)vector_get(cond->core.list, i+1));
       }
     }
     // else
     if(len % 2 == 1) {
-      return l_eval_if_expr(*((LValue**)vector_get(cond->core.list, len-1)));
+      return l_eval_if_expr((LValue*)vector_get(cond->core.list, len-1));
     }
   } else {
     // single condition

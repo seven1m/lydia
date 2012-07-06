@@ -67,7 +67,7 @@ int main (int argc, char **argv) {
   for(i=1; i<arguments.argc; i++) {
     arg = l_value_new(L_STR_TYPE, closure);
     arg->core.str = make_stringbuf(arguments.args[i]);
-    vector_add(args->core.list, &arg, sizeof(arg));
+    vector_add(args->core.list, arg, sizeof(arg));
   }
   l_closure_set(closure, "-args", args, true);
 

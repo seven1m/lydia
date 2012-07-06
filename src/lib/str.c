@@ -37,7 +37,7 @@ LValue *l_func_str_split(LValue *args, LClosure *closure) {
   for(i=0; i<size; i++) {
     s = l_value_new(L_STR_TYPE, closure);
     s->core.str = make_stringbuf(strings[i]);
-    vector_add(value->core.list, &s, sizeof(&s));
+    vector_add(value->core.list, s, sizeof(s));
   }
   return value;
 }

@@ -35,9 +35,8 @@ void check_length(vector_p vec){
 
 void vector_add(vector_p vec, void* data, size_t n){
 	check_length(vec);
-	vec->data[vec->length] = GC_MALLOC(n);
+	vec->data[vec->length] = data;
 	vec->sizes[vec->length] = n;
-	memcpy(vec->data[vec->length], data, n);
 	vec->length++;
 }
 
@@ -51,9 +50,8 @@ int vector_set(vector_p vec, size_t i, void* data, size_t n){
 	if(i >= vec->length || i < 0)
 		return -1;
 	vec->destructor(vec->data[i]);
-	vec->data[i] = GC_MALLOC(n);
+	vec->data[i] = data;
 	vec->sizes[i] = n;
-	memcpy(vec->data[i], data, n);
 	return 0;
 }
 
@@ -68,9 +66,8 @@ int vector_insert(vector_p vec, size_t i, void* data, size_t n){
 		vec->data[x+1] = vec->data[x];
 		vec->sizes[x+1] = vec->sizes[x+1];
 	}
-	vec->data[i] = GC_MALLOC(n);
+	vec->data[i] = data;
 	vec->sizes[i] = n;
-	memcpy(vec->data[i], data, n);
 	vec->length++;
 	return 0;
 }

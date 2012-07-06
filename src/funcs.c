@@ -64,7 +64,7 @@ LValue *l_call_func(LNode *node, LValue *func, LClosure *closure) {
       }
     }
     // append to 'args' variable
-    vector_add(argsVal->core.list, &v, sizeof(&v));
+    vector_add(argsVal->core.list, v, sizeof(v));
   }
 
   if(func->core.func.ptr != NULL) {

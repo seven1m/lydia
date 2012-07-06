@@ -28,8 +28,7 @@ list_iter_p list_iterator(list_p list, char init){
 
 void list_add(list_p list, void* data, int size){
 	lnode_p node = (lnode_p)GC_MALLOC(sizeof(struct linked_node));
-	node->data = GC_MALLOC(size);
-	memcpy(node->data, data, size);
+	node->data = data;
 	
 	if(list->first==NULL){
 		node->prev = NULL;

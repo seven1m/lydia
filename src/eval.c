@@ -105,7 +105,7 @@ LValue *l_eval_list_node(LNode *node, LClosure *closure) {
   int i;
   for(i=0; i<node->exprc; i++) {
     v = l_eval_node(node->exprs[i], closure);
-    vector_add(value->core.list, &v, sizeof(&v));
+    vector_add(value->core.list, v, sizeof(v));
   }
   return value;
 }

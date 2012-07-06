@@ -2,7 +2,7 @@
 
 LValue *l_list_get(LValue *list, long index) {
   if(index < list->core.list->length) {
-    return *((LValue**)vector_get(list->core.list, index));
+    return (LValue*)vector_get(list->core.list, index);
   } else {
     return NULL;
   }
