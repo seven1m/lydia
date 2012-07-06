@@ -16,9 +16,10 @@ filter = [l f] { if (count l) == 0,
                          { (filter (rest l) f) } } }
 
 # join list values into a string, using `s` as the glue
-join = [l s] { if (count l) == 1,
-                  { str (first l) },
-                  { ((str (first l)) + s) + (join (rest l) s) } }
+join = [l s] { c = count l
+               if [c == 0 "",
+                   c == 1 { str (first l) },
+                          { ((str (first l)) + s) + (join (rest l) s) }] }
 
 # given f (from) and t (to), return a list of consecutive numbers in between
 .. = [f t] { if f == t,
