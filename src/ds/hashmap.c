@@ -11,7 +11,6 @@ hashmap_p create_hashmap(){
 	for(i=0; i < m->num_buckets; i++)
 		m->buckets[i] = NULL;
 	m->keys = create_vector();
-	m->destructor = GC_free;
 	return m;
 }
 
@@ -37,9 +36,7 @@ void hashmap_put(hashmap_p m, char* key, void* val, size_t len){
 	
 	while(itm!=NULL){
 		if(strcmp(key, itm->key)==0){
-		if(itm->val!=NULL) m->destructor(itm->val);
-		itm->val = GC_MALLOC(len);
-		memcpy(itm->val, val, len);
+			itm->val = val;
 			return;
 		}
 		if(itm->next==NULL) last = itm;
@@ -49,8 +46,7 @@ void hashmap_put(hashmap_p m, char* key, void* val, size_t len){
 	itm = (item_t*)GC_MALLOC(sizeof(item_t));
 	itm->key = GC_MALLOC(keylen+1);
 	memcpy(itm->key, key, keylen+1);
-	itm->val = GC_MALLOC(len);
-	memcpy(itm->val, val, len);
+	itm->val = val;
 	itm->next = NULL;
 	if(last==NULL) m->buckets[h] = itm;
 	else last->next = itm;
@@ -76,10 +72,6 @@ void hashmap_remove(hashmap_p m, char* key){
 			m->buckets[h] = NULL;
 		else last->next = itm->next;
 		
-		GC_free(itm->key);
-		m->destructor(itm->val);
-		GC_free(itm);
-		
 		keyind = vector_index(m->keys, key, n);
 		vector_remove(m->keys, keyind);
 		m->size--;
@@ -102,7 +94,6 @@ void destroy_hashmap(hashmap_p m){
 		itm = m->buckets[x];
 		while(itm!=NULL){
 			GC_free(itm->key);
-			m->destructor(itm->val);
 			GC_free(itm);
 			itm = itm->next;
 		}

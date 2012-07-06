@@ -34,8 +34,8 @@ void l_clone_vars(hashmap_p from, hashmap_p to) {
   LValue **ref;
   for(i=0; i<from->keys->length; i++) {
     key = vector_get(from->keys, i);
-    ref = *((LValue***)hashmap_get(from, key));
-    hashmap_put(to, key, &ref, sizeof(&ref));
+    ref = (LValue**)hashmap_get(from, key);
+    hashmap_put(to, key, ref, sizeof(ref));
   }
 }
 
@@ -53,15 +53,15 @@ LClosure *l_closure_root(LClosure *closure) {
 }
 
 LValue **l_ref_get(hashmap_p hash, char *name) {
-  LValue ***refref;
-  if((refref = hashmap_get(hash, name))) {
-    if(*refref != NULL) return *refref;
+  LValue **ref;
+  if((ref = hashmap_get(hash, name))) {
+    return ref;
   }
   return NULL;
 }
 
 void l_ref_put(hashmap_p hash, char *name, LValue **ref) {
-  hashmap_put(hash, name, &ref, sizeof(&ref));
+  hashmap_put(hash, name, ref, sizeof(ref));
 }
 
 // sets a key in the closure
