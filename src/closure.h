@@ -20,6 +20,7 @@ void l_closure_set(LClosure *closure, char *name, LValue *value, bool local);
 void l_closure_set_funcs(LClosure *closure);
 LValue *l_closure_get(LClosure *closure, char *name);
 LValue **l_closure_get_ref(LClosure *closure, char *name);
+LValue **l_closure_pass_by_ref(LNode *node, char *name, LClosure *outer_closure, LClosure *inner_closure);
 
 void l_inspect_closure(LClosure* closure);
 int l_closure_size(LClosure *closure);

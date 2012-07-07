@@ -110,6 +110,18 @@ LValue **l_closure_get_ref(LClosure *closure, char *name) {
   }
 }
 
+LValue **l_closure_pass_by_ref(LNode *node, char *name, LClosure *outer_closure, LClosure *inner_closure) {
+  LValue **ref = l_closure_get_ref(outer_closure, node->val);
+  if(ref != NULL) {
+    if(name != NULL) l_ref_put(inner_closure->locals, name, ref);
+    return ref;
+  } else {
+    // handle error
+    l_eval_var_node(node, outer_closure);
+    return NULL;
+  }
+}
+
 static void l_inspect_closure_iter(char *key, void *ref, void *opt) {
   char buf[255] = "";
   printf("  %s = %s\n", key, l_inspect_to_str(*(LValue**)ref, buf, 255));

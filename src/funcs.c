@@ -75,26 +75,16 @@ LValue *l_eval_call_args(LNode *node, LValue *func, LClosure *outer_closure, LCl
   argsVal->core.list = create_vector();
   l_closure_set(inner_closure, "args", argsVal, true);
 
+  char *arg_name;
+
   // set all passed args
   for(i=0; i<argc; i++) {
-    if(args[i]->type == L_VAR_TYPE) {
-      // L_VAR_TYPE is special case, since we must link the local to the parent (outer) closure var
-      ref = l_closure_get_ref(outer_closure, args[i]->val);
-      if(ref != NULL) {
-        v = l_closure_get(outer_closure, args[i]->val);
-        if(i < func->core.func.argc) {
-          // store as named arg (uses ref so that it points to the same var)
-          l_ref_put(inner_closure->locals, func->core.func.args[i]->val, ref);
-        }
-      } else {
-        v = l_value_new(L_ERR_TYPE, outer_closure);
-        v->core.str = make_stringbuf(args[i]->val);
-        buffer_concat(v->core.str, " not found");
-        l_handle_error(v, node, outer_closure);
-      }
-    } else {
-      // eval as normal and set the value
-      v = l_eval_node(args[i], outer_closure); // use outer closure
+    if(args[i]->type == L_VAR_TYPE) { // pass vars by reference
+      arg_name = (i < func->core.func.argc) ? func->core.func.args[i]->val : NULL;
+      ref = l_closure_pass_by_ref(args[i], arg_name, outer_closure, inner_closure);
+      v = *ref;
+    } else { // eval as normal and set the value
+      v = l_eval_node(args[i], outer_closure);
       if(i < func->core.func.argc) {
         l_closure_set(inner_closure, func->core.func.args[i]->val, v, true);
       }
