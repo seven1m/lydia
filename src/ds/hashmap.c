@@ -144,3 +144,14 @@ void hashmap_resize(hashmap_p m, size_t num_buckets){
 
 	m->num_buckets = num_buckets;
 }
+
+void hashmap_each(hashmap_p m, void (*iter)(char*, void*, void*), void *opt) {
+  int i;
+  char *key;
+  void *obj;
+  for(i=0; i<m->keys->length; i++) {
+    key = vector_get(m->keys, i);
+    obj = hashmap_get(m, key);
+    iter(key, obj, opt);
+  }
+}

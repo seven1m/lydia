@@ -52,4 +52,6 @@ void destroy_hashmap(hashmap_p m);
 
 void hashmap_resize(hashmap_p m, size_t num_buckets);
 
+void hashmap_each(hashmap_p m, void (*iter)(char*, void*, void*), void *opt);
+
 #endif
