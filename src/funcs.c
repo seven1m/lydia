@@ -6,14 +6,19 @@ LValue *l_eval_call_node(LNode *node, LValue *func, LClosure *closure) {
 
   char *name = (node != NULL) ? node->val : "";
 
-  l_debug(L_DEBUG_CALL) printf(">>> entering %s\n", name);
-
   LValue *value, *args_val;
+  LNode *expr;
   int i;
 
   // create a running scope to hold arguments
   // and a reference to self (for recursion)
+  // TODO this may not be necessary (can't we just do `cl=func->core.func.closure`?)
   LClosure *cl = l_closure_clone(func->core.func.closure, node);
+
+tail_loop:
+
+  l_debug(L_DEBUG_CALL) printf(">>> entering %s\n", name);
+
   if(strcmp(name, "") != 0)
     l_closure_set(cl, name, func, true);
 
@@ -25,10 +30,25 @@ LValue *l_eval_call_node(LNode *node, LValue *func, LClosure *closure) {
   } else {
     // Lidija code
     int exprc = func->core.func.exprc;
-    for(i=0; i<exprc; i++) {
-      value = l_eval_node(func->core.func.exprs[i], cl);
-    }
-    if(exprc == 0) {
+    if(exprc > 0) {
+      // eval all but the last expression
+      for(i=0; i<exprc-1; i++) {
+        expr = func->core.func.exprs[i];
+        value = l_eval_node(expr, cl);
+      }
+      expr = func->core.func.exprs[exprc-1];
+      if(expr->type == L_CALL_TYPE) { // tail call
+        l_debug(L_DEBUG_CALL) printf("^^^ reached end of %s (tail call)\n", name);
+        node = expr;
+        func = l_eval_var_node(node, cl);
+        closure = cl;
+        cl = func->core.func.closure;
+        name = node->val;
+        goto tail_loop;
+      } else {
+        value = l_eval_node(expr, cl);
+      }
+    } else {
       value = l_value_new(L_NIL_TYPE, cl);
     }
   }
@@ -53,34 +73,46 @@ LValue *l_eval_call_args(LNode *node, LValue *func, LClosure *outer_closure, LCl
     args = NULL;
   }
 
-  // initialize all args to nil
-  for(i=0; i<func->core.func.argc; i++) {
-    v = l_value_new(L_NIL_TYPE, inner_closure);
-    l_closure_set(inner_closure, func->core.func.args[i]->val, v, true);
+  if(outer_closure != inner_closure) {
+    // initialize all args to nil
+    for(i=0; i<func->core.func.argc; i++) {
+      v = l_value_new(L_NIL_TYPE, inner_closure);
+      l_closure_set(inner_closure, func->core.func.args[i]->val, v, true);
+    }
   }
 
   // setup the arguments
   args_val = l_value_new(L_LIST_TYPE, inner_closure);
   args_val->core.list = create_vector();
-  l_closure_set(inner_closure, "args", args_val, true);
 
-  char *arg_name;
+  LValue ***args_ref = malloc(sizeof(LValue**) * argc);
 
   // set all passed args
   for(i=0; i<argc; i++) {
     if(args[i]->type == L_VAR_TYPE) { // pass vars by reference
-      arg_name = (i < func->core.func.argc) ? func->core.func.args[i]->val : NULL;
-      ref = l_closure_pass_by_ref(args[i], arg_name, outer_closure, inner_closure);
-      v = *ref;
+      ref = l_closure_get_ref(outer_closure, args[i]->val);
+      if(ref != NULL) {
+        args_ref[i] = ref;
+        v = *ref;
+      } else {
+        // handle error
+        l_eval_var_node(args[i], outer_closure);
+      }
     } else { // eval as normal and set the value
       v = l_eval_node(args[i], outer_closure);
-      if(i < func->core.func.argc) {
-        l_closure_set(inner_closure, func->core.func.args[i]->val, v, true);
-      }
+      ref = malloc(sizeof(LValue*));
+      *ref = v;
+      args_ref[i] = ref;
     }
     // append to 'args' variable
     vector_add(args_val->core.list, v, sizeof(v));
   }
+
+  for(i=0; i<func->core.func.argc; i++) {
+    l_ref_put(inner_closure->locals, func->core.func.args[i]->val, args_ref[i]);
+  }
+
+  l_closure_set(inner_closure, "args", args_val, true);
 
   return args_val;
 }
