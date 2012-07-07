@@ -1,7 +1,5 @@
 #include "lidija.h"
 
-/*static void l_inspect_closure_iter(gpointer key, gpointer val, gpointer user_data);*/
-
 // creates and initializes an empty closure
 LClosure *l_closure_new(LNode *node) {
   LClosure *closure = GC_MALLOC(sizeof(LClosure));
@@ -28,15 +26,13 @@ LClosure *l_closure_clone(LClosure *parent, LNode *node) {
   return closure;
 }
 
+static void l_clone_var_iter(char *key, void *ref, void *to) {
+  l_ref_put((hashmap_p)to, key, (LValue**)ref);
+}
+
+
 void l_clone_vars(hashmap_p from, hashmap_p to) {
-  int i;
-  char *key;
-  LValue **ref;
-  for(i=0; i<from->keys->length; i++) {
-    key = vector_get(from->keys, i);
-    ref = (LValue**)hashmap_get(from, key);
-    l_ref_put(to, key, ref);
-  }
+  hashmap_each(from, l_clone_var_iter, to);
 }
 
 void l_closure_free(LClosure *closure) {
@@ -114,20 +110,20 @@ LValue **l_closure_get_ref(LClosure *closure, char *name) {
   }
 }
 
+static void l_inspect_closure_iter(char *key, void *ref, void *opt) {
+  char buf[255] = "";
+  printf("  %s = %s\n", key, l_inspect_to_str(*(LValue**)ref, buf, 255));
+}
+
 // prints keys and vals in a closure
 void l_inspect_closure(LClosure* closure) {
   printf("--------------------\n");
   printf("Closure var contents:\n");
-  //g_hash_table_foreach(closure->vars, l_inspect_closure_iter, NULL);
+  hashmap_each(closure->vars, l_inspect_closure_iter, NULL);
   printf("Closure local contents:\n");
-  //g_hash_table_foreach(closure->locals, l_inspect_closure_iter, NULL);
+  hashmap_each(closure->locals, l_inspect_closure_iter, NULL);
   printf("====================\n");
 }
-
-/*static void l_inspect_closure_iter(gpointer key, gpointer ref, gpointer user_data) {*/
-  /*char buf[255] = "";*/
-  /*printf("  %s = %s\n", (char*)key, l_inspect_to_str(*(LValue**)ref, buf, 255));*/
-/*}*/
 
 int l_closure_size(LClosure *closure) {
   return closure->vars->size;
