@@ -21,6 +21,13 @@ fact = [x] { if x == 1,
                 { x * (fact x - 1) } }
 out (fact 20)
 
+# recursive functions: factorial (tail-call optimized)
+fact2 = [x] { f = [x a] { if x == 1,
+                             a,
+                             { (f x - 1, a * x) } }
+              f x 1 }
+out (fact2 20)
+
 # recursive functions: fibonacci sequence
 fib = [n] { if n < 2,
                n,
