@@ -1,26 +1,26 @@
 #include "lidija.h"
 
-LValue *l_call_func(LNode *node, LValue *func, LClosure *closure) {
-  char *name;
-  int argc;
-  LNode **args;
+LValue *l_eval_call_node(LNode *node, LValue *func, LClosure *closure) {
 
-  if(node != NULL) {
-    name = node->val;
-    argc = node->exprc;
-    args = node->exprs;
-  } else {
-    name = "";
-    argc = 0;
-    args = NULL;
+  // get func from closure if not already specified
+  if(func == NULL) {
+    func = l_closure_get(closure, node->val);
+    if(func == NULL || func->type != L_FUNC_TYPE) {
+      func = l_value_new(L_ERR_TYPE, closure);
+      func->core.str = make_stringbuf("function with name '");
+      buffer_concat(func->core.str, node->val);
+      buffer_concat(func->core.str, "' not found");
+      l_handle_error(func, node, closure);
+    }
   }
 
-  l_debug(L_DEBUG_CALL) {
-    printf(">>> entering %s\n", name);
-  }
+  char *name = (node != NULL) ? node->val : "";
+
+  l_debug(L_DEBUG_CALL) printf(">>> entering %s\n", name);
+
   LValue *value;
   int i;
-  LValue *v, *argsVal, **ref;
+  LValue *argsVal;
 
   // create a running scope to hold arguments
   // and a reference to self (for recursion)
@@ -28,44 +28,7 @@ LValue *l_call_func(LNode *node, LValue *func, LClosure *closure) {
   if(strcmp(name, "") != 0)
     l_closure_set(cl, name, func, true);
 
-  // initialize all args to nil
-  for(i=0; i<func->core.func.argc; i++) {
-    v = l_value_new(L_NIL_TYPE, cl);
-    l_closure_set(cl, func->core.func.args[i]->val, v, true);
-  }
-
-  // setup the arguments
-  argsVal = l_value_new(L_LIST_TYPE, cl);
-  argsVal->core.list = create_vector();
-  l_closure_set(cl, "args", argsVal, true);
-
-  // set all passed args
-  for(i=0; i<argc; i++) {
-    if(args[i]->type == L_VAR_TYPE) {
-      // L_VAR_TYPE is special case, since we must link the local to the parent closure var
-      ref = l_closure_get_ref(closure, args[i]->val);
-      if(ref != NULL) {
-        v = l_closure_get(closure, args[i]->val);
-        if(i < func->core.func.argc) {
-          // store as named arg (uses ref so that it points to the same var)
-          l_ref_put(cl->locals, func->core.func.args[i]->val, ref);
-        }
-      } else {
-        v = l_value_new(L_ERR_TYPE, closure);
-        v->core.str = make_stringbuf(args[i]->val);
-        buffer_concat(v->core.str, " not found");
-        l_handle_error(v, node, closure);
-      }
-    } else {
-      // eval as normal and set the value
-      v = l_eval_node(args[i], closure); // use calling closure
-      if(i < func->core.func.argc) {
-        l_closure_set(cl, func->core.func.args[i]->val, v, true);
-      }
-    }
-    // append to 'args' variable
-    vector_add(argsVal->core.list, v, sizeof(v));
-  }
+  argsVal = l_eval_call_args(node, func, closure, cl);
 
   if(func->core.func.ptr != NULL) {
     // native C code
@@ -83,11 +46,64 @@ LValue *l_call_func(LNode *node, LValue *func, LClosure *closure) {
 
   l_closure_free(cl);
 
-  l_debug(L_DEBUG_CALL) {
-    printf("<<< returning from %s\n", name);
-  }
+  l_debug(L_DEBUG_CALL) printf("<<< returning from %s\n", name);
 
   return value;
+}
+
+LValue *l_eval_call_args(LNode *node, LValue *func, LClosure *outer_closure, LClosure *inner_closure) {
+  int i, argc;
+  LValue *v, *argsVal, **ref;
+  LNode **args;
+
+  if(node != NULL) {
+    argc = node->exprc;
+    args = node->exprs;
+  } else {
+    argc = 0;
+    args = NULL;
+  }
+
+  // initialize all args to nil
+  for(i=0; i<func->core.func.argc; i++) {
+    v = l_value_new(L_NIL_TYPE, inner_closure);
+    l_closure_set(inner_closure, func->core.func.args[i]->val, v, true);
+  }
+
+  // setup the arguments
+  argsVal = l_value_new(L_LIST_TYPE, inner_closure);
+  argsVal->core.list = create_vector();
+  l_closure_set(inner_closure, "args", argsVal, true);
+
+  // set all passed args
+  for(i=0; i<argc; i++) {
+    if(args[i]->type == L_VAR_TYPE) {
+      // L_VAR_TYPE is special case, since we must link the local to the parent (outer) closure var
+      ref = l_closure_get_ref(outer_closure, args[i]->val);
+      if(ref != NULL) {
+        v = l_closure_get(outer_closure, args[i]->val);
+        if(i < func->core.func.argc) {
+          // store as named arg (uses ref so that it points to the same var)
+          l_ref_put(inner_closure->locals, func->core.func.args[i]->val, ref);
+        }
+      } else {
+        v = l_value_new(L_ERR_TYPE, outer_closure);
+        v->core.str = make_stringbuf(args[i]->val);
+        buffer_concat(v->core.str, " not found");
+        l_handle_error(v, node, outer_closure);
+      }
+    } else {
+      // eval as normal and set the value
+      v = l_eval_node(args[i], outer_closure); // use outer closure
+      if(i < func->core.func.argc) {
+        l_closure_set(inner_closure, func->core.func.args[i]->val, v, true);
+      }
+    }
+    // append to 'args' variable
+    vector_add(argsVal->core.list, v, sizeof(v));
+  }
+
+  return argsVal;
 }
 
 // inserts given function as given name in given closure

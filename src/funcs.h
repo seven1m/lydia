@@ -1,8 +1,8 @@
 #ifndef FUNCS_H
 #define FUNCS_H
 
-LValue *l_call_func(LNode *node, LValue *func, LClosure *closure);
-LValue *l_eval_func_body(LValue *func, LValue *args, LClosure *closure);
+LValue *l_eval_call_node(LNode *node, LValue *func, LClosure *closure);
+LValue *l_eval_call_args(LNode *node, LValue *func, LClosure *closure, LClosure *cl);
 void l_insert_func(char *name, struct LValue* (*ptr)(struct LValue*, LClosure*), LClosure *closure);
 void l_create_funcs(LClosure *closure);
 void l_create_globals(LClosure *closure);

@@ -23,7 +23,7 @@ LValue *l_eval_node(LNode *node, LClosure *closure) {
       value = l_eval_func_node(node, closure);
       break;
     case L_CALL_TYPE:
-      value = l_eval_call_node(node, closure);
+      value = l_eval_call_node(node, NULL, closure);
       break;
     case L_ASSIGN_TYPE:
       value = l_eval_assign_node(node, closure);
@@ -123,21 +123,6 @@ LValue *l_eval_func_node(LNode *node, LClosure *closure) {
   }
   value->core.func.exprc = node->exprs[1]->exprc;
   value->core.func.exprs = node->exprs[1]->exprs;
-  return value;
-}
-
-LValue *l_eval_call_node(LNode *node, LClosure *closure) {
-  LValue *value;
-  LValue *func = l_closure_get(closure, node->val);
-  if(func != NULL && func->type == L_FUNC_TYPE) {
-    value = l_call_func(node, func, closure);
-  } else {
-    value = l_value_new(L_ERR_TYPE, closure);
-    value->core.str = make_stringbuf("function with name '");
-    buffer_concat(value->core.str, node->val);
-    buffer_concat(value->core.str, "' not found");
-    l_handle_error(value, node, closure);
-  }
   return value;
 }
 
