@@ -2,25 +2,14 @@
 
 LValue *l_eval_call_node(LNode *node, LValue *func, LClosure *closure) {
 
-  // get func from closure if not already specified
-  if(func == NULL) {
-    func = l_closure_get(closure, node->val);
-    if(func == NULL || func->type != L_FUNC_TYPE) {
-      func = l_value_new(L_ERR_TYPE, closure);
-      func->core.str = make_stringbuf("function with name '");
-      buffer_concat(func->core.str, node->val);
-      buffer_concat(func->core.str, "' not found");
-      l_handle_error(func, node, closure);
-    }
-  }
+  if(func == NULL) func = l_eval_var_node(node, closure);
 
   char *name = (node != NULL) ? node->val : "";
 
   l_debug(L_DEBUG_CALL) printf(">>> entering %s\n", name);
 
-  LValue *value;
+  LValue *value, *args_val;
   int i;
-  LValue *args_val;
 
   // create a running scope to hold arguments
   // and a reference to self (for recursion)
