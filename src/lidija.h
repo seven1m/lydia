@@ -35,8 +35,8 @@
 #define L_ERR_MISSING_FUNC  "Must supply a function."
 #define L_ERR_MISSING_STR   "Must supply a string."
 
-#define L_DEBUG_HEAP 0
 #define L_DEBUG_CALL 0
+#define L_DEBUG_STACK 0
 
 #define L_SKIP_LIB 0
 

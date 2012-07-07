@@ -2,6 +2,7 @@
 
 // creates and initializes an empty closure
 LClosure *l_closure_new(LNode *node) {
+  l_debug(L_DEBUG_STACK) printf("+++ creating new closure\n");
   LClosure *closure = GC_MALLOC(sizeof(LClosure));
   closure->vars = create_hashmap();
   closure->locals = create_hashmap();
@@ -13,6 +14,7 @@ LClosure *l_closure_new(LNode *node) {
 
 // creates a new closure from the given parent closure
 LClosure *l_closure_clone(LClosure *parent, LNode *node) {
+  l_debug(L_DEBUG_STACK) printf("+++ cloning closure\n");
   if(!parent->cloneable) return parent;
   LClosure *closure = GC_MALLOC(sizeof(LClosure));
   closure->vars = create_hashmap();
@@ -36,6 +38,7 @@ void l_clone_vars(hashmap_p from, hashmap_p to) {
 }
 
 void l_closure_free(LClosure *closure) {
+  l_debug(L_DEBUG_STACK) printf("--- freeing closure\n");
   if(closure->parent == NULL) return;
 }
 
