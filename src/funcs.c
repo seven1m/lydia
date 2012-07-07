@@ -20,7 +20,7 @@ LValue *l_eval_call_node(LNode *node, LValue *func, LClosure *closure) {
 
   LValue *value;
   int i;
-  LValue *argsVal;
+  LValue *args_val;
 
   // create a running scope to hold arguments
   // and a reference to self (for recursion)
@@ -28,11 +28,11 @@ LValue *l_eval_call_node(LNode *node, LValue *func, LClosure *closure) {
   if(strcmp(name, "") != 0)
     l_closure_set(cl, name, func, true);
 
-  argsVal = l_eval_call_args(node, func, closure, cl);
+  args_val = l_eval_call_args(node, func, closure, cl);
 
   if(func->core.func.ptr != NULL) {
     // native C code
-    value = func->core.func.ptr(argsVal, cl);
+    value = func->core.func.ptr(args_val, cl);
   } else {
     // Lidija code
     int exprc = func->core.func.exprc;
@@ -53,7 +53,7 @@ LValue *l_eval_call_node(LNode *node, LValue *func, LClosure *closure) {
 
 LValue *l_eval_call_args(LNode *node, LValue *func, LClosure *outer_closure, LClosure *inner_closure) {
   int i, argc;
-  LValue *v, *argsVal, **ref;
+  LValue *v, *args_val, **ref;
   LNode **args;
 
   if(node != NULL) {
@@ -71,9 +71,9 @@ LValue *l_eval_call_args(LNode *node, LValue *func, LClosure *outer_closure, LCl
   }
 
   // setup the arguments
-  argsVal = l_value_new(L_LIST_TYPE, inner_closure);
-  argsVal->core.list = create_vector();
-  l_closure_set(inner_closure, "args", argsVal, true);
+  args_val = l_value_new(L_LIST_TYPE, inner_closure);
+  args_val->core.list = create_vector();
+  l_closure_set(inner_closure, "args", args_val, true);
 
   char *arg_name;
 
@@ -90,10 +90,10 @@ LValue *l_eval_call_args(LNode *node, LValue *func, LClosure *outer_closure, LCl
       }
     }
     // append to 'args' variable
-    vector_add(argsVal->core.list, v, sizeof(v));
+    vector_add(args_val->core.list, v, sizeof(v));
   }
 
-  return argsVal;
+  return args_val;
 }
 
 // inserts given function as given name in given closure
