@@ -17,7 +17,10 @@ LValue *l_eval_call_node(LNode *node, LValue *func, LClosure *closure) {
 
 tail_loop:
 
-  l_debug(L_DEBUG_CALL) printf(">>> entering %s\n", name);
+  l_debug(L_DEBUG_CALL) {
+    if(node) printf(">>> entering %s on line %d in %s\n", name, node->line_no, node->source_file);
+    else printf(">>> entering %s\n", name);
+  }
 
   if(strcmp(name, "") != 0)
     l_closure_set(cl, name, func, true);
