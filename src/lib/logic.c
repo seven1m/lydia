@@ -8,6 +8,15 @@ bool l_to_bool(LValue *cond) {
           (cond->type == L_LIST_TYPE && cond->core.list->length == 0));
 }
 
+LValue *l_eval_if_expr(LValue *expr, LClosure *closure) {
+  if(expr->type == L_FUNC_TYPE) {
+    l_closure_set(closure, "--tail-call--", expr, true);
+    longjmp(closure->jmp, 1);
+  } else {
+    return expr;
+  }
+}
+
 // TODO put more asserts around this
 LValue *l_func_if(LValue *args, LClosure *closure) {
   LValue *cond = l_list_get(args, 0);
@@ -19,12 +28,12 @@ LValue *l_func_if(LValue *args, LClosure *closure) {
     for(i=0; i<len-1; i+=2) {
       inner_cond = (LValue*)vector_get(cond->core.list, i);
       if(l_to_bool(inner_cond)) {
-        return l_eval_if_expr((LValue*)vector_get(cond->core.list, i+1));
+        return l_eval_if_expr((LValue*)vector_get(cond->core.list, i+1), closure);
       }
     }
     // else
     if(len % 2 == 1) {
-      return l_eval_if_expr((LValue*)vector_get(cond->core.list, len-1));
+      return l_eval_if_expr((LValue*)vector_get(cond->core.list, len-1), closure);
     }
   } else {
     // single condition
@@ -33,9 +42,9 @@ LValue *l_func_if(LValue *args, LClosure *closure) {
     if(true_expr == NULL) true_expr = l_value_new(L_NIL_TYPE, closure);
     if(false_expr == NULL) false_expr = l_value_new(L_NIL_TYPE, closure);
     if(l_to_bool(cond)) {
-      return l_eval_if_expr(true_expr);
+      return l_eval_if_expr(true_expr, closure);
     } else {
-      return l_eval_if_expr(false_expr);
+      return l_eval_if_expr(false_expr, closure);
     }
   }
   return l_value_new(L_NIL_TYPE, closure);

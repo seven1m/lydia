@@ -7,6 +7,7 @@ typedef struct LClosure {
   struct LClosure *parent;
   bool cloneable;
   LNode *node;
+  jmp_buf jmp;
 } LClosure;
 
 LClosure *l_closure_new(LNode *node);

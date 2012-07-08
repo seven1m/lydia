@@ -26,7 +26,18 @@ tail_loop:
 
   if(func->core.func.ptr != NULL) {
     // native C code
-    value = func->core.func.ptr(args_val, cl);
+    if(!setjmp(cl->jmp)) {
+      value = func->core.func.ptr(args_val, cl);
+    } else {
+      // function called longjmp to initiate a tail call
+      l_debug(L_DEBUG_CALL) printf("^^^ reached end of %s (longjmp tail call)\n", name);
+      node = NULL;
+      func = l_closure_get(cl, "--tail-call--");
+      closure = cl;
+      cl = func->core.func.closure;
+      name = "";
+      goto tail_loop;
+    }
   } else {
     // Lidija code
     int exprc = func->core.func.exprc;
