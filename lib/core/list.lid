@@ -21,10 +21,18 @@ join = [l s] { c = count l
                    c == 1 { str (first l) },
                           { ((str (first l)) + s) + (join (rest l) s) }] }
 
+
 # given f (from) and t (to), return a list of consecutive numbers in between
-.. = [f t] { if f == t,
+.. = [f t] { if f >= t,
                 [t],
                 { [f] + ((f + 1) .. t) } }
 
 # takes a list and two indices, returns sub-list of values in the range
 slice = [l s e] { map (s .. e) [i] { l -> i } }
+
+# infix form of slice, e.g. ['a' 'b' 'c'] // [1 2] => ['b' 'c']
+// = [l i] { slice l (i -> 0) (i -> ((count i) - 1)) }
+
+first = [l] { l -> 0 }
+
+last = [l] { l -> ((count l) - 1) }
