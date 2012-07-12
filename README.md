@@ -63,9 +63,11 @@ There's a few things to note:
 
 ## The Good
 
+* Simple, flexible syntax
 * Variables have lexical (static) scope.
 * Functions are first-class citizens, and can be passed to and returned from other functions.
 * Functions are closures.
+* Tail-call optimization.
 
 ## The Bad
 
