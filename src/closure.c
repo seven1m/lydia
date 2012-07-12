@@ -28,6 +28,15 @@ LClosure *l_closure_clone(LClosure *parent, LNode *node) {
   return closure;
 }
 
+// copies keys from the source that don't exist on the target
+LClosure *l_closure_backfill(LClosure *source, LClosure *target, LNode *node) {
+  l_debug(L_DEBUG_STACK) printf("+++ backfilling closure\n");
+  target->node = node;
+  l_clone_vars_if_missing(source->vars, target->vars);
+  l_clone_vars_if_missing(source->locals, target->locals);
+  return target;
+}
+
 static void l_clone_var_iter(char *key, void *ref, void *to) {
   l_ref_put((hashmap_p)to, key, (LValue**)ref);
 }
@@ -35,6 +44,16 @@ static void l_clone_var_iter(char *key, void *ref, void *to) {
 
 void l_clone_vars(hashmap_p from, hashmap_p to) {
   hashmap_each(from, l_clone_var_iter, to);
+}
+
+static void l_clone_var_if_missing_iter(char *key, void *ref, void *to) {
+  if(!hashmap_get((hashmap_p)to, key)) {
+    l_ref_put((hashmap_p)to, key, (LValue**)ref);
+  }
+}
+
+void l_clone_vars_if_missing(hashmap_p from, hashmap_p to) {
+  hashmap_each(from, l_clone_var_if_missing_iter, to);
 }
 
 void l_closure_free(LClosure *closure) {

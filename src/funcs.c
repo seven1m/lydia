@@ -37,7 +37,7 @@ tail_loop:
       node = NULL;
       func = l_closure_get(cl, "--tail-call--");
       closure = cl;
-      cl = func->core.func.closure;
+      l_closure_backfill(func->core.func.closure, cl, node);
       name = "";
       goto tail_loop;
     }
@@ -56,7 +56,7 @@ tail_loop:
         node = expr;
         func = l_eval_var_node(node, cl);
         closure = cl;
-        cl = func->core.func.closure;
+        l_closure_backfill(func->core.func.closure, cl, node);
         name = node->val;
         goto tail_loop;
       } else {

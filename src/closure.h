@@ -12,7 +12,9 @@ typedef struct LClosure {
 
 LClosure *l_closure_new(LNode *node);
 LClosure *l_closure_clone(LClosure *parent, LNode *node);
+LClosure *l_closure_backfill(LClosure *source, LClosure *target, LNode *node);
 void l_clone_vars(hashmap_p from, hashmap_p to);
+void l_clone_vars_if_missing(hashmap_p from, hashmap_p to);
 void l_closure_free(LClosure *closure);
 LClosure *l_closure_root(LClosure *closure);
 LValue **l_ref_get(hashmap_p hash, char *name);
