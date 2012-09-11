@@ -74,6 +74,7 @@ There's a few things to note:
 Things that are missing (for now):
 
 * Lots of missing functions.
+* Associative array is missing.
 * Virtually *no* standard library.
 
 ## Installation
@@ -82,7 +83,7 @@ Download the source and build:
 
     make build
 
-The make task you download and build libgc -- if that fails, you may need to build libgc manually (see the Makefile) and move the shared libs into `ext/lib` and the headers into `ext/include`.
+The build task downloads and builds libgc -- if that fails, you may need to build libgc manually (see the Makefile) and move the shared libs into `ext/lib` and the headers into `ext/include`.
 
 ## Usage
 
