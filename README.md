@@ -95,7 +95,7 @@ The build task downloads and builds libgc -- if that fails, you may need to buil
 
 ## License
 
-MIT license. Copyright 2012, me.
+Copyright (c) Tim Morgan. Licensed MIT.
 
 ## Author
 
