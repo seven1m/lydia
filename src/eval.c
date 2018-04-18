@@ -1,4 +1,4 @@
-#include "lidija.h"
+#include "lydia.h"
 
 LValue *l_eval_node(LNode *node, LClosure *closure) {
   LValue *value;

@@ -1,4 +1,4 @@
-#include "../lidija.h"
+#include "../lydia.h"
 
 LValue *l_list_get(LValue *list, long index) {
   if(index < list->core.list->length) {

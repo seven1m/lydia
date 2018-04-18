@@ -1,5 +1,5 @@
 %{
-#include "lidija.h"
+#include "lydia.h"
 int l_stackp = 0;
 int l_line_no;
 char *l_source_file;

@@ -1,4 +1,4 @@
-#include "lidija.h"
+#include "lydia.h"
 
 void l_handle_error(LValue *error, LNode *node, LClosure *closure) {
   // TODO if error handling available, then do something nice

@@ -1,4 +1,4 @@
-#include "../lidija.h"
+#include "../lydia.h"
 
 LValue *l_func_add(LValue *args, LClosure *closure) {
   LValue *v1 = l_list_get(args, 0);

@@ -2,5 +2,5 @@
 *.so
 Makefile
 test/runner
-bin/lidija
+bin/lydia
 ext

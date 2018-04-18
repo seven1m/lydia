@@ -5,7 +5,7 @@
 #include <string.h>
 #define YYRULECOUNT 35
 
-#include "lidija.h"
+#include "lydia.h"
 int l_stackp = 0;
 int l_line_no;
 char *l_source_file;

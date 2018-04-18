@@ -1,4 +1,4 @@
-#include "lidija.h"
+#include "lydia.h"
 
 LValue *l_value_new(enum LNodeType type, LClosure *closure) {
   LValue *value = GC_MALLOC(sizeof(LValue));

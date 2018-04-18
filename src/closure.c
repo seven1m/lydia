@@ -1,4 +1,4 @@
-#include "lidija.h"
+#include "lydia.h"
 
 // creates and initializes an empty closure
 LClosure *l_closure_new(LNode *node) {

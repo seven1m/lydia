@@ -1,4 +1,4 @@
-#include "../lidija.h"
+#include "../lydia.h"
 
 LValue *l_func_str(LValue *args, LClosure *closure) {
   LValue *value = l_value_new(L_STR_TYPE, closure);

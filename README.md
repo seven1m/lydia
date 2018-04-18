@@ -1,8 +1,6 @@
-# Lidija
+# Lydia
 
-Pronounced same as "Lydia."
-
-Lidija is an interpreted functional language that's taking shape as I learn, and **not meant for real work**.
+Lydia is an interpreted functional language that's taking shape as I learn, and **not meant for real work**.
 
 The syntax is very terse, as you can see below:
 
@@ -88,7 +86,7 @@ The build task downloads and builds libgc -- if that fails, you may need to buil
 
 ## Usage
 
-    bin/lidija scriptname [args]
+    bin/lydia scriptname [args]
 
 ## Tests
 

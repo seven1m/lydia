@@ -1,8 +1,8 @@
 #include <argp.h>
-#include "../lidija.h"
+#include "../lydia.h"
 
-const char *argp_program_version = "lidija " L_VERSION;
-const char *argp_program_bug_address = "https://github.com/seven1m/lidija/issues";
+const char *argp_program_version = "lydia " L_VERSION;
+const char *argp_program_bug_address = "https://github.com/seven1m/lydia/issues";
 static char doc[] = "Lidija -- a toy functional language";
 static char args_doc[] = "script";
 

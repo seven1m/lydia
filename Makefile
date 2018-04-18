@@ -3,7 +3,7 @@ CFLAGS=-I. -Wall
 ALL = src/*.c src/lib/*.c src/ds/*.c
 DEPS = -lgmp -Iext/include -Iext/include/ds ext/lib/libgc.so
 
-build: bin/lidija
+build: bin/lydia
 
 leg: clean-leg src/parser.c
 
@@ -16,8 +16,8 @@ src/parser.c:
 clean:
 	rm -f bin/* src/*.o src/*.so
 
-bin/lidija: ext/lib/libgc.so
-	${CC} src/bin/lidija.c -Isrc ${CFLAGS} ${ALL} ${DEPS} -o bin/lidija
+bin/lydia: ext/lib/libgc.so
+	${CC} src/bin/lydia.c -Isrc ${CFLAGS} ${ALL} ${DEPS} -o bin/lydia
 
 ext/lib/libgc.so:
 	mkdir -p ext
@@ -26,7 +26,7 @@ ext/lib/libgc.so:
 	cd ext/gc-7.6.4 && ./configure --prefix=`pwd`/../ --enable-redirect-malloc && make && make install
 
 debug: ext/lib/libgc.so
-	${CC} src/bin/lidija.c -Isrc ${CFLAGS} -g ${ALL} ${DEPS} -o bin/lidija
+	${CC} src/bin/lydia.c -Isrc ${CFLAGS} -g ${ALL} ${DEPS} -o bin/lydia
 
 cloc:
 	cloc --not-match-f=parser\.c --force-lang=C,leg src
@@ -34,4 +34,4 @@ cloc:
 test: run-tests
 
 run-tests:
-	bin/lidija test/all.lid
+	bin/lydia test/all.lid

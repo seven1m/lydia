@@ -1,4 +1,4 @@
-#include "../lidija.h"
+#include "../lydia.h"
 
 bool l_to_bool(LValue *cond) {
   return !(cond->type == L_NIL_TYPE ||
