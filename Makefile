@@ -21,9 +21,9 @@ bin/lidija: ext/lib/libgc.so
 
 ext/lib/libgc.so:
 	mkdir -p ext
-	if [ ! -f ext/gc.tar.gz ]; then curl -o ext/gc.tar.gz http://www.hpl.hp.com/personal/Hans_Boehm/gc/gc_source/gc-7.2b.tar.gz; fi
+	if [ ! -f ext/gc.tar.gz ]; then curl -o ext/gc.tar.gz http://www.hboehm.info/gc/gc_source/gc-7.6.4.tar.gz; fi
 	cd ext && tar xzf gc.tar.gz
-	cd ext/gc-7.2 && ./configure --prefix=`pwd`/../ --enable-redirect-malloc && make && make install
+	cd ext/gc-7.6.4 && ./configure --prefix=`pwd`/../ --enable-redirect-malloc && make && make install
 
 debug: ext/lib/libgc.so
 	${CC} src/bin/lidija.c -Isrc ${CFLAGS} -g ${ALL} ${DEPS} -o bin/lidija

@@ -81,6 +81,7 @@ Things that are missing (for now):
 
 Download the source and build:
 
+    sudo apt install libatomic-ops-dev libgmp3-dev
     make build
 
 The build task downloads and builds libgc -- if that fails, you may need to build libgc manually (see the Makefile) and move the shared libs into `ext/lib` and the headers into `ext/include`.
