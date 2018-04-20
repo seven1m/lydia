@@ -42,7 +42,7 @@ tail_loop:
       goto tail_loop;
     }
   } else {
-    // Lidija code
+    // Lydia code
     int exprc = func->core.func.exprc;
     if(exprc > 0) {
       // eval all but the last expression

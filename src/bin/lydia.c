@@ -3,7 +3,7 @@
 
 const char *argp_program_version = "lydia " L_VERSION;
 const char *argp_program_bug_address = "https://github.com/seven1m/lydia/issues";
-static char doc[] = "Lidija -- a toy functional language";
+static char doc[] = "Lydia -- a simple functional language";
 static char args_doc[] = "script";
 
 static struct argp_option options[] = {
